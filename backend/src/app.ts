@@ -20,8 +20,15 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+import { jobRoutes } from './routes/job.routes';
+import { candidateRoutes } from './routes/candidate.routes';
+import { resumeRoutes } from './routes/resume.routes';
+
 // API Routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/jobs', jobRoutes);
+app.use('/api/v1/candidates', candidateRoutes);
+app.use('/api/v1/resumes', resumeRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -1,0 +1,132 @@
+import { prisma } from '../config/db';
+import { AppError, NotFoundError } from '../utils/api-error';
+
+interface AIProcessedCandidate {
+  filename: string;
+  pipeline_result: {
+    raw_text: string;
+    parsed_data: {
+      name: string;
+      email: string;
+      phone: string;
+      skills: string[];
+      experienceYears: number;
+      currentCompany: string;
+      location: string;
+    };
+    embedding: number[];
+    status: string;
+    error: string | null;
+  };
+}
+
+export class ResumeService {
+  /**
+   * Sends PDF files to the FastAPI AI service for processing,
+   * then saves the structured candidate data into the database.
+   */
+  async processResumes(userId: string, jobId: string, files: Express.Multer.File[]) {
+    // 1. Verify the job exists
+    const job = await prisma.job.findUnique({ where: { id: jobId } });
+    if (!job) throw new NotFoundError('Job');
+
+    // 2. Build multipart form data to send to FastAPI
+    const formData = new FormData();
+    for (const file of files) {
+      const blob = new Blob([new Uint8Array(file.buffer)], { type: 'application/pdf' });
+      formData.append('files', blob, file.originalname);
+    }
+
+    // 3. Call FastAPI AI service
+    const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
+    const response = await fetch(`${AI_SERVICE_URL}/api/v1/ai/process-resumes`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new AppError('Failed to process resumes through AI pipeline', 502, 'AI_SERVICE_ERROR');
+    }
+
+    const aiResult = await response.json() as { success: boolean; results: AIProcessedCandidate[] };
+
+    // 4. Save each processed candidate into the database
+    const savedCandidates = [];
+    for (const result of aiResult.results) {
+      if (result.pipeline_result?.status !== 'completed') {
+        savedCandidates.push({
+          filename: result.filename,
+          status: 'failed',
+          error: result.pipeline_result?.error || 'Unknown error',
+        });
+        continue;
+      }
+
+      const parsed = result.pipeline_result.parsed_data;
+
+      // Create or update the candidate in the talent pool
+      const candidate = await prisma.candidate.upsert({
+        where: { email: parsed.email },
+        update: {
+          name: parsed.name,
+          phone: parsed.phone,
+          skills: parsed.skills,
+          experienceYears: parsed.experienceYears,
+          currentCompany: parsed.currentCompany,
+          location: parsed.location,
+          embedding: result.pipeline_result.embedding,
+        },
+        create: {
+          name: parsed.name,
+          email: parsed.email,
+          phone: parsed.phone,
+          skills: parsed.skills,
+          experienceYears: parsed.experienceYears,
+          currentCompany: parsed.currentCompany,
+          location: parsed.location,
+          embedding: result.pipeline_result.embedding,
+        },
+      });
+
+      // Create the resume record
+      await prisma.resume.create({
+        data: {
+          fileName: result.filename,
+          filePath: `uploads/${result.filename}`,
+          candidateId: candidate.id,
+          rawText: result.pipeline_result.raw_text,
+          parsedData: parsed as any,
+          parseStatus: 'COMPLETED',
+        },
+      });
+
+      // Create a job application linking candidate to job
+      await prisma.application.upsert({
+        where: {
+          candidateId_jobId: { jobId, candidateId: candidate.id },
+        },
+        update: { status: 'NEW' },
+        create: {
+          jobId,
+          candidateId: candidate.id,
+          aiScore: 0, // Will be calculated during ranking
+          status: 'NEW',
+          source: 'AI_RECOMMENDED',
+        },
+      });
+
+      savedCandidates.push({
+        filename: result.filename,
+        status: 'success',
+        candidateId: candidate.id,
+        candidateName: candidate.name,
+      });
+    }
+
+    return {
+      jobId,
+      totalFiles: files.length,
+      processed: savedCandidates,
+    };
+  }
+}
