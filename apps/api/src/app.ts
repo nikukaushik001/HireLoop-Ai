@@ -36,6 +36,7 @@ import { testDatabaseConnection, closeDatabaseConnection } from './config/databa
 
 // ── Route imports ────────────────────────────────────────────
 import healthRoutes from './modules/health/health.routes';
+import { authRoutes } from './modules/auth/auth.routes';
 
 // ── Create Express app ───────────────────────────────────────
 const app = express();
@@ -119,6 +120,7 @@ app.get('/api-docs.json', (_req, res) => {
 
 // All API routes are prefixed with /api/v1
 app.use('/api/v1', healthRoutes);
+app.use('/api/v1/auth', authRoutes);
 
 // ══════════════════════════════════════════════════════════════
 // ERROR HANDLING (must come AFTER all routes)
