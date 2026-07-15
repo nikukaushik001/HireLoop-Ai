@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 from typing import List
 from pydantic import BaseModel
 from app.services.langgraph_pipeline import process_resume_pipeline
-from app.services.embedding import get_embedding
+from app.services.embedding import generate_embedding
 
 class EmbedRequest(BaseModel):
     text: str
@@ -51,7 +51,7 @@ async def create_embedding(request: EmbedRequest):
         raise HTTPException(status_code=400, detail="Text cannot be empty")
         
     try:
-        embedding = get_embedding(request.text)
+        embedding = generate_embedding(request.text)
         return {"success": True, "embedding": embedding}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

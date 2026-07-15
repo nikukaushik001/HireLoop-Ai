@@ -1,7 +1,7 @@
 from typing import TypedDict, Optional
 from langgraph.graph import StateGraph, END
 from app.services.resume_parser import extract_text_from_pdf
-from app.services.gemini_extractor import extract_structured_data
+from app.services.groq_extractor import extract_structured_data
 from app.services.embedding import generate_embedding
 
 class ResumeState(TypedDict):

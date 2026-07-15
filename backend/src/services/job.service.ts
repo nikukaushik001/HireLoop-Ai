@@ -1,5 +1,6 @@
 import { prisma } from '../config/db';
 import { NotFoundError } from '../utils/api-error';
+import { env } from '../config/env';
 
 export interface CreateJobDTO {
   title: string;
@@ -10,6 +11,24 @@ export interface CreateJobDTO {
 
 export class JobService {
   async createJob(userId: string, data: CreateJobDTO) {
+    let embedding: number[] = [];
+    try {
+      const textToEmbed = `${data.title} ${data.department || ''} ${data.description} ${data.requirements || ''}`;
+      const res = await fetch(`${env.AI_SERVICE_URL}/api/v1/ai/embed`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: textToEmbed })
+      });
+      if (res.ok) {
+        const aiData = await res.json();
+        if (aiData.success && aiData.embedding) {
+          embedding = aiData.embedding;
+        }
+      }
+    } catch (err) {
+      console.error('Failed to generate job embedding:', err);
+    }
+
     return await prisma.job.create({
       data: {
         title: data.title,
@@ -17,7 +36,7 @@ export class JobService {
         requirements: data.requirements,
         department: data.department,
         createdBy: userId,
-        embedding: [], // Placeholder until AI pipeline generates embeddings
+        embedding: embedding,
       },
     });
   }

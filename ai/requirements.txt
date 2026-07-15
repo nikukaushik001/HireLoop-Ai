@@ -8,3 +8,5 @@ langgraph
 langchain-core
 sentence-transformers
 torch --index-url https://download.pytorch.org/whl/cpu
+langchain-groq
+groq

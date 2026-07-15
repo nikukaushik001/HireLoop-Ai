@@ -8,7 +8,7 @@ const rankingService = new RankingService();
 export class RankingController {
   async rankCandidates(req: Request, res: Response, next: NextFunction) {
     try {
-      const jobId = req.params.id;
+      const jobId = req.params.id as string;
       if (!jobId) {
         throw new BadRequestError('jobId is required');
       }
