@@ -1,0 +1,5 @@
+2026-07-16T06:27:57.859Z\nTypeError: fetch failed
+    at node:internal/deps/undici/undici:15422:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async ResumeService.processResumes (C:\Users\LENOVO\OneDrive\Documents\KRMU\NIKUNJ\Bootcamp2026\HireLoop-Ai\backend\src\services\resume.service.ts:50:22)
+    at async uploadResumes (C:\Users\LENOVO\OneDrive\Documents\KRMU\NIKUNJ\Bootcamp2026\HireLoop-Ai\backend\src\controllers\resume.controller.ts:23:22)\n\n

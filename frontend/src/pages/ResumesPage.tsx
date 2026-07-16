@@ -28,12 +28,17 @@ export const ResumesPage = () => {
     files.forEach(file => formData.append('files', file));
 
     try {
-      const res = await apiClient.post('/resumes/upload', formData);
+      // Explicitly delete Content-Type so Axios/browser sets the correct
+      // multipart/form-data with the boundary. Without this, our default
+      // application/json header breaks Multer's multipart parsing.
+      const res = await apiClient.post('/resumes/upload', formData, {
+        headers: { 'Content-Type': undefined },
+      });
       setResults(res.data.data.processed);
       setFiles([]);
-    } catch (err) {
-      console.error(err);
-      alert('Upload failed');
+    } catch (err: any) {
+      console.error('Upload error:', err?.response?.data ?? err);
+      alert(`Upload failed: ${err?.response?.data?.error?.message ?? 'Unknown error'}`);
     } finally {
       setUploading(false);
     }

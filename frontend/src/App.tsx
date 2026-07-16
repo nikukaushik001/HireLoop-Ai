@@ -11,6 +11,7 @@ import { ResumesPage } from './pages/ResumesPage';
 import { InterviewsPage } from './pages/InterviewsPage';
 import { InterviewSchedulePage } from './pages/InterviewSchedulePage';
 import { RegisterPage } from './pages/RegisterPage';
+import { RankingPage } from './pages/RankingPage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/candidates" element={<CandidatesPage />} />
         <Route path="/candidates/:id" element={<CandidateDetailPage />} />
         <Route path="/resumes" element={<ResumesPage />} />
+        <Route path="/ranking" element={<RankingPage />} />
         <Route path="/interviews" element={<InterviewsPage />} />
         <Route path="/interviews/schedule" element={<InterviewSchedulePage />} />
       </Route>

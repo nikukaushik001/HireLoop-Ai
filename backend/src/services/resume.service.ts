@@ -53,6 +53,8 @@ export class ResumeService {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      require('fs').appendFileSync('ai_error.log', new Date().toISOString() + '\\nStatus: ' + response.status + '\\nBody: ' + errorText + '\\n\\n');
       throw new AppError('Failed to process resumes through AI pipeline', 502, 'AI_SERVICE_ERROR');
     }
 

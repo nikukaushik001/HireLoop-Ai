@@ -15,4 +15,5 @@ def extract_text_from_pdf(pdf_bytes: bytes) -> str:
         return text.strip()
     except Exception as e:
         print(f"Error extracting PDF text: {e}")
-        return ""
+        # Raise so the pipeline can catch the specific error (e.g., corrupt PDF, invalid header)
+        raise ValueError(f"Failed to parse PDF: {str(e)}")

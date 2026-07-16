@@ -10,3 +10,4 @@ sentence-transformers
 torch --index-url https://download.pytorch.org/whl/cpu
 langchain-groq
 groq
+python-dotenv

@@ -1,5 +1,10 @@
 from fastapi import FastAPI
 from app.routers import process
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file at startup
+load_dotenv()
 
 from fastapi.middleware.cors import CORSMiddleware
 
