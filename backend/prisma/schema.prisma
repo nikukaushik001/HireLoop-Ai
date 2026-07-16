@@ -59,30 +59,7 @@ enum JobStatus {
   DRAFT
 }
 
-// ── 3. Candidates ───────────────────────────────────────────────────
-// The permanent Talent Pool. Parsed candidate profiles.
-model Candidate {
-  id              String   @id @default(uuid())
-  email           String   @unique
-  name            String
-  phone           String?
-  skills          String[] // Array of skills parsed by AI
-  experienceYears Int?
-  currentCompany  String?
-  location        String?
-  
-  // Embedding for fast similarity search during matching
-  embedding       Float[]
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  // Relationships
-  resumes         Resume[]
-  applications    Application[]
-}
-
-// ── 4. Resumes ──────────────────────────────────────────────────────
+// ── 3. Resumes ──────────────────────────────────────────────────────
 // Uploaded PDFs and their raw extracted data.
 model Resume {
   id            String   @id @default(uuid())
@@ -107,6 +84,30 @@ enum ParseStatus {
   NEEDS_REVIEW
   FAILED
 }
+
+// ── 4. Candidates ───────────────────────────────────────────────────
+// The permanent Talent Pool. Parsed candidate profiles.
+model Candidate {
+  id              String   @id @default(uuid())
+  email           String   @unique
+  name            String
+  phone           String?
+  skills          String[] // Array of skills parsed by AI
+  experienceYears Int?
+  currentCompany  String?
+  location        String?
+  
+  // Embedding for fast similarity search during matching
+  embedding       Float[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relationships
+  resumes         Resume[]
+  applications    Application[]
+}
+
 
 // ── 5. Applications ─────────────────────────────────────────────────
 // Connects a Candidate to a specific Job opening.

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from typing import List
 from pydantic import BaseModel
 from app.services.langgraph_pipeline import process_resume_pipeline
@@ -10,7 +10,10 @@ class EmbedRequest(BaseModel):
 router = APIRouter()
 
 @router.post("/process-resumes")
-async def process_resumes(files: List[UploadFile] = File(...)):
+async def process_resumes(
+    files: List[UploadFile] = File(...),
+    job_description: str = Form("")
+):
     """
     Receives one or more PDF files, runs them through the LangGraph AI pipeline,
     and returns the structured candidate data and embeddings.
@@ -27,7 +30,7 @@ async def process_resumes(files: List[UploadFile] = File(...)):
             
         try:
             pdf_bytes = await file.read()
-            pipeline_result = process_resume_pipeline(pdf_bytes)
+            pipeline_result = process_resume_pipeline(pdf_bytes, job_description)
             
             results.append({
                 "filename": file.filename,

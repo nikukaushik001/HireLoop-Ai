@@ -42,4 +42,23 @@ export class JobController {
       next(error);
     }
   }
+
+  async updateJob(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = req.body as Partial<CreateJobDTO>;
+      const job = await jobService.updateJob(req.params.id as string, data);
+      sendSuccess(res, job, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteJob(req: Request, res: Response, next: NextFunction) {
+    try {
+      await jobService.deleteJob(req.params.id as string);
+      sendSuccess(res, { message: 'Job deleted successfully' }, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

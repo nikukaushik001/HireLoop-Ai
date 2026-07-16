@@ -14,6 +14,8 @@ router.use(requireAuth);
 router.post('/', jobController.createJob);
 router.get('/', jobController.getAllJobs);
 router.get('/:id', jobController.getJobById);
+router.patch('/:id', jobController.updateJob);
+router.delete('/:id', jobController.deleteJob);
 router.patch('/:id/close', jobController.closeJob);
 
 // Rank candidates for a job

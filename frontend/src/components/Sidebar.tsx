@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router';
-import { LayoutDashboard, Briefcase, Users, FileText, Calendar, LogOut } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Users, FileText, Calendar, LogOut, Hexagon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const Sidebar: React.FC = () => {
@@ -22,62 +22,104 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside style={{
-      width: '260px',
+      width: '280px',
       borderRight: '1px solid var(--glass-border)',
-      background: 'var(--bg-secondary)',
-      backdropFilter: 'blur(12px)',
+      background: 'rgba(3, 7, 18, 0.6)',
+      backdropFilter: 'blur(24px)',
+      WebkitBackdropFilter: 'blur(24px)',
       display: 'flex',
       flexDirection: 'column',
-      padding: '24px 0'
+      padding: '32px 0',
+      boxShadow: '4px 0 24px rgba(0, 0, 0, 0.2)',
+      zIndex: 10,
+      position: 'relative'
     }}>
-      <div style={{ padding: '0 24px', marginBottom: '40px' }}>
-        <h1 style={{ fontSize: '24px', margin: 0 }} className="text-gradient">HireLoop-AI</h1>
-        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>Intelligent ATS</div>
+      <div style={{ padding: '0 24px', marginBottom: '48px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{
+          background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-emerald))',
+          padding: '8px',
+          borderRadius: '12px',
+          display: 'flex',
+          boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)'
+        }}>
+          <Hexagon size={24} color="white" />
+        </div>
+        <div>
+          <h1 style={{ fontSize: '24px', margin: 0, fontWeight: 700 }} className="text-gradient">HireLoop<span style={{color: 'white'}}>.ai</span></h1>
+          <div style={{ fontSize: '11px', color: 'var(--accent-emerald)', marginTop: '2px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>Intelligent ATS</div>
+        </div>
       </div>
 
-      <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', padding: '0 12px' }}>
+      <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', padding: '0 16px' }}>
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
+            className="group"
             style={({ isActive }) => ({
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
-              padding: '12px',
-              borderRadius: '8px',
+              gap: '14px',
+              padding: '12px 16px',
+              borderRadius: '12px',
               color: isActive ? 'white' : 'var(--text-secondary)',
-              background: isActive ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
+              background: isActive ? 'linear-gradient(90deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.05))' : 'transparent',
               fontWeight: isActive ? 600 : 500,
               textDecoration: 'none',
-              transition: 'all 0.2s'
+              transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+              borderLeft: isActive ? '3px solid var(--accent-primary)' : '3px solid transparent',
+              boxShadow: isActive ? 'inset 0 0 20px rgba(99,102,241,0.05)' : 'none',
+              position: 'relative',
+              overflow: 'hidden'
             })}
           >
-            <span style={{ color: 'var(--accent-primary)' }}>{item.icon}</span>
-            {item.name}
+            {({ isActive }) => (
+              <>
+                {isActive && (
+                  <div style={{
+                    position: 'absolute', top: 0, left: 0, width: '40px', height: '100%',
+                    background: 'linear-gradient(90deg, rgba(99,102,241,0.2), transparent)', zIndex: 0
+                  }} />
+                )}
+                <span style={{ 
+                  color: isActive ? 'var(--accent-primary)' : 'var(--text-muted)',
+                  transition: 'color 0.3s',
+                  position: 'relative', zIndex: 1
+                }}>
+                  {item.icon}
+                </span>
+                <span style={{ position: 'relative', zIndex: 1 }}>{item.name}</span>
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
 
-      <div style={{ padding: '24px', borderTop: '1px solid var(--glass-border)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+      <div style={{ padding: '24px', borderTop: '1px solid var(--glass-border)', margin: '0 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
           <div style={{
-            width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-emerald))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold'
+            width: '44px', height: '44px', borderRadius: '14px', 
+            background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-emerald))', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            fontWeight: 'bold', fontSize: '18px', color: 'white',
+            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
           }}>
             {(user?.name || user?.email || 'U').charAt(0).toUpperCase()}
           </div>
-          <div>
-            <div style={{ fontSize: '14px', fontWeight: 600 }}>{user?.name || user?.email}</div>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{user?.role}</div>
+          <div style={{ overflow: 'hidden' }}>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: 'white', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+              {user?.name || user?.email}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{user?.role || 'Administrator'}</div>
           </div>
         </div>
         
         <button 
           onClick={handleLogout}
           className="btn btn-secondary" 
-          style={{ width: '100%', justifyContent: 'flex-start', padding: '8px 12px' }}
+          style={{ width: '100%', justifyContent: 'center', padding: '10px 16px', color: 'var(--accent-rose)' }}
         >
-          <LogOut size={16} /> Logout
+          <LogOut size={16} /> Sign Out
         </button>
       </div>
     </aside>

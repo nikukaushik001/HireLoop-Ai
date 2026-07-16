@@ -39,6 +39,14 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Root endpoint for browser testing
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    success: true, 
+    message: 'Welcome to HireLoop-AI Backend API! The server is running perfectly.' 
+  });
+});
+
 // 404 Handler
 app.use((req, res) => {
   res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Route not found' }});

@@ -15,6 +15,10 @@ interface AIProcessedCandidate {
       location: string;
     };
     embedding: number[];
+    evaluation?: {
+      score: number;
+      reasoning: string;
+    };
     status: string;
     error: string | null;
   };
@@ -29,9 +33,13 @@ export class ResumeService {
     // 1. Verify the job exists
     const job = await prisma.job.findUnique({ where: { id: jobId } });
     if (!job) throw new NotFoundError('Job');
+    
+    // Prepare job description for the AI Agent
+    const jobDescriptionStr = `Title: ${job.title}\nDepartment: ${job.department || 'N/A'}\nDescription: ${job.description || ''}\nRequirements: ${job.requirements || ''}`;
 
     // 2. Build multipart form data to send to FastAPI
     const formData = new FormData();
+    formData.append('job_description', jobDescriptionStr);
     for (const file of files) {
       const blob = new Blob([new Uint8Array(file.buffer)], { type: 'application/pdf' });
       formData.append('files', blob, file.originalname);
@@ -100,16 +108,22 @@ export class ResumeService {
         },
       });
 
+      // Get the AI score from the evaluation node
+      const aiScore = result.pipeline_result.evaluation?.score || 0;
+
       // Create a job application linking candidate to job
       await prisma.application.upsert({
         where: {
           candidateId_jobId: { jobId, candidateId: candidate.id },
         },
-        update: { status: 'NEW' },
+        update: { 
+          status: 'NEW',
+          aiScore: aiScore 
+        },
         create: {
           jobId,
           candidateId: candidate.id,
-          aiScore: 0, // Will be calculated during ranking
+          aiScore: aiScore,
           status: 'NEW',
           source: 'AI_RECOMMENDED',
         },

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
 import { StatusBadge } from '../components/StatusBadge';
-import { Plus, Briefcase } from 'lucide-react';
+import { Plus, Briefcase, Trash2, Edit2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 interface Job {
   id: string;
   title: string;
   department: string;
+  description?: string;
+  requirements?: string;
   status: string;
   _count: { applications: number };
   createdAt: string;
@@ -16,10 +18,11 @@ interface Job {
 export const JobsPage = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreate, setShowCreate] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [editingJobId, setEditingJobId] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Create Job Form
+  // Job Form State
   const [title, setTitle] = useState('');
   const [department, setDepartment] = useState('');
   const [description, setDescription] = useState('');
@@ -40,14 +43,62 @@ export const JobsPage = () => {
     fetchJobs();
   }, []);
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const resetForm = () => {
+    setTitle('');
+    setDepartment('');
+    setDescription('');
+    setRequirements('');
+    setEditingJobId(null);
+    setShowForm(false);
+  };
+
+  const handleOpenCreate = () => {
+    resetForm();
+    setShowForm(true);
+  };
+
+  const handleOpenEdit = (e: React.MouseEvent, job: Job) => {
+    e.stopPropagation();
+    setTitle(job.title);
+    setDepartment(job.department || '');
+    // Fetch full job details to get description and requirements if they aren't in the list view
+    // For simplicity, assuming they might not be fully present, we fetch it
+    apiClient.get(`/jobs/${job.id}`).then(res => {
+      const fullJob = res.data.data;
+      setDescription(fullJob.description || '');
+      setRequirements(fullJob.requirements || '');
+    }).catch(console.error);
+
+    setEditingJobId(job.id);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (window.confirm('Are you sure you want to delete this job? This will delete all associated applications.')) {
+      try {
+        await apiClient.delete(`/jobs/${id}`);
+        fetchJobs();
+      } catch (err) {
+        console.error(err);
+        alert('Failed to delete job');
+      }
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await apiClient.post('/jobs', { title, department, description, requirements });
-      setShowCreate(false);
-      fetchJobs(); // Refresh list
+      if (editingJobId) {
+        await apiClient.patch(`/jobs/${editingJobId}`, { title, department, description, requirements });
+      } else {
+        await apiClient.post('/jobs', { title, department, description, requirements });
+      }
+      resetForm();
+      fetchJobs();
     } catch (err) {
       console.error(err);
+      alert('Failed to save job');
     }
   };
 
@@ -55,15 +106,15 @@ export const JobsPage = () => {
     <div className="animate-fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <h1 className="text-gradient">Jobs</h1>
-        <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
+        <button className="btn btn-primary" onClick={handleOpenCreate}>
           <Plus size={16} /> Create Job
         </button>
       </div>
 
-      {showCreate && (
-        <div className="glass-panel" style={{ padding: '24px', marginBottom: '32px' }}>
-          <h3 style={{ marginBottom: '16px' }}>Create New Job</h3>
-          <form onSubmit={handleCreate}>
+      {showForm && (
+        <div className="glass-panel animate-fade-in" style={{ padding: '24px', marginBottom: '32px' }}>
+          <h3 style={{ marginBottom: '16px' }}>{editingJobId ? 'Edit Job' : 'Create New Job'}</h3>
+          <form onSubmit={handleSubmit}>
             <div style={{ display: 'flex', gap: '16px' }}>
               <div className="input-group" style={{ flex: 1 }}>
                 <label>Job Title</label>
@@ -83,8 +134,8 @@ export const JobsPage = () => {
               <textarea className="input-field" rows={3} value={requirements} onChange={e => setRequirements(e.target.value)} />
             </div>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
-              <button type="button" className="btn btn-secondary" onClick={() => setShowCreate(false)}>Cancel</button>
-              <button type="submit" className="btn btn-primary">Save Job</button>
+              <button type="button" className="btn btn-secondary" onClick={resetForm}>Cancel</button>
+              <button type="submit" className="btn btn-primary">{editingJobId ? 'Update Job' : 'Save Job'}</button>
             </div>
           </form>
         </div>
@@ -99,13 +150,14 @@ export const JobsPage = () => {
               <th>Status</th>
               <th>Applications</th>
               <th>Created</th>
+              <th style={{ textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={5} style={{ textAlign: 'center' }}>Loading...</td></tr>
+              <tr><td colSpan={6} style={{ textAlign: 'center' }}>Loading...</td></tr>
             ) : jobs.length === 0 ? (
-              <tr><td colSpan={5} style={{ textAlign: 'center' }}>No jobs found</td></tr>
+              <tr><td colSpan={6} style={{ textAlign: 'center' }}>No jobs found</td></tr>
             ) : (
               jobs.map(job => (
                 <tr key={job.id} style={{ cursor: 'pointer' }} onClick={() => navigate(`/jobs/${job.id}`)}>
@@ -123,6 +175,26 @@ export const JobsPage = () => {
                     </span>
                   </td>
                   <td>{new Date(job.createdAt).toLocaleDateString()}</td>
+                  <td style={{ textAlign: 'right' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                      <button 
+                        onClick={(e) => handleOpenEdit(e, job)}
+                        className="btn btn-secondary" 
+                        style={{ padding: '6px', borderRadius: '8px' }}
+                        title="Edit Job"
+                      >
+                        <Edit2 size={14} color="var(--accent-primary)" />
+                      </button>
+                      <button 
+                        onClick={(e) => handleDelete(e, job.id)}
+                        className="btn btn-danger" 
+                        style={{ padding: '6px', borderRadius: '8px' }}
+                        title="Delete Job"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))
             )}
