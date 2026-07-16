@@ -1,23 +1,90 @@
 import { prisma } from '../config/db';
 import { NotFoundError } from '../utils/api-error';
+import { EmailService } from './email.service';
 
 export class ApplicationService {
+  private emailService = new EmailService();
+
+  /**
+   * Fetch all interviews with full candidate + job + feedback context
+   */
+  async getAllInterviews() {
+    return await prisma.interview.findMany({
+      orderBy: { scheduledAt: 'asc' },
+      include: {
+        application: {
+          include: {
+            candidate: {
+              select: { id: true, name: true, email: true }
+            },
+            job: {
+              select: { id: true, title: true, department: true }
+            }
+          }
+        }
+      }
+    });
+  }
+
   /**
    * Update the status of an application
    */
   async updateApplicationStatus(jobId: string, appId: string, status: 'NEW' | 'SHORTLISTED' | 'INTERVIEWING' | 'OFFERED' | 'REJECTED') {
     const application = await prisma.application.findFirst({
-      where: { id: appId, jobId }
+      where: { id: appId, jobId },
+      include: { candidate: true, job: true }
     });
 
     if (!application) {
       throw new NotFoundError('Application');
     }
 
-    return await prisma.application.update({
+    const updated = await prisma.application.update({
       where: { id: appId },
       data: { status }
     });
+
+    // If status changed to SHORTLISTED, trigger shortlist notification email
+    if (status === 'SHORTLISTED' && application.candidate) {
+      this.emailService.sendCandidateShortlistNotification(
+        application.candidate.email,
+        application.candidate.name,
+        application.job.title
+      ).catch(err => console.error('Failed to send shortlist email on status update:', err));
+    }
+
+    return updated;
+  }
+
+  /**
+   * Send bulk shortlist emails to selected candidates and update their status to SHORTLISTED.
+   */
+  async notifyShortlistedCandidates(jobId: string, candidateIds: string[]) {
+    const job = await prisma.job.findUnique({ where: { id: jobId } });
+    if (!job) throw new NotFoundError('Job');
+
+    const candidates = await prisma.candidate.findMany({
+      where: { id: { in: candidateIds } }
+    });
+
+    for (const candidate of candidates) {
+      // 1. Send the email
+      this.emailService.sendCandidateShortlistNotification(
+        candidate.email,
+        candidate.name,
+        job.title
+      ).catch(err => console.error(`Failed to send shortlist email to ${candidate.email}:`, err));
+
+      // 2. Update status to SHORTLISTED in database
+      await prisma.application.update({
+        where: {
+          candidateId_jobId: { jobId, candidateId: candidate.id }
+        },
+        data: { status: 'SHORTLISTED' }
+      }).catch(err => console.error(`Failed to update application status for ${candidate.name}:`, err));
+    }
+
+    return { success: true, count: candidates.length };
   }
 
   /**
@@ -25,7 +92,8 @@ export class ApplicationService {
    */
   async scheduleInterview(jobId: string, appId: string, data: { scheduledAt: Date; durationMinutes: number; interviewerName: string; meetingLink?: string }) {
     const application = await prisma.application.findFirst({
-      where: { id: appId, jobId }
+      where: { id: appId, jobId },
+      include: { candidate: true, job: true }
     });
 
     if (!application) {
@@ -38,7 +106,7 @@ export class ApplicationService {
       data: { status: 'INTERVIEWING' }
     });
 
-    return await prisma.interview.create({
+    const interview = await prisma.interview.create({
       data: {
         applicationId: appId,
         scheduledAt: data.scheduledAt,
@@ -47,6 +115,20 @@ export class ApplicationService {
         meetingLink: data.meetingLink
       }
     });
+
+    // Send interview email invitation
+    if (application.candidate) {
+      this.emailService.sendInterviewScheduled(
+        application.candidate.email,
+        application.candidate.name,
+        application.job.title,
+        data.scheduledAt,
+        data.meetingLink,
+        data.interviewerName
+      ).catch(err => console.error('Failed to send interview invitation email:', err));
+    }
+
+    return interview;
   }
 
   /**
@@ -54,14 +136,19 @@ export class ApplicationService {
    */
   async submitInterviewFeedback(interviewId: string, data: { rating: number; feedbackText: string; recommendation: 'STRONG_HIRE' | 'HIRE' | 'NO_HIRE' }) {
     const interview = await prisma.interview.findUnique({
-      where: { id: interviewId }
+      where: { id: interviewId },
+      include: {
+        application: {
+          include: { candidate: true, job: true }
+        }
+      }
     });
 
     if (!interview) {
       throw new NotFoundError('Interview');
     }
 
-    return await prisma.interview.update({
+    const updatedInterview = await prisma.interview.update({
       where: { id: interviewId },
       data: {
         status: 'COMPLETED',
@@ -70,6 +157,24 @@ export class ApplicationService {
         recommendation: data.recommendation
       }
     });
+
+    // Send interview feedback email update to the candidate
+    const app = interview.application;
+    if (app && app.candidate) {
+      // Human friendly status representation based on recommendation
+      const statusText = data.recommendation === 'STRONG_HIRE' || data.recommendation === 'HIRE' 
+        ? 'COMPLETED (Positive recommendation)' 
+        : 'COMPLETED (Under review)';
+
+      this.emailService.sendInterviewFeedbackNotification(
+        app.candidate.email,
+        app.candidate.name,
+        app.job.title,
+        statusText
+      ).catch(err => console.error('Failed to send interview feedback email:', err));
+    }
+
+    return updatedInterview;
   }
 
   /**
@@ -99,7 +204,7 @@ export class ApplicationService {
       where: { id: candidateId },
       include: {
         applications: {
-          select: { jobId: true } // to filter out jobs they already applied for
+          select: { jobId: true }
         }
       }
     });
@@ -122,7 +227,7 @@ export class ApplicationService {
       const score = this.cosineSimilarity(candidate.embedding, job.embedding);
       const percentage = Math.max(0, Math.round(score * 100));
 
-      if (percentage > 50) { // arbitrary threshold
+      if (percentage > 50) { 
         recommendations.push({
           job,
           score: percentage
@@ -131,7 +236,7 @@ export class ApplicationService {
     }
 
     recommendations.sort((a, b) => b.score - a.score);
-    return recommendations.slice(0, 5); // top 5
+    return recommendations.slice(0, 5);
   }
 
   private cosineSimilarity(vecA: number[], vecB: number[]): number {

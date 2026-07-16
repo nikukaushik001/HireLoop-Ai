@@ -1,11 +1,15 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import path from 'path';
 import { env } from './config/env';
 import { authRoutes } from './routes/auth.routes';
 import { globalErrorHandler } from './middleware/error.middleware';
 
 const app = express();
+
+// Serve static uploads
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Security middleware
 app.use(helmet());

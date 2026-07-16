@@ -1,6 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from typing import List, Optional
 from pydantic import BaseModel
+import asyncio
 from app.services.langgraph_pipeline import process_resume_pipeline
 from app.services.embedding import generate_embedding
 
@@ -16,33 +17,39 @@ async def process_resumes(
 ):
     """
     Receives one or more PDF files and an optional job description, 
-    runs them through the LangGraph AI pipeline, and returns the 
-    structured candidate data, evaluation, and embeddings.
+    runs them through the LangGraph AI pipeline concurrently with a semaphore throttle (max 3),
+    and returns the structured candidate data, evaluation, and embeddings.
     """
-    results = []
-    for file in files:
+    semaphore = asyncio.Semaphore(3)  # Max 3 concurrent LLM pipeline runs
+
+    async def process_file(file: UploadFile) -> dict:
         if not file.filename.lower().endswith('.pdf'):
-            results.append({
+            return {
                 "filename": file.filename,
                 "status": "failed",
                 "error": "Only PDF files are supported."
-            })
-            continue
+            }
             
-        try:
-            pdf_bytes = await file.read()
-            pipeline_result = process_resume_pipeline(pdf_bytes, job_description)
-            
-            results.append({
-                "filename": file.filename,
-                "pipeline_result": pipeline_result
-            })
-        except Exception as e:
-            results.append({
-                "filename": file.filename,
-                "status": "failed",
-                "error": str(e)
-            })
+        async with semaphore:
+            try:
+                pdf_bytes = await file.read()
+                # Run the synchronous LangGraph pipeline in a threadpool to avoid blocking event loop
+                pipeline_result = await asyncio.to_thread(
+                    process_resume_pipeline, pdf_bytes, job_description
+                )
+                return {
+                    "filename": file.filename,
+                    "pipeline_result": pipeline_result
+                }
+            except Exception as e:
+                return {
+                    "filename": file.filename,
+                    "status": "failed",
+                    "error": str(e)
+                }
+
+    tasks = [process_file(file) for file in files]
+    results = await asyncio.gather(*tasks)
             
     return {"success": True, "results": results}
 

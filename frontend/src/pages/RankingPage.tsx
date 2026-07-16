@@ -15,6 +15,9 @@ interface RankedCandidate {
   };
   aiScore: number;
   embeddingScore: number;
+  bm25Score: number;
+  achievements: string[];
+  achievementBonus: number;
   finalScore: number;
   aiReasoning?: string;
   status: string;
@@ -154,6 +157,16 @@ const CandidateCard: React.FC<{ item: RankedCandidate; isTop3: boolean }> = ({ i
                 Top Pick
               </span>
             )}
+            {item.achievementBonus > 0 && (
+              <span style={{
+                fontSize: '11px', padding: '2px 8px', borderRadius: '999px',
+                background: 'rgba(234,179,8,0.15)', color: '#eab308',
+                border: '1px solid rgba(234,179,8,0.3)', fontWeight: 600,
+                display: 'flex', alignItems: 'center', gap: '4px'
+              }}>
+                <Trophy size={10} /> +{item.achievementBonus} Achiever Bonus
+              </span>
+            )}
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '3px' }}>{item.candidate.email}</div>
 
@@ -166,28 +179,55 @@ const CandidateCard: React.FC<{ item: RankedCandidate; isTop3: boolean }> = ({ i
               </span>
             )}
           </div>
+
+          {/* Achievements summary if present */}
+          {item.achievements && item.achievements.length > 0 && (
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '10px', alignItems: 'center' }}>
+              <Medal size={13} style={{ color: '#eab308' }} />
+              <span style={{ fontSize: '11px', color: '#eab308', fontWeight: 600 }}>Achievements:</span>
+              {item.achievements.slice(0, 2).map((ach, idx) => (
+                <span key={idx} style={{
+                  padding: '1px 6px', borderRadius: '4px', fontSize: '10px',
+                  background: 'rgba(234,179,8,0.08)', color: '#eab308',
+                  border: '1px solid rgba(234,179,8,0.2)', whiteSpace: 'nowrap'
+                }}>{ach}</span>
+              ))}
+              {item.achievements.length > 2 && (
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>+{item.achievements.length - 2} more</span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Score ring + bars */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           {/* Mini score bars */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: '120px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', minWidth: '130px' }}>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--text-muted)', marginBottom: '3px' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Brain size={9} /> AI Fit</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--text-muted)', marginBottom: '1px' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Brain size={9} /> AI Match</span>
                 <span style={{ fontWeight: 600, color: getScoreColor(item.aiScore) }}>{item.aiScore}%</span>
               </div>
-              <div style={{ height: '4px', background: 'rgba(255,255,255,0.07)', borderRadius: '999px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${item.aiScore}%`, background: getScoreColor(item.aiScore), borderRadius: '999px', transition: 'width 1s ease' }} />
+              <div style={{ height: '3px', background: 'rgba(255,255,255,0.07)', borderRadius: '999px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${item.aiScore}%`, background: getScoreColor(item.aiScore), borderRadius: '999px' }} />
               </div>
             </div>
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--text-muted)', marginBottom: '3px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--text-muted)', marginBottom: '1px' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Target size={9} /> Similarity</span>
                 <span style={{ fontWeight: 600, color: getScoreColor(item.embeddingScore) }}>{item.embeddingScore}%</span>
               </div>
-              <div style={{ height: '4px', background: 'rgba(255,255,255,0.07)', borderRadius: '999px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${item.embeddingScore}%`, background: getScoreColor(item.embeddingScore), borderRadius: '999px', transition: 'width 1s ease' }} />
+              <div style={{ height: '3px', background: 'rgba(255,255,255,0.07)', borderRadius: '999px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${item.embeddingScore}%`, background: getScoreColor(item.embeddingScore), borderRadius: '999px' }} />
+              </div>
+            </div>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--text-muted)', marginBottom: '1px' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Star size={9} /> BM25 Score</span>
+                <span style={{ fontWeight: 600, color: getScoreColor(item.bm25Score) }}>{item.bm25Score}%</span>
+              </div>
+              <div style={{ height: '3px', background: 'rgba(255,255,255,0.07)', borderRadius: '999px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${item.bm25Score}%`, background: getScoreColor(item.bm25Score), borderRadius: '999px' }} />
               </div>
             </div>
           </div>
@@ -205,7 +245,7 @@ const CandidateCard: React.FC<{ item: RankedCandidate; isTop3: boolean }> = ({ i
         <div style={{
           marginTop: '20px', paddingTop: '20px',
           borderTop: '1px solid var(--glass-border)',
-          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'
+          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px'
         }}
           onClick={e => e.stopPropagation()}
         >
@@ -213,9 +253,20 @@ const CandidateCard: React.FC<{ item: RankedCandidate; isTop3: boolean }> = ({ i
             <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
               All Skills
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
               {(item.candidate.skills || []).map(s => <SkillBadge key={s} skill={s} />)}
             </div>
+
+            {item.achievements && item.achievements.length > 0 && (
+              <>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Trophy size={12} color="#eab308" /> Standout Achievements
+                </div>
+                <ul style={{ paddingLeft: '18px', margin: 0, fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {item.achievements.map((ach, i) => <li key={i}>{ach}</li>)}
+                </ul>
+              </>
+            )}
           </div>
           {item.aiReasoning && (
             <div>
@@ -243,6 +294,9 @@ export const RankingPage: React.FC = () => {
   const [rankingData, setRankingData] = useState<RankingData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showTop10Only, setShowTop10Only] = useState(false);
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailSuccess, setEmailSuccess] = useState('');
 
   useEffect(() => {
     apiClient.get('/jobs').then(r => setJobs(r.data.data || [])).catch(console.error);
@@ -253,6 +307,7 @@ export const RankingPage: React.FC = () => {
     setLoading(true);
     setError('');
     setRankingData(null);
+    setEmailSuccess('');
     try {
       const res = await apiClient.get(`/jobs/${selectedJobId}/rank`);
       setRankingData(res.data.data);
@@ -263,10 +318,44 @@ export const RankingPage: React.FC = () => {
     }
   };
 
+  const handleSendShortlistEmails = async () => {
+    if (!rankingData) return;
+    setEmailSending(true);
+    setEmailSuccess('');
+    try {
+      // Shortlist candidates in top 10
+      const top10Candidates = rankingData.rankedCandidates.slice(0, 10);
+      const candidateIds = top10Candidates.map(c => c.candidate.id);
+
+      if (candidateIds.length === 0) {
+        setError('No candidates available to notify.');
+        return;
+      }
+
+      await apiClient.post(`/jobs/${selectedJobId}/applications/notify-shortlisted`, {
+        candidateIds
+      });
+
+      setEmailSuccess(`Shortlisting email invitations have been sent to top ${candidateIds.length} candidate(s) successfully!`);
+      
+      // Refresh ranking data to reflect status updates
+      const res = await apiClient.get(`/jobs/${selectedJobId}/rank`);
+      setRankingData(res.data.data);
+    } catch (err: any) {
+      setError(err?.response?.data?.error?.message || 'Failed to send shortlist emails.');
+    } finally {
+      setEmailSending(false);
+    }
+  };
+
   const topScore = rankingData?.rankedCandidates?.[0]?.finalScore ?? 0;
   const avgScore = rankingData?.rankedCandidates?.length
     ? Math.round(rankingData.rankedCandidates.reduce((s, c) => s + c.finalScore, 0) / rankingData.rankedCandidates.length)
     : 0;
+
+  const displayedCandidates = rankingData?.rankedCandidates
+    ? (showTop10Only ? rankingData.rankedCandidates.slice(0, 10) : rankingData.rankedCandidates)
+    : [];
 
   return (
     <div className="animate-fade-in">
@@ -280,10 +369,10 @@ export const RankingPage: React.FC = () => {
           }}>
             <Trophy size={24} style={{ color: '#FFD700' }} />
           </div>
-          <h1 className="text-gradient" style={{ margin: 0 }}>AI Candidate Ranking</h1>
+          <h1 className="text-gradient" style={{ margin: 0 }}>AI Hybrid Candidate Ranking</h1>
         </div>
         <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '14px' }}>
-          AI-powered ranking using resume skill extraction + job description comparison. Select a job to rank all applicants.
+          Hybrid matching using AI evaluation + Cosine dense similarity + BM25 keyword matching + achievement priority.
         </p>
       </div>
 
@@ -341,6 +430,55 @@ export const RankingPage: React.FC = () => {
             ))}
           </div>
 
+          {/* Action Toolbar */}
+          {rankingData.rankedCandidates.length > 0 && (
+            <div className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '16px 24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Filters:</span>
+                <button 
+                  className={`btn ${showTop10Only ? 'btn-primary' : 'btn-secondary'}`}
+                  style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '8px', width: 'auto' }}
+                  onClick={() => setShowTop10Only(!showTop10Only)}
+                >
+                  {showTop10Only ? 'Show All Candidates' : 'Show Top 10 Only'}
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <button
+                  className="btn"
+                  style={{ 
+                    padding: '8px 18px', 
+                    fontSize: '13px', 
+                    borderRadius: '8px', 
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+                    color: 'white',
+                    border: 'none', 
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                  disabled={emailSending}
+                  onClick={handleSendShortlistEmails}
+                >
+                  {emailSending ? <><Loader size={14} className="animate-spin" /> Notifying...</> : <><CheckCircle size={14} /> Send Shortlist Mail to Top 10</>}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {emailSuccess && (
+            <div style={{
+              padding: '12px 18px', borderRadius: '10px', background: 'rgba(16,185,129,0.1)',
+              border: '1px solid rgba(16,185,129,0.3)', color: '#10b981',
+              fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px'
+            }}>
+              <CheckCircle size={16} /> {emailSuccess}
+            </div>
+          )}
+
           {/* Candidates list */}
           {rankingData.rankedCandidates.length === 0 ? (
             <div className="glass-card" style={{ textAlign: 'center', padding: '64px', color: 'var(--text-muted)' }}>
@@ -350,7 +488,7 @@ export const RankingPage: React.FC = () => {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {rankingData.rankedCandidates.map(item => (
+              {displayedCandidates.map(item => (
                 <CandidateCard key={item.applicationId} item={item} isTop3={item.rank <= 3} />
               ))}
             </div>
@@ -376,7 +514,7 @@ export const RankingPage: React.FC = () => {
             Select a job and click "Rank Candidates"
           </div>
           <div style={{ fontSize: '13px', maxWidth: '380px' }}>
-            The AI will score every applicant by comparing their extracted resume skills against the job description using Groq LLM + vector similarity.
+            The AI will rank applicants using a hybrid formula: Groq LLM evaluation + Vector dense similarity + BM25 sparse keyword similarity + Achievement priority.
           </div>
         </div>
       )}

@@ -18,7 +18,9 @@ export class JobController {
 
   async getAllJobs(req: Request, res: Response, next: NextFunction) {
     try {
-      const jobs = await jobService.getAllJobs();
+      const userId = req.user?.id;
+      const role = req.user?.role;
+      const jobs = await jobService.getAllJobs(userId, role);
       sendSuccess(res, jobs, 200);
     } catch (error) {
       next(error);

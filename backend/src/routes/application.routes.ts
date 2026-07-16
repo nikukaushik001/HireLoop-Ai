@@ -9,5 +9,6 @@ router.use(requireAuth);
 
 router.patch('/:appId/status', applicationController.updateApplicationStatus);
 router.post('/:appId/interviews', applicationController.scheduleInterview);
+router.post('/notify-shortlisted', applicationController.notifyShortlisted);
 
 export const applicationRoutes = router;

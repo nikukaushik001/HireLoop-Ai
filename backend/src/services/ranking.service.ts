@@ -1,5 +1,6 @@
 import { prisma } from '../config/db';
 import { NotFoundError } from '../utils/api-error';
+import { BM25 } from '../utils/bm25';
 
 export class RankingService {
   /**
@@ -40,9 +41,11 @@ export class RankingService {
   }
 
   /**
-   * Ranks candidates for a specific job using a weighted blend of:
-   *  - Groq AI evaluation score (70%) — semantic JD vs resume match
-   *  - Cosine embedding similarity (30%) — vector space match
+   * Ranks candidates for a specific job using a hybrid matching system:
+   *  - Groq AI evaluation score (40%) — semantic fit reasoning
+   *  - Cosine embedding similarity (30%) — dense vector space match
+   *  - BM25 sparse keyword score (30%) — keyword matching
+   *  - Achievement priority bonus (+5 to +10 points) — prioritizing high achievers
    */
   async rankCandidatesForJob(jobId: string) {
     const job = await prisma.job.findUnique({
@@ -69,23 +72,70 @@ export class RankingService {
       }
     }
 
+    // 1. Fetch candidate resumes to run BM25 and extract achievements
+    const candidateIds = job.applications.map(app => app.candidateId).filter(Boolean);
+    const resumes = await prisma.resume.findMany({
+      where: {
+        candidateId: { in: candidateIds }
+      }
+    });
+
+    // Create mapping from candidateId to achievements and resume text for BM25
+    const candidateResumesMap: Record<string, { rawText: string; achievements: string[] }> = {};
+    const bm25Docs = [];
+
+    for (const resume of resumes) {
+      if (!resume.candidateId) continue;
+      
+      const parsedData = (resume.parsedData as any) || {};
+      const achievements = parsedData.achievements || [];
+      const rawText = resume.rawText || '';
+
+      candidateResumesMap[resume.candidateId] = {
+        rawText,
+        achievements
+      };
+
+      // Combine raw resume text with parsed skills for BM25 indexing
+      const skillsStr = parsedData.skills ? parsedData.skills.join(' ') : '';
+      bm25Docs.push({
+        id: resume.candidateId,
+        text: `${rawText} ${skillsStr} ${parsedData.currentCompany || ''}`
+      });
+    }
+
+    // 2. Initialize and fit BM25 model
+    const bm25 = new BM25();
+    bm25.fit(bm25Docs);
+    const jobQuery = `${job.title} ${job.description} ${job.requirements || ''}`;
+    const bm25Scores = bm25.search(jobQuery);
+
     const rankedApplications = [];
 
     for (const app of job.applications) {
       const candidate = app.candidate;
+      const resumeInfo = candidateResumesMap[candidate.id] || { rawText: '', achievements: [] };
 
-      // Cosine similarity score (0-100)
+      // A. Cosine similarity score (0-100)
       let embeddingScore = 0;
       if (jobEmbedding && jobEmbedding.length > 0 && candidate.embedding && candidate.embedding.length > 0) {
         const raw = this.cosineSimilarity(jobEmbedding, candidate.embedding);
         embeddingScore = Math.max(0, Math.round(raw * 100));
       }
 
-      // Groq AI score stored from when resume was processed (0-100)
+      // B. Groq AI score stored from when resume was processed (0-100)
       const aiScore = app.aiScore ?? 0;
 
-      // Weighted final score: 70% AI (semantic JD match) + 30% embedding similarity
-      const finalScore = Math.round(aiScore * 0.7 + embeddingScore * 0.3);
+      // C. BM25 Keyword score (0-100)
+      const bm25Score = bm25Scores[candidate.id] || 0;
+
+      // D. Achievement Priority Bonus (+5 points per achievement, capped at +10)
+      const achievementsCount = resumeInfo.achievements.length;
+      const achievementBonus = Math.min(10, achievementsCount * 5);
+
+      // E. Hybrid Blend: 40% AI + 30% Embedding + 30% BM25 + Achievement Bonus
+      let finalScore = Math.round(aiScore * 0.4 + embeddingScore * 0.3 + bm25Score * 0.3);
+      finalScore = Math.min(100, finalScore + achievementBonus);
 
       rankedApplications.push({
         applicationId: app.id,
@@ -99,6 +149,9 @@ export class RankingService {
         },
         aiScore,
         embeddingScore,
+        bm25Score,
+        achievements: resumeInfo.achievements,
+        achievementBonus,
         finalScore,
         aiReasoning: app.aiReasoning || null,
         status: app.status,

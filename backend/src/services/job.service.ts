@@ -41,8 +41,14 @@ export class JobService {
     });
   }
 
-  async getAllJobs() {
+  async getAllJobs(userId?: string, role?: string) {
+    const where: any = {};
+    if (role === 'RECRUITER' && userId) {
+      where.createdBy = userId;
+    }
+
     return await prisma.job.findMany({
+      where,
       orderBy: { createdAt: 'desc' },
       include: {
         _count: {

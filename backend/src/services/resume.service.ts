@@ -1,5 +1,7 @@
 import { prisma } from '../config/db';
 import { AppError, NotFoundError } from '../utils/api-error';
+import { StorageService } from './storage.service';
+import { EmailService } from './email.service';
 
 interface AIProcessedCandidate {
   filename: string;
@@ -13,6 +15,7 @@ interface AIProcessedCandidate {
       experienceYears: number;
       currentCompany: string;
       location: string;
+      achievements?: string[];
     };
     embedding: number[];
     evaluation?: {
@@ -25,13 +28,19 @@ interface AIProcessedCandidate {
 }
 
 export class ResumeService {
+  private storageService = new StorageService();
+  private emailService = new EmailService();
+
   /**
    * Sends PDF files to the FastAPI AI service for processing,
    * then saves the structured candidate data into the database.
    */
   async processResumes(userId: string, jobId: string, files: Express.Multer.File[]) {
-    // 1. Verify the job exists
-    const job = await prisma.job.findUnique({ where: { id: jobId } });
+    // 1. Verify the job exists and include recruiter info
+    const job = await prisma.job.findUnique({ 
+      where: { id: jobId },
+      include: { user: true }
+    });
     if (!job) throw new NotFoundError('Job');
     
     // Prepare job description for the AI Agent
@@ -54,7 +63,7 @@ export class ResumeService {
 
     if (!response.ok) {
       const errorText = await response.text();
-      require('fs').appendFileSync('ai_error.log', new Date().toISOString() + '\\nStatus: ' + response.status + '\\nBody: ' + errorText + '\\n\\n');
+      require('fs').appendFileSync('ai_error.log', new Date().toISOString() + '\nStatus: ' + response.status + '\nBody: ' + errorText + '\n\n');
       throw new AppError('Failed to process resumes through AI pipeline', 502, 'AI_SERVICE_ERROR');
     }
 
@@ -63,7 +72,7 @@ export class ResumeService {
     // 4. Save each processed candidate into the database
     const savedCandidates = [];
     for (const result of aiResult.results) {
-      if (result.pipeline_result?.status !== 'completed') {
+      if (result.pipeline_result?.status !== 'completed' && !result.pipeline_result?.parsed_data) {
         savedCandidates.push({
           filename: result.filename,
           status: 'failed',
@@ -73,6 +82,21 @@ export class ResumeService {
       }
 
       const parsed = result.pipeline_result.parsed_data;
+
+      // Find the uploaded file to get its buffer for storage upload
+      const uploadedFile = files.find(f => f.originalname === result.filename);
+      let filePath = `uploads/${result.filename}`;
+      if (uploadedFile) {
+        try {
+          filePath = await this.storageService.uploadFile(
+            uploadedFile.buffer,
+            uploadedFile.originalname,
+            uploadedFile.mimetype
+          );
+        } catch (err) {
+          console.error(`Failed to upload ${result.filename} to storage:`, err);
+        }
+      }
 
       // Create or update the candidate in the talent pool
       const candidate = await prisma.candidate.upsert({
@@ -102,7 +126,7 @@ export class ResumeService {
       await prisma.resume.create({
         data: {
           fileName: result.filename,
-          filePath: `uploads/${result.filename}`,
+          filePath: filePath,
           candidateId: candidate.id,
           rawText: result.pipeline_result.raw_text,
           parsedData: parsed as any,
@@ -112,6 +136,7 @@ export class ResumeService {
 
       // Get the AI score from the evaluation node
       const aiScore = result.pipeline_result.evaluation?.score || 0;
+      const aiReasoning = result.pipeline_result.evaluation?.reasoning || '';
 
       // Create a job application linking candidate to job
       await prisma.application.upsert({
@@ -120,12 +145,14 @@ export class ResumeService {
         },
         update: { 
           status: 'NEW',
-          aiScore: aiScore 
+          aiScore: aiScore,
+          aiReasoning: aiReasoning
         },
         create: {
           jobId,
           candidateId: candidate.id,
           aiScore: aiScore,
+          aiReasoning: aiReasoning,
           status: 'NEW',
           source: 'AI_RECOMMENDED',
         },
@@ -137,6 +164,23 @@ export class ResumeService {
         candidateId: candidate.id,
         candidateName: candidate.name,
       });
+    }
+
+    // 5. Send recruiter summary email (asynchronously)
+    const successList = savedCandidates
+      .filter(c => c.status === 'success')
+      .map(c => `${c.candidateName} (${c.filename})`);
+    const successCount = successList.length;
+    const failedCount = savedCandidates.filter(c => c.status === 'failed').length;
+
+    if (job.user && job.user.email) {
+      this.emailService.sendRecruiterUploadSummary(
+        job.user.email,
+        job.title,
+        successCount,
+        failedCount,
+        successList
+      ).catch(err => console.error('Failed to send recruiter resume processing summary email:', err));
     }
 
     return {

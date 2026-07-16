@@ -83,6 +83,22 @@ export const CandidateDetailPage = () => {
                 ))}
               </div>
             </div>
+
+            {candidate.resumes && candidate.resumes.length > 0 && (() => {
+              const parsed = candidate.resumes[0].parsedData;
+              const achievements = parsed && parsed.achievements ? parsed.achievements : [];
+              if (achievements.length === 0) return null;
+              return (
+                <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--glass-border)' }}>
+                  <h4 style={{ color: 'var(--text-primary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Award size={16} color="var(--accent-amber)" /> Standout Achievements
+                  </h4>
+                  <ul style={{ paddingLeft: '18px', margin: 0, fontSize: '13px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {achievements.map((ach: string, i: number) => <li key={i}>{ach}</li>)}
+                  </ul>
+                </div>
+              );
+            })()}
           </div>
 
           <div className="glass-panel" style={{ padding: '24px' }}>

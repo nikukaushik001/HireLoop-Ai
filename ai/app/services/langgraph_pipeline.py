@@ -2,7 +2,6 @@ from typing import TypedDict, Optional
 from langgraph.graph import StateGraph, END
 from app.services.resume_parser import extract_text_from_pdf
 from app.services.groq_extractor import extract_structured_data
-from app.services.groq_evaluator import evaluate_candidate
 from app.services.embedding import generate_embedding
 
 class ResumeState(TypedDict):
@@ -24,19 +23,34 @@ def extract_text_node(state: ResumeState):
     except Exception as e:
         return {"status": "failed", "error": str(e)}
 
-def parse_json_node(state: ResumeState):
+def parse_and_evaluate_node(state: ResumeState):
     try:
-        data = extract_structured_data(state["raw_text"])
-        if not data:
-            return {"status": "failed", "error": "Gemini failed to parse JSON."}
-        return {"parsed_data": data, "status": "parsed"}
-    except Exception as e:
-        return {"status": "failed", "error": str(e)}
-
-def evaluate_node(state: ResumeState):
-    try:
-        eval_result = evaluate_candidate(state["parsed_data"], state.get("job_description", ""))
-        return {"evaluation": eval_result, "status": "evaluated"}
+        result = extract_structured_data(state["raw_text"], state.get("job_description", ""))
+        if not result:
+            return {"status": "failed", "error": "AI failed to parse and evaluate resume."}
+        
+        # Separate the profile details from the evaluation info
+        parsed_data = {
+            "name": result.get("name", ""),
+            "email": result.get("email", ""),
+            "phone": result.get("phone", ""),
+            "skills": result.get("skills", []),
+            "experienceYears": result.get("experienceYears", 0),
+            "currentCompany": result.get("currentCompany", ""),
+            "location": result.get("location", ""),
+            "achievements": result.get("achievements", [])
+        }
+        
+        evaluation = {
+            "score": result.get("score", 50),
+            "reasoning": result.get("reasoning", "")
+        }
+        
+        return {
+            "parsed_data": parsed_data,
+            "evaluation": evaluation,
+            "status": "parsed_and_evaluated"
+        }
     except Exception as e:
         return {"status": "failed", "error": str(e)}
 
@@ -56,10 +70,8 @@ def route_next(state: ResumeState):
     if state["status"] == "failed":
         return "end"
     if state["status"] == "text_extracted":
-        return "parse_json"
-    if state["status"] == "parsed":
-        return "evaluate"
-    if state["status"] == "evaluated":
+        return "parse_and_evaluate"
+    if state["status"] == "parsed_and_evaluated":
         return "embed"
     return "end"
 
@@ -67,8 +79,7 @@ def route_next(state: ResumeState):
 builder = StateGraph(ResumeState)
 
 builder.add_node("extract_text", extract_text_node)
-builder.add_node("parse_json", parse_json_node)
-builder.add_node("evaluate", evaluate_node)
+builder.add_node("parse_and_evaluate", parse_and_evaluate_node)
 builder.add_node("embed", embed_node)
 
 builder.set_entry_point("extract_text")
@@ -76,17 +87,11 @@ builder.set_entry_point("extract_text")
 builder.add_conditional_edges(
     "extract_text",
     route_next,
-    {"parse_json": "parse_json", "end": END}
+    {"parse_and_evaluate": "parse_and_evaluate", "end": END}
 )
 
 builder.add_conditional_edges(
-    "parse_json",
-    route_next,
-    {"evaluate": "evaluate", "end": END}
-)
-
-builder.add_conditional_edges(
-    "evaluate",
+    "parse_and_evaluate",
     route_next,
     {"embed": "embed", "end": END}
 )
@@ -117,5 +122,6 @@ def process_resume_pipeline(pdf_bytes: bytes, job_description: str = None) -> di
     final_state = graph.invoke(initial_state)
     
     # We remove pdf_bytes before returning to save memory
-    del final_state["pdf_bytes"]
+    if "pdf_bytes" in final_state:
+        del final_state["pdf_bytes"]
     return final_state

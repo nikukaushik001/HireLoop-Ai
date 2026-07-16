@@ -5,6 +5,15 @@ import { sendSuccess } from '../utils/api-response';
 const applicationService = new ApplicationService();
 
 export class ApplicationController {
+  async getAllInterviews(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await applicationService.getAllInterviews();
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async updateApplicationStatus(req: Request, res: Response, next: NextFunction) {
     try {
       const jobId = req.params.jobId as string;
@@ -57,6 +66,17 @@ export class ApplicationController {
     try {
       const id = req.params.id as string; // candidateId
       const result = await applicationService.getRecommendedJobs(id);
+      sendSuccess(res, result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async notifyShortlisted(req: Request, res: Response, next: NextFunction) {
+    try {
+      const jobId = req.params.jobId as string;
+      const { candidateIds } = req.body;
+      const result = await applicationService.notifyShortlistedCandidates(jobId, candidateIds);
       sendSuccess(res, result);
     } catch (error) {
       next(error);
