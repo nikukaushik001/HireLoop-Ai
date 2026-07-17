@@ -41,6 +41,10 @@ The project is structured as a monorepo containing two main services:
 - **AI/ML Stack**: LangGraph, Gemini Flash, PyTorch, sentence-transformers, pypdf
 - **Role**: Dedicated microservice for PDF parsing, text extraction, structured JSON generation, and generating 384-dimensional vector embeddings.
 
+### 3. Frontend (`/frontend`)
+- **Framework**: React + Vite + TypeScript
+- **Role**: The user-facing application for recruiters to manage jobs and view ranked candidates.
+
 ---
 
 ## 🚀 Getting Started
@@ -92,6 +96,21 @@ Start the AI server:
 uvicorn app.main:app --reload --port 8000
 ```
 *(Runs on `http://localhost:8000`)*
+
+### 3. Setup the Frontend (React + Vite)
+Open a new terminal and navigate to the frontend directory:
+```bash
+cd frontend
+npm install
+npm run dev
+```
+*(Runs on `http://localhost:5173`)*
+
+### 🚀 Quick Start (Windows)
+To quickly launch the Backend, AI Service, and Frontend simultaneously, run the included batch script from the root directory:
+```cmd
+start_servers.bat
+```
 
 ---
 
