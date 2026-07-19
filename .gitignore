@@ -11,3 +11,4 @@ build/
 coverage/
 .prisma/
 backend/uploads/
+*.pem
