@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { apiClient } from '../api/client';
 import { StatusBadge } from '../components/StatusBadge';
-import { ArrowLeft, Briefcase, Calendar, MapPin, Mail, Phone, Award } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Mail, Phone, Award } from 'lucide-react';
 
 interface CandidateDetail {
   id: string;

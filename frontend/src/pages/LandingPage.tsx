@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { Brain, Upload, Star, Users, Zap, Shield, BarChart3, Mail, ChevronRight, CheckCircle } from 'lucide-react';
+import { Brain, Upload, Star, Zap, Shield, BarChart3, Mail, ChevronRight, CheckCircle } from 'lucide-react';
 
 const FEATURES = [
   {

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
-import { Users, Mail, MapPin } from 'lucide-react';
+import { Users, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 interface Candidate {

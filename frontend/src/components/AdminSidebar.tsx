@@ -1,9 +1,9 @@
-import React from 'react';
+import type { FC } from 'react';
 import { NavLink, useNavigate } from 'react-router';
-import { ShieldAlert, Users, Database, LogOut, Hexagon, BarChart2 } from 'lucide-react';
+import { ShieldAlert, LogOut, BarChart2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export const AdminSidebar: React.FC = () => {
+export const AdminSidebar: FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 

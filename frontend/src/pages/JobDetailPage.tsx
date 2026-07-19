@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { apiClient } from '../api/client';
 import { StatusBadge } from '../components/StatusBadge';
-import { ArrowLeft, Brain, UserCheck, Calendar as CalendarIcon, XCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Brain, Calendar as CalendarIcon, XCircle, CheckCircle } from 'lucide-react';
 
 interface Application {
   id: string;
