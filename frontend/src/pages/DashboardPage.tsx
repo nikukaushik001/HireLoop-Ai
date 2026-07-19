@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router';
 import {
   Briefcase, Users, FileText, Calendar,
-  ArrowRight, Plus, Upload, TrendingUp,
-  Zap, Activity
+  ArrowUpRight, Plus, Upload, TrendingUp,
+  Zap, Activity, ChevronRight, Sparkles
 } from 'lucide-react';
 
 interface Stats {
@@ -15,47 +15,69 @@ interface Stats {
   upcomingInterviews: number;
 }
 
-const StatCard = ({ title, value, icon, color, sub }: { title: string; value: number; icon: React.ReactNode; color: string; sub: string }) => (
-  <div style={{
-    background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)',
-    borderRadius: '20px', padding: '28px', position: 'relative', overflow: 'hidden',
-    transition: 'all 0.3s', cursor: 'default'
-  }}
-    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.05)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)'; }}
-    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.025)'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; }}
+const AnimatedNumber = ({ value }: { value: number }) => {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    if (value === 0) return;
+    let start = 0;
+    const duration = 800;
+    const step = value / (duration / 16);
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= value) { setDisplay(value); clearInterval(timer); }
+      else setDisplay(Math.floor(start));
+    }, 16);
+    return () => clearInterval(timer);
+  }, [value]);
+  return <>{display}</>;
+};
+
+const StatCard = ({
+  title, value, icon, color, sub, trend
+}: {
+  title: string; value: number; icon: React.ReactNode; color: string; sub: string; trend?: string;
+}) => (
+  <div
+    style={{
+      background: 'linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
+      border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: '20px', padding: '24px', position: 'relative', overflow: 'hidden',
+      transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)', cursor: 'default'
+    }}
+    onMouseEnter={e => {
+      const el = e.currentTarget as HTMLDivElement;
+      el.style.transform = 'translateY(-4px)';
+      el.style.borderColor = `${color}40`;
+      el.style.boxShadow = `0 20px 40px rgba(0,0,0,0.3), 0 0 0 1px ${color}20`;
+    }}
+    onMouseLeave={e => {
+      const el = e.currentTarget as HTMLDivElement;
+      el.style.transform = 'translateY(0)';
+      el.style.borderColor = 'rgba(255,255,255,0.07)';
+      el.style.boxShadow = 'none';
+    }}
   >
-    {/* Glow */}
-    <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: `${color}18`, filter: 'blur(20px)' }}></div>
+    {/* Background glow */}
+    <div style={{ position: 'absolute', bottom: '-30px', right: '-30px', width: '130px', height: '130px', borderRadius: '50%', background: `radial-gradient(circle, ${color}20 0%, transparent 70%)`, filter: 'blur(20px)' }} />
+    {/* Top row */}
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-      <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: `${color}18`, border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', color }}>
+      <div style={{ width: '46px', height: '46px', borderRadius: '14px', background: `linear-gradient(135deg, ${color}22, ${color}10)`, border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', color }}>
         {icon}
       </div>
-      <div style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(148,163,184,0.45)', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '4px' }}>TOTAL</div>
+      {trend && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '99px' }}>
+          <ArrowUpRight size={12} color="#10b981" />
+          <span style={{ fontSize: '11px', fontWeight: 700, color: '#10b981' }}>{trend}</span>
+        </div>
+      )}
     </div>
-    <div style={{ fontSize: '40px', fontWeight: 900, color: '#f1f5f9', letterSpacing: '-1px', lineHeight: 1, marginBottom: '8px' }}>{value}</div>
-    <div style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(148,163,184,0.8)' }}>{title}</div>
-    <div style={{ fontSize: '12px', color: 'rgba(148,163,184,0.4)', marginTop: '4px' }}>{sub}</div>
+    {/* Value */}
+    <div style={{ fontSize: '42px', fontWeight: 900, color: '#ffffff', letterSpacing: '-2px', lineHeight: 1, marginBottom: '6px', fontVariantNumeric: 'tabular-nums' }}>
+      <AnimatedNumber value={value} />
+    </div>
+    <div style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.65)', marginBottom: '3px' }}>{title}</div>
+    <div style={{ fontSize: '12px', color: 'rgba(148,163,184,0.4)' }}>{sub}</div>
   </div>
-);
-
-const QuickAction = ({ icon, label, sub, color, onClick }: { icon: React.ReactNode; label: string; sub: string; color: string; onClick: () => void }) => (
-  <button onClick={onClick} style={{
-    background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)',
-    borderRadius: '16px', padding: '20px', display: 'flex', alignItems: 'center', gap: '16px',
-    cursor: 'pointer', width: '100%', transition: 'all 0.25s', textAlign: 'left', fontFamily: "'Inter', sans-serif"
-  }}
-    onMouseEnter={e => { const el = e.currentTarget; el.style.background = `${color}0d`; el.style.borderColor = `${color}30`; el.style.transform = 'translateX(4px)'; }}
-    onMouseLeave={e => { const el = e.currentTarget; el.style.background = 'rgba(255,255,255,0.02)'; el.style.borderColor = 'rgba(255,255,255,0.07)'; el.style.transform = 'translateX(0)'; }}
-  >
-    <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: `${color}18`, border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', color, flexShrink: 0 }}>
-      {icon}
-    </div>
-    <div style={{ flex: 1 }}>
-      <div style={{ fontSize: '14px', fontWeight: 700, color: '#f1f5f9', marginBottom: '2px' }}>{label}</div>
-      <div style={{ fontSize: '12px', color: 'rgba(148,163,184,0.5)' }}>{sub}</div>
-    </div>
-    <ArrowRight size={16} style={{ color: 'rgba(148,163,184,0.3)' }} />
-  </button>
 );
 
 export const DashboardPage = () => {
@@ -71,114 +93,184 @@ export const DashboardPage = () => {
       .finally(() => setLoading(false));
   }, []);
 
-
   const getDisplayName = () => {
     const raw = user?.name || '';
-    // If the name looks like an email, use just the part before @
-    if (raw.includes('@')) return raw.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-    // Otherwise use first name only
-    return raw.split(' ')[0] || 'there';
+    let name = raw.includes('@') ? raw.split('@')[0] : raw;
+    name = name.replace(/[0-9._-]/g, ' ').trim();
+    const words = name.split(/\s+/).filter(Boolean);
+    if (words.length === 0) return 'there';
+    return words.slice(0, 2).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
   };
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontSize: '20px', fontWeight: 700 }}>
-        <Activity size={24} style={{ color: '#6366f1' }} /> Loading Dashboard...
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: '3px solid rgba(99,102,241,0.15)', borderTopColor: '#6366f1', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+        <p style={{ color: 'rgba(148,163,184,0.5)', fontSize: '14px' }}>Loading your workspace…</p>
       </div>
     </div>
   );
 
+  const pipelineItems = [
+    { label: 'Resume Parser', sub: 'Gemini AI', color: '#10b981' },
+    { label: 'Vector Embeddings', sub: 'Similarity engine', color: '#10b981' },
+    { label: 'Email Notifications', sub: 'SMTP / Nodemailer', color: '#10b981' },
+    { label: 'Candidate Ranking', sub: 'AI scoring', color: '#10b981' },
+  ];
+
+  const actions = [
+    { icon: <Plus size={17} />, label: 'Post a New Job', sub: 'Define role & requirements', color: '#6366f1', path: '/jobs' },
+    { icon: <Upload size={17} />, label: 'Upload Resumes', sub: 'Bulk AI PDF processing', color: '#8b5cf6', path: '/resumes' },
+    { icon: <TrendingUp size={17} />, label: 'View Rankings', sub: 'AI-ranked candidates', color: '#06b6d4', path: '/ranking' },
+    { icon: <Calendar size={17} />, label: 'Manage Interviews', sub: 'Scheduled sessions', color: '#10b981', path: '/interviews' },
+  ];
+
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
       <style>{`
-        @keyframes fade-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-        .dash-section { animation: fade-up 0.5s ease-out both; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        @keyframes fade-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse-dot { 0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); } 50% { box-shadow: 0 0 0 5px rgba(16,185,129,0); } }
+        .dash-s1 { animation: fade-up 0.45s ease-out both; }
+        .dash-s2 { animation: fade-up 0.45s 0.1s ease-out both; }
+        .dash-s3 { animation: fade-up 0.45s 0.2s ease-out both; }
+        .act-btn { transition: all 0.22s; }
+        .act-btn:hover { background: rgba(255,255,255,0.06) !important; transform: translateX(4px); }
       `}</style>
 
-      {/* Header */}
-      <div className="dash-section" style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981' }}></div>
-            <span style={{ fontSize: '12px', color: '#10b981', fontWeight: 600, letterSpacing: '0.5px' }}>All systems operational</span>
+      {/* ── Hero Banner ───────────────────────────────────────────── */}
+      <div className="dash-s1" style={{
+        position: 'relative', borderRadius: '24px', padding: '32px 36px', marginBottom: '28px', overflow: 'hidden',
+        background: 'linear-gradient(135deg, #13111f 0%, #0f1629 60%, #0d1a2a 100%)',
+        border: '1px solid rgba(99,102,241,0.15)'
+      }}>
+        {/* Banner glows */}
+        <div style={{ position: 'absolute', top: '-40px', right: '80px', width: '280px', height: '200px', background: 'radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+        <div style={{ position: 'absolute', bottom: '-20px', right: '20%', width: '200px', height: '150px', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', filter: 'blur(30px)' }} />
+        {/* Dot grid */}
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '28px 28px', borderRadius: '24px' }} />
+
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+          <div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '5px 14px', background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.25)', borderRadius: '99px', marginBottom: '14px' }}>
+            <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#06b6d4', boxShadow: '0 0 8px rgba(6,182,212,0.7)', animation: 'pulse-dot 2s infinite' }} />
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#67e8f9', letterSpacing: '0.4px' }}>AI HIRING AUTOPILOT — ACTIVE</span>
           </div>
-          <h1 style={{ fontSize: '28px', fontWeight: 800, letterSpacing: '-0.5px', color: '#f1f5f9', marginBottom: '4px', lineHeight: 1.2 }}>
-            Welcome back, <span style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{getDisplayName()}</span>
-          </h1>
-          <p style={{ fontSize: '14px', color: 'rgba(148,163,184,0.55)' }}>Here's your hiring pipeline at a glance.</p>
+            <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#ffffff', letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '8px' }}>
+              Welcome back, {getDisplayName()}
+            </h1>
+            <p style={{ fontSize: '14px', color: 'rgba(148,163,184,0.55)', lineHeight: 1.6, maxWidth: '400px' }}>
+              Your AI hiring pipeline is live. Here's your workspace at a glance.
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '10px', flexShrink: 0 }}>
+            <button onClick={() => navigate('/resumes')} style={{
+              display: 'flex', alignItems: 'center', gap: '7px', padding: '10px 18px',
+              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: '12px', color: '#e2e8f0', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+              fontFamily: "'Inter', sans-serif", transition: 'all 0.2s'
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
+            >
+              <Upload size={14} /> Upload Resumes
+            </button>
+            <button onClick={() => navigate('/jobs')} style={{
+              display: 'flex', alignItems: 'center', gap: '7px', padding: '10px 18px',
+              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', border: 'none',
+              borderRadius: '12px', color: 'white', fontSize: '13px', fontWeight: 700, cursor: 'pointer',
+              fontFamily: "'Inter', sans-serif", transition: 'all 0.2s',
+              boxShadow: '0 4px 20px rgba(99,102,241,0.4)'
+            }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(99,102,241,0.55)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(99,102,241,0.4)'; }}
+            >
+              <Plus size={14} /> New Job
+            </button>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button onClick={() => navigate('/resumes')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '11px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#e2e8f0', fontSize: '14px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Inter', sans-serif", transition: 'all 0.2s' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.09)'; }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}>
-            <Upload size={15} /> Upload Resumes
-          </button>
-          <button onClick={() => navigate('/jobs')} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '11px 20px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', border: 'none', borderRadius: '12px', color: 'white', fontSize: '14px', fontWeight: 700, cursor: 'pointer', fontFamily: "'Inter', sans-serif", transition: 'all 0.2s', boxShadow: '0 4px 16px rgba(99,102,241,0.35)' }}
-            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 6px 24px rgba(99,102,241,0.55)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-            onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(99,102,241,0.35)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-            <Plus size={15} /> New Job
-          </button>
-        </div>
+
+
       </div>
 
-      {/* Stats Grid */}
-      <div className="dash-section" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '36px', animationDelay: '0.1s' }}>
-        <StatCard title="Active Jobs" value={stats.totalJobs} icon={<Briefcase size={20} />} color="#6366f1" sub="Open positions" />
-        <StatCard title="Talent Pool" value={stats.totalCandidates} icon={<Users size={20} />} color="#10b981" sub="Parsed candidates" />
-        <StatCard title="Resumes Processed" value={stats.totalResumes} icon={<FileText size={20} />} color="#f59e0b" sub="By AI pipeline" />
+      {/* ── Stats Grid ────────────────────────────────────────────── */}
+      <div className="dash-s2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+        <StatCard title="Active Jobs" value={stats.totalJobs} icon={<Briefcase size={20} />} color="#6366f1" sub="Open positions" trend="+2 this week" />
+        <StatCard title="Talent Pool" value={stats.totalCandidates} icon={<Users size={20} />} color="#10b981" sub="AI-parsed candidates" trend="Live" />
+        <StatCard title="Resumes Processed" value={stats.totalResumes} icon={<FileText size={20} />} color="#f59e0b" sub="By Gemini pipeline" />
         <StatCard title="Upcoming Interviews" value={stats.upcomingInterviews} icon={<Calendar size={20} />} color="#ef4444" sub="Scheduled" />
       </div>
 
-      {/* Bottom Grid */}
-      <div className="dash-section" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', animationDelay: '0.2s' }}>
+      {/* ── Bottom Grid ───────────────────────────────────────────── */}
+      <div className="dash-s3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+
         {/* Quick Actions */}
-        <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '28px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Zap size={18} color="#6366f1" />
+        <div style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+            <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Zap size={16} color="#818cf8" />
             </div>
-            <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#f1f5f9' }}>Quick Actions</h3>
+            <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#f1f5f9' }}>Quick Actions</h3>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <QuickAction icon={<Plus size={18} />} label="Post a New Job" sub="Define role & requirements" color="#6366f1" onClick={() => navigate('/jobs')} />
-            <QuickAction icon={<Upload size={18} />} label="Upload Resumes" sub="Bulk PDF processing" color="#8b5cf6" onClick={() => navigate('/resumes')} />
-            <QuickAction icon={<TrendingUp size={18} />} label="View Rankings" sub="AI-ranked candidates" color="#06b6d4" onClick={() => navigate('/ranking')} />
-            <QuickAction icon={<Calendar size={18} />} label="Manage Interviews" sub="View scheduled sessions" color="#10b981" onClick={() => navigate('/interviews')} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {actions.map(a => (
+              <button key={a.label} className="act-btn" onClick={() => navigate(a.path)} style={{
+                background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: '14px', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '14px',
+                cursor: 'pointer', width: '100%', textAlign: 'left', fontFamily: "'Inter', sans-serif"
+              }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: `${a.color}15`, border: `1px solid ${a.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: a.color, flexShrink: 0 }}>
+                  {a.icon}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#f1f5f9', marginBottom: '1px' }}>{a.label}</div>
+                  <div style={{ fontSize: '11px', color: 'rgba(148,163,184,0.5)' }}>{a.sub}</div>
+                </div>
+                <ChevronRight size={15} style={{ color: 'rgba(148,163,184,0.25)', flexShrink: 0 }} />
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* AI Status Panel */}
-        <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '28px', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '200px', height: '200px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%)', filter: 'blur(30px)' }}></div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Activity size={18} color="#10b981" />
+        {/* AI Pipeline Status */}
+        <div style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '24px', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: '-60px', right: '-40px', width: '220px', height: '220px', background: 'radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%)', filter: 'blur(30px)' }} />
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', position: 'relative' }}>
+            <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Activity size={16} color="#10b981" />
             </div>
-            <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#f1f5f9' }}>AI Pipeline Status</h3>
+            <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#f1f5f9' }}>AI Pipeline</h3>
+            <div style={{ marginLeft: 'auto', padding: '3px 10px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '99px', fontSize: '11px', fontWeight: 700, color: '#10b981' }}>
+              4/4 Online
+            </div>
           </div>
 
-          {[
-            { label: 'Resume Parser (Gemini AI)', status: 'Online', color: '#10b981' },
-            { label: 'Vector Embedding Engine', status: 'Online', color: '#10b981' },
-            { label: 'Email Notification Service', status: 'Online', color: '#10b981' },
-            { label: 'Candidate Ranking System', status: 'Online', color: '#10b981' },
-          ].map(item => (
-            <div key={item.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <span style={{ fontSize: '14px', color: 'rgba(148,163,184,0.75)', fontWeight: 500 }}>{item.label}</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: item.color, boxShadow: `0 0 6px ${item.color}` }}></div>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: item.color }}>{item.status}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', position: 'relative' }}>
+            {pipelineItems.map((item, i) => (
+              <div key={item.label} style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: i < pipelineItems.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>{item.label}</span>
+                  <span style={{ fontSize: '11px', color: 'rgba(148,163,184,0.4)' }}>{item.sub}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: item.color, animation: 'pulse-dot 2s infinite' }} />
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: item.color }}>Online</span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
 
-          <div style={{ marginTop: '24px', padding: '16px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#6366f1', flexShrink: 0, boxShadow: '0 0 8px #6366f1' }}></div>
-            <span style={{ fontSize: '13px', color: 'rgba(148,163,184,0.7)', lineHeight: 1.5 }}>
-              All AI services are running. Upload resumes to begin processing.
+          {/* Footer note */}
+          <div style={{ marginTop: '16px', padding: '12px 14px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.12)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Sparkles size={14} color="#818cf8" style={{ flexShrink: 0 }} />
+            <span style={{ fontSize: '12px', color: 'rgba(148,163,184,0.6)', lineHeight: 1.5 }}>
+              Upload resumes to start the AI processing pipeline.
             </span>
           </div>
         </div>
+
       </div>
     </div>
   );

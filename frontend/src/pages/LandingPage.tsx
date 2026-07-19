@@ -230,9 +230,10 @@ export const LandingPage = () => {
         <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0)', backgroundSize: '40px 40px', zIndex: 0 }}></div>
 
         <div style={{ position: 'relative', zIndex: 1, maxWidth: '900px' }}>
-          <div className="hero-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '100px', padding: '8px 20px', marginBottom: '32px', fontSize: '13px', fontWeight: 600, color: '#a5b4fc' }}>
-            <Zap size={14} fill="#a5b4fc" />
-            Powered by Google Gemini AI
+
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)', borderRadius: '100px', padding: '7px 18px', marginBottom: '32px' }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c084fc" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#c084fc', letterSpacing: '0.5px' }}>THE FUTURE OF HIRING IS HERE</span>
           </div>
 
           <h1 className="hero-title" style={{ fontSize: 'clamp(48px, 7vw, 88px)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-2px', marginBottom: '24px' }}>
