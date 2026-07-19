@@ -1,3 +1,4 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 fastapi
 uvicorn
 pydantic
@@ -7,7 +8,7 @@ google-generativeai
 langgraph
 langchain-core
 sentence-transformers
-torch --index-url https://download.pytorch.org/whl/cpu
+torch
 langchain-groq
 groq
 python-dotenv
