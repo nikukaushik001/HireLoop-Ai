@@ -16,7 +16,7 @@ try {
 
   transporter = nodemailer.createTransport({
     SES: { ses, aws },
-  });
+  } as any);
 } catch (error) {
   console.warn("⚠️ Warning: AWS SES credentials not configured properly in .env");
 }
