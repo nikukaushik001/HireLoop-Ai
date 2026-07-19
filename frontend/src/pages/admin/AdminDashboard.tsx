@@ -77,132 +77,153 @@ export const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="animate-fade-in">
-      <div style={{ marginBottom: '32px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+    <div className="animate-fade-in" style={{ position: 'relative' }}>
+      {/* Premium Header */}
+      <div style={{ marginBottom: '40px', position: 'relative', overflow: 'hidden', padding: '32px', borderRadius: '24px', background: 'linear-gradient(135deg, rgba(15,23,42,0.6) 0%, rgba(30,41,59,0.4) 100%)', border: '1px solid rgba(255,255,255,0.05)', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+        <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(239,68,68,0.15) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(30px)' }} />
+        <div style={{ position: 'absolute', bottom: '-50px', left: '20%', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(245,158,11,0.1) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(20px)' }} />
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px', position: 'relative', zIndex: 1 }}>
           <div style={{
-            padding: '10px', borderRadius: '14px',
-            background: 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(245,158,11,0.2))',
-            border: '1px solid rgba(239,68,68,0.3)'
+            padding: '14px', borderRadius: '18px',
+            background: 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(245,158,11,0.2))',
+            border: '1px solid rgba(239,68,68,0.4)',
+            boxShadow: '0 8px 16px rgba(239,68,68,0.15)'
           }}>
-            <ShieldAlert size={24} color="#ef4444" />
+            <ShieldAlert size={28} color="#ef4444" />
           </div>
-          <h1 className="text-gradient" style={{ margin: 0 }}>Super Admin Control Panel</h1>
+          <div>
+            <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 800, background: 'linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.5px' }}>
+              Super Admin Portal
+            </h1>
+            <p style={{ color: '#94a3b8', margin: '4px 0 0 0', fontSize: '15px', fontWeight: 500 }}>
+              System-wide overview and administrative controls
+            </p>
+          </div>
         </div>
-        <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: '14px' }}>
-          System-wide overview and administrative controls across all tenants.
-        </p>
       </div>
 
       {/* Stats Grid */}
       {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '32px' }}>
-          <div className="glass-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{ padding: '16px', borderRadius: '16px', background: 'rgba(99,102,241,0.1)', color: '#6366f1' }}>
-              <Users size={32} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px', marginBottom: '40px' }}>
+          <div className="glass-card" style={{ padding: '28px', display: 'flex', alignItems: 'center', gap: '24px', transition: 'transform 0.3s ease, box-shadow 0.3s ease', cursor: 'default' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+            <div style={{ padding: '20px', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(99,102,241,0.05))', color: '#818cf8', border: '1px solid rgba(99,102,241,0.2)', boxShadow: 'inset 0 2px 10px rgba(255,255,255,0.05)' }}>
+              <Users size={36} />
             </div>
             <div>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Total Users (HR)</div>
-              <div style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)' }}>{stats.totalUsers}</div>
+              <div style={{ fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '1px', marginBottom: '4px' }}>Total HR</div>
+              <div style={{ fontSize: '36px', fontWeight: 800, color: '#f8fafc', lineHeight: 1 }}>{stats.totalUsers}</div>
             </div>
           </div>
-          <div className="glass-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{ padding: '16px', borderRadius: '16px', background: 'rgba(16,185,129,0.1)', color: '#10b981' }}>
-              <Briefcase size={32} />
+          
+          <div className="glass-card" style={{ padding: '28px', display: 'flex', alignItems: 'center', gap: '24px', transition: 'transform 0.3s ease, box-shadow 0.3s ease', cursor: 'default' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+            <div style={{ padding: '20px', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05))', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)', boxShadow: 'inset 0 2px 10px rgba(255,255,255,0.05)' }}>
+              <Briefcase size={36} />
             </div>
             <div>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Total Jobs</div>
-              <div style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)' }}>{stats.totalJobs}</div>
+              <div style={{ fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '1px', marginBottom: '4px' }}>Total Jobs</div>
+              <div style={{ fontSize: '36px', fontWeight: 800, color: '#f8fafc', lineHeight: 1 }}>{stats.totalJobs}</div>
             </div>
           </div>
-          <div className="glass-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{ padding: '16px', borderRadius: '16px', background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}>
-              <Database size={32} />
+
+          <div className="glass-card" style={{ padding: '28px', display: 'flex', alignItems: 'center', gap: '24px', transition: 'transform 0.3s ease, box-shadow 0.3s ease', cursor: 'default' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+            <div style={{ padding: '20px', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05))', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.2)', boxShadow: 'inset 0 2px 10px rgba(255,255,255,0.05)' }}>
+              <Database size={36} />
             </div>
             <div>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Total Candidates</div>
-              <div style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)' }}>{stats.totalCandidates}</div>
+              <div style={{ fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '1px', marginBottom: '4px' }}>Candidates</div>
+              <div style={{ fontSize: '36px', fontWeight: 800, color: '#f8fafc', lineHeight: 1 }}>{stats.totalCandidates}</div>
             </div>
           </div>
-          <div className="glass-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{ padding: '16px', borderRadius: '16px', background: 'rgba(236,72,153,0.1)', color: '#ec4899' }}>
-              <FileText size={32} />
+
+          <div className="glass-card" style={{ padding: '28px', display: 'flex', alignItems: 'center', gap: '24px', transition: 'transform 0.3s ease, box-shadow 0.3s ease', cursor: 'default' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+            <div style={{ padding: '20px', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(236,72,153,0.15), rgba(236,72,153,0.05))', color: '#f472b6', border: '1px solid rgba(236,72,153,0.2)', boxShadow: 'inset 0 2px 10px rgba(255,255,255,0.05)' }}>
+              <FileText size={36} />
             </div>
             <div>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Total Resumes</div>
-              <div style={{ fontSize: '32px', fontWeight: 700, color: 'var(--text-primary)' }}>{stats.totalResumes}</div>
+              <div style={{ fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '1px', marginBottom: '4px' }}>Resumes</div>
+              <div style={{ fontSize: '36px', fontWeight: 800, color: '#f8fafc', lineHeight: 1 }}>{stats.totalResumes}</div>
             </div>
           </div>
         </div>
       )}
 
       {/* Users Table */}
-      <div className="glass-card" style={{ padding: '24px' }}>
-        <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Activity size={20} color="#ef4444" /> System Users
-        </h2>
+      <div className="glass-card" style={{ padding: '32px', borderRadius: '24px', background: 'rgba(15,23,42,0.4)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+          <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '12px', color: '#f1f5f9' }}>
+            <div style={{ padding: '8px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)' }}><Activity size={20} color="#ef4444" /></div>
+            Tenant Management
+          </h2>
+        </div>
         
-        <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', padding: '16px', borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>User</th>
-              <th style={{ textAlign: 'left', padding: '16px', borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>Email</th>
-              <th style={{ textAlign: 'left', padding: '16px', borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>Role</th>
-              <th style={{ textAlign: 'left', padding: '16px', borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>Status</th>
-              <th style={{ textAlign: 'left', padding: '16px', borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>Joined</th>
-              <th style={{ textAlign: 'right', padding: '16px', borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map(u => (
-              <tr key={u.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <td style={{ padding: '16px', color: 'var(--text-primary)', fontWeight: 500 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(99,102,241,0.2)', color: '#818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
-                      {u.name.charAt(0)}
-                    </div>
-                    {u.name}
-                  </div>
-                </td>
-                <td style={{ padding: '16px', color: 'var(--text-secondary)' }}>{u.email}</td>
-                <td style={{ padding: '16px' }}>
-                  <span style={{ 
-                    padding: '4px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: 600,
-                    background: u.role === 'SUPERADMIN' ? 'rgba(239,68,68,0.15)' : u.role === 'ADMIN' ? 'rgba(245,158,11,0.15)' : 'rgba(16,185,129,0.15)',
-                    color: u.role === 'SUPERADMIN' ? '#ef4444' : u.role === 'ADMIN' ? '#f59e0b' : '#10b981',
-                    border: u.role === 'SUPERADMIN' ? '1px solid rgba(239,68,68,0.3)' : u.role === 'ADMIN' ? '1px solid rgba(245,158,11,0.3)' : '1px solid rgba(16,185,129,0.3)'
-                  }}>
-                    {u.role}
-                  </span>
-                </td>
-                <td style={{ padding: '16px' }}>
-                  {u.isApproved ? (
-                    <span style={{ color: '#10b981', fontSize: '13px', fontWeight: 500 }}>Approved</span>
-                  ) : (
-                    <span style={{ color: '#f59e0b', fontSize: '13px', fontWeight: 500 }}>Pending</span>
-                  )}
-                </td>
-                <td style={{ padding: '16px', color: 'var(--text-muted)', fontSize: '13px' }}>
-                  {new Date(u.createdAt).toLocaleDateString()}
-                </td>
-                <td style={{ padding: '16px', textAlign: 'right' }}>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                    {!u.isApproved && (
-                      <button onClick={() => handleApprove(u.id)} className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }}>
-                        Approve
-                      </button>
-                    )}
-                    {u.isApproved && u.role !== 'SUPERADMIN' && (
-                      <button onClick={() => handleRevoke(u.id)} className="btn-secondary" style={{ padding: '6px 12px', fontSize: '12px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)' }}>
-                        Revoke Access
-                      </button>
-                    )}
-                  </div>
-                </td>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="data-table" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px' }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', padding: '0 20px 16px 20px', color: '#64748b', fontWeight: 700, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>User</th>
+                <th style={{ textAlign: 'left', padding: '0 20px 16px 20px', color: '#64748b', fontWeight: 700, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Email</th>
+                <th style={{ textAlign: 'left', padding: '0 20px 16px 20px', color: '#64748b', fontWeight: 700, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Role</th>
+                <th style={{ textAlign: 'left', padding: '0 20px 16px 20px', color: '#64748b', fontWeight: 700, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Status</th>
+                <th style={{ textAlign: 'left', padding: '0 20px 16px 20px', color: '#64748b', fontWeight: 700, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Joined</th>
+                <th style={{ textAlign: 'right', padding: '0 20px 16px 20px', color: '#64748b', fontWeight: 700, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map(u => (
+                <tr key={u.id} style={{ background: 'rgba(30,41,59,0.3)', transition: 'background 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(30,41,59,0.6)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(30,41,59,0.3)'}>
+                  <td style={{ padding: '20px', borderRadius: '16px 0 0 16px', color: '#f1f5f9', fontWeight: 600 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '16px', boxShadow: '0 4px 12px rgba(99,102,241,0.3)' }}>
+                        {u.name.charAt(0).toUpperCase()}
+                      </div>
+                      {u.name}
+                    </div>
+                  </td>
+                  <td style={{ padding: '20px', color: '#94a3b8', fontSize: '14px' }}>{u.email}</td>
+                  <td style={{ padding: '20px' }}>
+                    <span style={{ 
+                      padding: '6px 14px', borderRadius: '8px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.5px',
+                      background: u.role === 'SUPERADMIN' ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)',
+                      color: u.role === 'SUPERADMIN' ? '#f87171' : '#34d399',
+                      border: u.role === 'SUPERADMIN' ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(16,185,129,0.2)'
+                    }}>
+                      {u.role}
+                    </span>
+                  </td>
+                  <td style={{ padding: '20px' }}>
+                    {u.isApproved ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#34d399', fontSize: '13px', fontWeight: 600 }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34d399', boxShadow: '0 0 8px #34d399' }} /> Approved
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fbbf24', fontSize: '13px', fontWeight: 600 }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#fbbf24', boxShadow: '0 0 8px #fbbf24' }} /> Pending
+                      </div>
+                    )}
+                  </td>
+                  <td style={{ padding: '20px', color: '#94a3b8', fontSize: '13px', fontWeight: 500 }}>
+                    {new Date(u.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </td>
+                  <td style={{ padding: '20px', textAlign: 'right', borderRadius: '0 16px 16px 0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                      {!u.isApproved && (
+                        <button onClick={() => handleApprove(u.id)} className="btn-primary" style={{ padding: '8px 16px', fontSize: '13px', borderRadius: '10px', boxShadow: '0 4px 12px rgba(16,185,129,0.2)', background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                          Approve
+                        </button>
+                      )}
+                      {u.isApproved && u.role !== 'SUPERADMIN' && (
+                        <button onClick={() => handleRevoke(u.id)} style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.2)'; e.currentTarget.style.color = '#fff'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#f87171'; }}>
+                          Revoke Access
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
