@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 export class EmailService {
   async sendMail(options: { to: string; subject: string; text: string; html: string }) {
     const fromAddress = process.env.SMTP_FROM || process.env.SES_FROM_EMAIL || 'hireloop.ai@gmail.com';
-    
+
     try {
       const info = await transporter.sendMail({
         from: `"HireLoop-AI" <${fromAddress}>`,
@@ -23,7 +23,7 @@ export class EmailService {
         text: options.text,
         html: options.html,
       });
-      
+
       console.log(`[Email Sent via SMTP] Message ID: ${info.messageId}`);
       return info;
     } catch (err) {
