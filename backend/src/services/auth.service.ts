@@ -48,7 +48,8 @@ export class AuthService {
         email: data.email,
         name: data.name,
         passwordHash,
-        role: 'RECRUITER' // All new signups are recruiters by default
+        role: 'RECRUITER', // All new signups are recruiters by default
+        isApproved: false  // New signups require superadmin approval
       }
     });
 
@@ -70,6 +71,10 @@ export class AuthService {
     const isMatch = await bcrypt.compare(data.password, user.passwordHash);
     if (!isMatch) {
       throw new UnauthorizedError('Invalid email or password');
+    }
+
+    if (!user.isApproved) {
+      throw new UnauthorizedError('Account pending approval by Superadmin');
     }
 
     return this.generateTokens(user.id, user.email, user.role);
@@ -104,9 +109,14 @@ export class AuthService {
             email: payload.email,
             name: payload.name || 'Google User',
             passwordHash,
-            role: 'RECRUITER'
+            role: 'RECRUITER',
+            isApproved: false
           }
         });
+      }
+
+      if (!user.isApproved) {
+        throw new UnauthorizedError('Account pending approval by Superadmin');
       }
 
       return this.generateTokens(user.id, user.email, user.role);

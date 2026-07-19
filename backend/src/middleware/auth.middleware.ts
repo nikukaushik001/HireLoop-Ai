@@ -22,3 +22,14 @@ export const requireAuth = (req: Request, _res: Response, next: NextFunction) =>
     next(new UnauthorizedError('Invalid or expired token'));
   }
 };
+
+export const requireSuperAdmin = (req: Request, _res: Response, next: NextFunction) => {
+  requireAuth(req, _res, (err?: any) => {
+    if (err) return next(err);
+    
+    if (req.user?.role !== 'SUPERADMIN') {
+      return next(new UnauthorizedError('Superadmin access required'));
+    }
+    next();
+  });
+};
