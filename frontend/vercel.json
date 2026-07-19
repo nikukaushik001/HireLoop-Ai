@@ -1,5 +1,1 @@
-{
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
+{ "alias": ["hireloop-ai-portal.vercel.app"] }

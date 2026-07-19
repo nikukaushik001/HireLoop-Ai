@@ -76,6 +76,16 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleDelete = async (userId: string) => {
+    if (!window.confirm('Are you sure you want to permanently delete this user?')) return;
+    try {
+      await apiClient.delete(`/admin/users/${userId}`);
+      setUsers(users.filter(u => u.id !== userId));
+    } catch (err) {
+      alert('Failed to delete user');
+    }
+  };
+
   return (
     <div className="animate-fade-in" style={{ position: 'relative' }}>
       {/* Premium Header */}
@@ -214,7 +224,12 @@ export const AdminDashboard: React.FC = () => {
                       )}
                       {u.isApproved && u.role !== 'SUPERADMIN' && (
                         <button onClick={() => handleRevoke(u.id)} style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.2)'; e.currentTarget.style.color = '#fff'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#f87171'; }}>
-                          Revoke Access
+                          Revoke
+                        </button>
+                      )}
+                      {u.role !== 'SUPERADMIN' && (
+                        <button onClick={() => handleDelete(u.id)} style={{ padding: '8px 12px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.8)'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'transparent'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}>
+                          Delete
                         </button>
                       )}
                     </div>

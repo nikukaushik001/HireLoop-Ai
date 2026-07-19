@@ -67,3 +67,15 @@ export const revokeUser = async (req: Request, res: Response) => {
   }
 };
 
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    await prisma.user.delete({
+      where: { id }
+    });
+    res.status(200).json({ success: true, data: { id } });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: { message: 'Failed to delete user' } });
+  }
+};
+
