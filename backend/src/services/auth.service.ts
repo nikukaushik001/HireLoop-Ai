@@ -31,7 +31,7 @@ export class AuthService {
   /**
    * Register a new recruiter
    */
-  async register(data: RegisterDTO): Promise<AuthTokens> {
+  async register(data: RegisterDTO): Promise<{ message: string }> {
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email }
     });
@@ -43,7 +43,7 @@ export class AuthService {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(data.password, saltRounds);
 
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email: data.email,
         name: data.name,
@@ -53,7 +53,7 @@ export class AuthService {
       }
     });
 
-    return this.generateTokens(user.id, user.email, user.role);
+    return { message: 'Account created successfully. Pending approval by Superadmin.' };
   }
 
   /**

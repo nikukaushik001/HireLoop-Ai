@@ -11,6 +11,7 @@ export const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -19,10 +20,11 @@ export const RegisterPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
+    setSuccessMsg('');
     try {
       const res = await apiClient.post('/auth/register', { name, email, password });
-      await login(res.data.data.accessToken);
-      navigate('/dashboard');
+      setSuccessMsg(res.data.data.message || 'Account created successfully. Pending approval.');
+      // Do not log them in! They must wait for approval.
     } catch (err: any) {
       setError(err.response?.data?.error?.message || 'Registration failed. Please try again.');
     } finally {
@@ -158,6 +160,12 @@ export const RegisterPage = () => {
 
         <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.5px', marginBottom: '4px' }}>Create account</h1>
         <p style={{ fontSize: '13px', color: 'rgba(148,163,184,0.6)', marginBottom: '24px' }}>Start your AI-powered hiring journey.</p>
+
+        {successMsg && (
+          <div style={{ padding: '11px 14px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.22)', borderRadius: '10px', color: '#6ee7b7', fontSize: '13px', marginBottom: '18px', lineHeight: 1.5 }}>
+            {successMsg}
+          </div>
+        )}
 
         {error && (
           <div style={{ padding: '11px 14px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)', borderRadius: '10px', color: '#fca5a5', fontSize: '13px', marginBottom: '18px', lineHeight: 1.5 }}>

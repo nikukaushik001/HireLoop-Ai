@@ -67,6 +67,15 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleRevoke = async (userId: string) => {
+    try {
+      await apiClient.put(`/admin/users/${userId}/revoke`);
+      setUsers(users.map(u => u.id === userId ? { ...u, isApproved: false } : u));
+    } catch (err) {
+      alert('Failed to revoke user');
+    }
+  };
+
   return (
     <div className="animate-fade-in">
       <div style={{ marginBottom: '32px' }}>
@@ -181,6 +190,11 @@ export const AdminDashboard: React.FC = () => {
                     {!u.isApproved && (
                       <button onClick={() => handleApprove(u.id)} className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }}>
                         Approve
+                      </button>
+                    )}
+                    {u.isApproved && u.role !== 'SUPERADMIN' && (
+                      <button onClick={() => handleRevoke(u.id)} className="btn-secondary" style={{ padding: '6px 12px', fontSize: '12px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)' }}>
+                        Revoke Access
                       </button>
                     )}
                   </div>
