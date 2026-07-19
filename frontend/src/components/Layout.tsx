@@ -18,7 +18,7 @@ export const Layout: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  if (user.role === 'ADMIN') {
+  if (user.role === 'SUPERADMIN') {
     return <Navigate to="/admin" replace />;
   }
 

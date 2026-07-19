@@ -18,7 +18,7 @@ export const AdminLayout: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  if (user.role !== 'ADMIN') {
+  if (user.role !== 'SUPERADMIN') {
     return <Navigate to="/" replace />;
   }
 
