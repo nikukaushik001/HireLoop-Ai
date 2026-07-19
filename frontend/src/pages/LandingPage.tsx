@@ -203,24 +203,49 @@ export const LandingPage = () => {
       `}</style>
 
       {/* ── NAV ── */}
-      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, background: 'rgba(10,10,15,0.8)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '0 48px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '32px', height: '32px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Brain size={18} color="white" />
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        background: 'rgba(10,10,15,0.85)', backdropFilter: 'blur(24px)',
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        padding: '0 64px', height: '80px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+      }}>
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <div style={{
+            width: '42px', height: '42px',
+            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 20px rgba(99,102,241,0.45)'
+          }}>
+            <Brain size={22} color="white" />
           </div>
-          <span style={{ fontWeight: 800, fontSize: '18px', letterSpacing: '-0.3px' }}>HireLoop<span className="gradient-text">AI</span></span>
+          <div>
+            <span style={{ fontWeight: 900, fontSize: '22px', letterSpacing: '-0.5px', lineHeight: 1 }}>
+              HireLoop<span className="gradient-text">AI</span>
+            </span>
+            <div style={{ fontSize: '10px', color: 'rgba(148,163,184,0.45)', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', marginTop: '1px' }}>Intelligent ATS</div>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
-          <span className="nav-link" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>Features</span>
-          <span className="nav-link" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How It Works</span>
-          <button className="btn-secondary-landing" style={{ padding: '10px 20px', fontSize: '14px' }} onClick={() => navigate('/login')}>Sign In</button>
-          <button className="btn-primary-landing" style={{ padding: '10px 20px', fontSize: '14px' }} onClick={() => navigate('/register')}>Get Started</button>
+        {/* Nav links */}
+        <div style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
+          <span className="nav-link" style={{ fontSize: '15px', fontWeight: 500 }} onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>Features</span>
+          <span className="nav-link" style={{ fontSize: '15px', fontWeight: 500 }} onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How It Works</span>
+          <span className="nav-link" style={{ fontSize: '15px', fontWeight: 500 }} onClick={() => document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' })}>Why HireLoop</span>
+        </div>
+
+        {/* CTA buttons */}
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <button className="btn-secondary-landing" style={{ padding: '11px 24px', fontSize: '14px', fontWeight: 600, borderRadius: '10px' }} onClick={() => navigate('/login')}>Sign In</button>
+          <button className="btn-primary-landing" style={{ padding: '11px 24px', fontSize: '14px', fontWeight: 700, borderRadius: '10px' }} onClick={() => navigate('/register')}>
+            Get Started <ChevronRight size={15} />
+          </button>
         </div>
       </nav>
 
       {/* ── HERO ── */}
-      <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '120px 48px 80px', overflow: 'hidden' }}>
+      <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '140px 48px 80px', overflow: 'hidden' }}>
         {/* Background Orbs */}
         <div className="orb" style={{ width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%)', top: '10%', left: '10%' }}></div>
         <div className="orb" style={{ width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%)', top: '20%', right: '5%', animationDelay: '-2s' }}></div>
