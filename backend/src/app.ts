@@ -14,9 +14,16 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration - support multiple comma-separated origins
+const allowedOrigins = env.CORS_ORIGIN.split(',').map((o: string) => o.trim());
 app.use(cors({
-  origin: env.CORS_ORIGIN,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
