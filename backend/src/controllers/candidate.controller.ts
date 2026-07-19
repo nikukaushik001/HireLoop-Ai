@@ -7,7 +7,9 @@ const candidateService = new CandidateService();
 export class CandidateController {
   async getAllCandidates(req: Request, res: Response, next: NextFunction) {
     try {
-      const candidates = await candidateService.getAllCandidates();
+      const hrId = req.user?.id;
+      if (!hrId) throw new Error('Unauthorized');
+      const candidates = await candidateService.getAllCandidates(hrId);
       sendSuccess(res, candidates, 200);
     } catch (error) {
       next(error);

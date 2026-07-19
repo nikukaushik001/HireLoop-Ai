@@ -4,6 +4,7 @@ import { NotFoundError } from '../utils/api-error';
 export interface CreateCandidateDTO {
   email: string;
   name: string;
+  userId: string;
   phone?: string;
   skills?: string[];
   experienceYears?: number;
@@ -11,11 +12,12 @@ export interface CreateCandidateDTO {
   location?: string;
 }
 
-export interface UpdateCandidateDTO extends Partial<CreateCandidateDTO> {}
+export interface UpdateCandidateDTO extends Partial<CreateCandidateDTO> { }
 
 export class CandidateService {
-  async getAllCandidates() {
+  async getAllCandidates(hrId: string) {
     return await prisma.candidate.findMany({
+      where: { userId: hrId },
       orderBy: { createdAt: 'desc' },
       include: {
         _count: {
@@ -42,7 +44,10 @@ export class CandidateService {
             job: {
               select: { title: true, department: true }
             },
-            interviews: true
+            interviews: true,
+            resume: {
+              select: { version: true }
+            }
           }
         }
       }

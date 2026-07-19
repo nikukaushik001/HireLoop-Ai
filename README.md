@@ -59,21 +59,26 @@ The project is structured as a monorepo containing two main services:
 cd backend
 npm install
 ```
-Create a `.env` file in the `backend/` directory:
-```env
-PORT=5000
-DATABASE_URL="postgresql://user:password@host:port/db"
-JWT_SECRET="your_secret_key"
-AI_SERVICE_URL="http://localhost:8000"
-CORS_ORIGIN="http://localhost:3000"
+Copy the example environment file and fill in your keys:
+```bash
+cp .env.example .env
 ```
+
+**Required Backend Keys to fill in `.env`:**
+- **Database:** Supabase/PostgreSQL connection string.
+- **Auth:** Generate a secret string for `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET`.
+- **Google Auth:** `GOOGLE_CLIENT_ID` from the Google Cloud Console for SSO.
+- **Email (Nodemailer):** `SMTP_USER` and `SMTP_PASS` (use an App Password if using Gmail).
+- **AWS S3 (Resumes):** `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_S3_BUCKET_NAME` for resume PDF storage.
+- **Redis:** `REDIS_URL` for background task queues (e.g. from Upstash or a local Redis instance).
+
 Run database migrations and start the server:
 ```bash
 npx prisma generate
 npx prisma db push
 npm run dev
 ```
-*(Runs on `http://localhost:5000`)*
+*(Runs on `http://localhost:4000`)*
 
 ### 2. Setup the AI Service (FastAPI)
 Open a new terminal and navigate to the AI service:
@@ -102,6 +107,17 @@ Open a new terminal and navigate to the frontend directory:
 ```bash
 cd frontend
 npm install
+```
+Copy the example environment file and fill in your keys:
+```bash
+cp .env.example .env
+```
+**Required Frontend Keys:**
+- **`VITE_API_URL`:** The backend URL (e.g. `http://localhost:4000/api/v1`)
+- **`VITE_GOOGLE_CLIENT_ID`:** Your Google OAuth client ID
+
+Start the development server:
+```bash
 npm run dev
 ```
 *(Runs on `http://localhost:5173`)*

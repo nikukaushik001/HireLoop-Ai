@@ -14,5 +14,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  redis:
+    image: redis:alpine
+    container_name: hireloop_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
 volumes:
   postgres_data:

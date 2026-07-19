@@ -29,6 +29,7 @@ import { candidateRoutes } from './routes/candidate.routes';
 import { resumeRoutes } from './routes/resume.routes';
 import { interviewRoutes } from './routes/interview.routes';
 import { dashboardRoutes } from './routes/dashboard.routes';
+import { adminRoutes } from './routes/admin.routes';
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);
@@ -37,6 +38,7 @@ app.use('/api/v1/candidates', candidateRoutes);
 app.use('/api/v1/resumes', resumeRoutes);
 app.use('/api/v1/interviews', interviewRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

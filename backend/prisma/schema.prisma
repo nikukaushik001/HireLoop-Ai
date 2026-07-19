@@ -22,8 +22,13 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // Password Reset
+  passwordResetToken   String?
+  passwordResetExpires DateTime?
+
   // Relationships
   jobs         Job[]
+  candidates   Candidate[]
 }
 
 enum Role {
@@ -70,12 +75,17 @@ model Resume {
   parseStatus   ParseStatus @default(PROCESSING)
   errorMessage  String?  // If parsing fails
 
+  // Versioning and isolated embedding
+  version       Int      @default(1)
+  embedding     Float[]
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   // Relationships
   candidateId   String?  // Nullable initially until parsing links it to a candidate
   candidate     Candidate? @relation(fields: [candidateId], references: [id])
+  applications  Application[]
 }
 
 enum ParseStatus {
@@ -89,7 +99,7 @@ enum ParseStatus {
 // The permanent Talent Pool. Parsed candidate profiles.
 model Candidate {
   id              String   @id @default(uuid())
-  email           String   @unique
+  email           String
   name            String
   phone           String?
   skills          String[] // Array of skills parsed by AI
@@ -104,8 +114,12 @@ model Candidate {
   updatedAt       DateTime @updatedAt
 
   // Relationships
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
   resumes         Resume[]
   applications    Application[]
+
+  @@unique([email, userId])
 }
 
 
@@ -125,8 +139,10 @@ model Application {
   // Relationships
   candidateId   String
   jobId         String
+  resumeId      String?
   candidate     Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   job           Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  resume        Resume?   @relation(fields: [resumeId], references: [id])
   interviews    Interview[]
 
   @@unique([candidateId, jobId]) // A candidate can only apply once per job

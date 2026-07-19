@@ -1,8 +1,13 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import { prisma } from '../config/db';
 import { env } from '../config/env';
 import { ConflictError, UnauthorizedError, BadRequestError } from '../utils/api-error';
+import { EmailService } from './email.service';
+import { OAuth2Client } from 'google-auth-library';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export interface RegisterDTO {
   name: string;
@@ -21,6 +26,8 @@ export interface AuthTokens {
 }
 
 export class AuthService {
+  private emailService = new EmailService();
+
   /**
    * Register a new recruiter
    */
@@ -69,6 +76,47 @@ export class AuthService {
   }
 
   /**
+   * Authenticate with Google
+   */
+  async googleLogin(token: string): Promise<AuthTokens> {
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      
+      if (!payload || !payload.email) {
+        throw new UnauthorizedError('Invalid Google token payload');
+      }
+
+      let user = await prisma.user.findUnique({
+        where: { email: payload.email }
+      });
+
+      if (!user) {
+        // Create user
+        const randomPassword = crypto.randomBytes(16).toString('hex');
+        const passwordHash = await bcrypt.hash(randomPassword, 10);
+
+        user = await prisma.user.create({
+          data: {
+            email: payload.email,
+            name: payload.name || 'Google User',
+            passwordHash,
+            role: 'RECRUITER'
+          }
+        });
+      }
+
+      return this.generateTokens(user.id, user.email, user.role);
+    } catch (error) {
+      console.error('Google Auth Error:', error);
+      throw new UnauthorizedError('Google authentication failed');
+    }
+  }
+
+  /**
    * Generate access and refresh tokens
    */
   private generateTokens(id: string, email: string, role: string): AuthTokens {
@@ -92,5 +140,61 @@ export class AuthService {
     } catch (error) {
       throw new UnauthorizedError('Invalid or expired token');
     }
+  }
+
+  /**
+   * Request password reset
+   */
+  async forgotPassword(email: string) {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      // Return silently to prevent email enumeration
+      return { success: true };
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+    await prisma.user.update({
+      where: { email },
+      data: { passwordResetToken, passwordResetExpires }
+    });
+
+    const resetUrl = `${env.CORS_ORIGIN}/reset-password?token=${resetToken}`;
+    await this.emailService.sendPasswordReset(user.email, user.name, resetUrl);
+
+    return { success: true };
+  }
+
+  /**
+   * Reset password with token
+   */
+  async resetPassword(token: string, newPassword: string) {
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await prisma.user.findFirst({
+      where: {
+        passwordResetToken: hashedToken,
+        passwordResetExpires: { gt: new Date() }
+      }
+    });
+
+    if (!user) {
+      throw new BadRequestError('Invalid or expired reset token');
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        passwordResetToken: null,
+        passwordResetExpires: null
+      }
+    });
+
+    return { success: true };
   }
 }

@@ -1,0 +1,43 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install and Build Frontend
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Install and Build Backend
+        working-directory: ./backend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Docker Build and Push (Simulated)
+        run: |
+          echo "Simulating Docker build and push to container registry"
+          # docker build -t hireloop/frontend ./frontend
+          # docker build -t hireloop/backend ./backend
+          # docker push hireloop/frontend
+          # docker push hireloop/backend
+          
+      - name: Deploy (Simulated)
+        run: |
+          echo "Triggering deployment webhook or SSH to production server"
+          echo "Production deployment triggered successfully."

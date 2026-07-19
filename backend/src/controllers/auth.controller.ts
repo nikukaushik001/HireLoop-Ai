@@ -25,10 +25,41 @@ export class AuthController {
     }
   }
 
+  async googleLogin(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { token } = req.body;
+      if (!token) throw new Error('Token is required');
+      const tokens = await authService.googleLogin(token);
+      sendSuccess(res, tokens, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async me(req: Request, res: Response, next: NextFunction) {
     try {
       // req.user is populated by the auth middleware
       sendSuccess(res, req.user, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async forgotPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { email } = req.body;
+      const result = await authService.forgotPassword(email);
+      sendSuccess(res, result, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async resetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { token, newPassword } = req.body;
+      const result = await authService.resetPassword(token, newPassword);
+      sendSuccess(res, result, 200);
     } catch (error) {
       next(error);
     }

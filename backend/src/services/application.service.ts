@@ -8,8 +8,13 @@ export class ApplicationService {
   /**
    * Fetch all interviews with full candidate + job + feedback context
    */
-  async getAllInterviews() {
+  async getAllInterviews(hrId: string) {
     return await prisma.interview.findMany({
+      where: {
+        application: {
+          job: { createdBy: hrId }
+        }
+      },
       orderBy: { scheduledAt: 'asc' },
       include: {
         application: {
@@ -162,8 +167,8 @@ export class ApplicationService {
     const app = interview.application;
     if (app && app.candidate) {
       // Human friendly status representation based on recommendation
-      const statusText = data.recommendation === 'STRONG_HIRE' || data.recommendation === 'HIRE' 
-        ? 'COMPLETED (Positive recommendation)' 
+      const statusText = data.recommendation === 'STRONG_HIRE' || data.recommendation === 'HIRE'
+        ? 'COMPLETED (Positive recommendation)'
         : 'COMPLETED (Under review)';
 
       this.emailService.sendInterviewFeedbackNotification(
@@ -180,12 +185,29 @@ export class ApplicationService {
   /**
    * Get dashboard stats
    */
-  async getDashboardStats() {
-    const totalJobs = await prisma.job.count();
-    const totalCandidates = await prisma.candidate.count();
-    const totalResumes = await prisma.resume.count();
+  async getDashboardStats(hrId: string) {
+    const totalJobs = await prisma.job.count({
+      where: { createdBy: hrId }
+    });
+    const totalCandidates = await prisma.candidate.count({
+      where: {
+        applications: {
+          some: { job: { createdBy: hrId } }
+        }
+      }
+    });
+    const totalResumes = await prisma.resume.count({
+      where: {
+        applications: {
+          some: { job: { createdBy: hrId } }
+        }
+      }
+    });
     const upcomingInterviews = await prisma.interview.count({
-      where: { status: 'SCHEDULED' }
+      where: { 
+        status: 'SCHEDULED',
+        application: { job: { createdBy: hrId } }
+      }
     });
 
     return {
@@ -210,7 +232,7 @@ export class ApplicationService {
     });
 
     if (!candidate || !candidate.embedding || candidate.embedding.length === 0) {
-        return [];
+      return [];
     }
 
     const allJobs = await prisma.job.findMany({
@@ -227,7 +249,7 @@ export class ApplicationService {
       const score = this.cosineSimilarity(candidate.embedding, job.embedding);
       const percentage = Math.max(0, Math.round(score * 100));
 
-      if (percentage > 50) { 
+      if (percentage > 50) {
         recommendations.push({
           job,
           score: percentage
@@ -241,17 +263,17 @@ export class ApplicationService {
 
   private cosineSimilarity(vecA: number[], vecB: number[]): number {
     if (!vecA || !vecB || vecA.length !== vecB.length || vecA.length === 0) return 0;
-    
+
     let dotProduct = 0;
     let normA = 0;
     let normB = 0;
-    
+
     for (let i = 0; i < vecA.length; i++) {
       dotProduct += vecA[i] * vecB[i];
       normA += vecA[i] * vecA[i];
       normB += vecB[i] * vecB[i];
     }
-    
+
     if (normA === 0 || normB === 0) return 0;
     return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
   }

@@ -1,70 +1,33 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
-// Module-level singleton: ensures Ethereal account is created only once
-let _transporterPromise: Promise<nodemailer.Transporter> | null = null;
-
-function getOrCreateTransporter(): Promise<nodemailer.Transporter> {
-  if (_transporterPromise) return _transporterPromise;
-
-  const host = process.env.SMTP_HOST;
-  const port = parseInt(process.env.SMTP_PORT || '587');
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
-
-  if (host && user && pass) {
-    const transporter = nodemailer.createTransport({
-      host, port, secure: port === 465, auth: { user, pass }
-    });
-    console.log('[EmailService] SMTP initialized from env vars');
-    _transporterPromise = Promise.resolve(transporter);
-    return _transporterPromise;
-  }
-
-  // Fallback: create a free Ethereal test account (once)
-  _transporterPromise = nodemailer.createTestAccount().then(testAccount => {
-    console.log(`[EmailService] Using Ethereal test SMTP — User: ${testAccount.user}`);
-    return nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false,
-      auth: { user: testAccount.user, pass: testAccount.pass }
-    });
-  }).catch(err => {
-    console.error('[EmailService] Failed to create Ethereal account, falling back to logger:', err);
-    // Ultimate fallback: console logger mock
-    return {
-      sendMail: async (options: any) => {
-        console.log(`[MOCK EMAIL] To: ${options.to} | Subject: "${options.subject}"`);
-        return { messageId: 'mock' };
-      }
-    } as any;
-  });
-
-  return _transporterPromise;
-}
+// Initialize Nodemailer transporter
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.SMTP_PORT || '587'),
+  secure: process.env.SMTP_PORT === '465',
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 export class EmailService {
-  private async getTransporter(): Promise<nodemailer.Transporter> {
-    return getOrCreateTransporter();
-  }
-
-  async sendMail(options: nodemailer.SendMailOptions) {
-    const transporter = await this.getTransporter();
+  async sendMail(options: { to: string; subject: string; text: string; html: string }) {
+    const fromAddress = process.env.SMTP_FROM || process.env.SES_FROM_EMAIL || 'hireloop.ai@gmail.com';
+    
     try {
       const info = await transporter.sendMail({
-        from: process.env.SMTP_FROM || '"HireLoop AI" <noreply@hireloop.ai>',
-        ...options
+        from: `"HireLoop-AI" <${fromAddress}>`,
+        to: options.to,
+        subject: options.subject,
+        text: options.text,
+        html: options.html,
       });
       
-      const previewUrl = nodemailer.getTestMessageUrl(info);
-      if (previewUrl) {
-        console.log(`[Email Sent] Preview URL: ${previewUrl}`);
-      } else {
-        console.log(`[Email Sent] Message ID: ${info.messageId}`);
-      }
+      console.log(`[Email Sent via SMTP] Message ID: ${info.messageId}`);
       return info;
     } catch (err) {
-      console.error('Failed to send email:', err);
+      console.error('[SMTP Email Error] Failed to send email:', err);
       throw err;
     }
   }
@@ -79,7 +42,7 @@ export class EmailService {
     failedCount: number,
     candidates: string[]
   ) {
-    const subject = `[HireLoop-AI] Resume Processing Completed for ${jobTitle}`;
+    const subject = `📊 [HireLoop-AI] Resume Processing Completed for ${jobTitle}`;
     const text = `Hello Recruiter,
 
 Resume processing has completed for the position: "${jobTitle}".
@@ -136,7 +99,7 @@ HireLoop-AI Team`;
    * Notification to candidate when shortlisted.
    */
   async sendCandidateShortlistNotification(candidateEmail: string, candidateName: string, jobTitle: string) {
-    const subject = `Congratulations! You have been shortlisted for the ${jobTitle} position at HireLoop-AI`;
+    const subject = `🎉 Congratulations! You have been shortlisted for the ${jobTitle} position at HireLoop-AI`;
     const text = `Hello ${candidateName},
 
 We are pleased to inform you that your resume has been shortlisted for the position of "${jobTitle}".
@@ -174,7 +137,7 @@ HireLoop-AI Recruitment Team`;
     interviewerName?: string
   ) {
     const formattedDate = scheduledAt.toLocaleString();
-    const subject = `Interview Scheduled: ${jobTitle} Position`;
+    const subject = `🗓️ Interview Scheduled: ${jobTitle} Position`;
     const text = `Hello ${candidateName},
 
 An interview has been scheduled for you for the "${jobTitle}" position.
@@ -221,7 +184,7 @@ HireLoop-AI Recruitment Team`;
     jobTitle: string,
     status: string
   ) {
-    const subject = `Application Update: ${jobTitle} Position`;
+    const subject = `📝 Application Update: ${jobTitle} Position`;
     const text = `Hello ${candidateName},
 
 We would like to thank you for participating in the interview for the "${jobTitle}" position.
@@ -247,5 +210,15 @@ HireLoop-AI Recruitment Team`;
     `;
 
     return this.sendMail({ to: candidateEmail, subject, text, html });
+  }
+
+  /**
+   * Notification for password reset
+   */
+  async sendPasswordReset(userEmail: string, userName: string, resetUrl: string) {
+    const subject = `🔒 Password Reset Request - HireLoop-AI`;
+    const text = `Hello ${userName},\n\nYou requested a password reset. Please click the link below to reset your password:\n${resetUrl}\n\nIf you did not request this, please ignore this email.`;
+    const html = `<p>Hello <strong>${userName}</strong>,</p><p>You requested a password reset. Please click the link below to reset your password:</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>If you did not request this, please ignore this email.</p>`;
+    return this.sendMail({ to: userEmail, subject, text, html });
   }
 }

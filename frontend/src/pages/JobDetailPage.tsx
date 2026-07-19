@@ -145,6 +145,9 @@ export const JobDetailPage = () => {
                     <button className="btn btn-secondary" style={{ color: 'var(--accent-emerald)', borderColor: 'rgba(16, 185, 129, 0.2)' }} onClick={() => updateAppStatus(app.id, 'SHORTLISTED')}>
                       <CheckCircle size={16} /> Shortlist
                     </button>
+                    <button className="btn btn-primary" style={{ background: 'var(--accent-primary)', borderColor: 'var(--accent-primary)' }} onClick={() => navigate(`/interviews/schedule?jobId=${id}&appId=${app.id}`)}>
+                      <CalendarIcon size={16} /> Direct Invite
+                    </button>
                     <button className="btn btn-secondary" style={{ color: 'var(--accent-rose)', borderColor: 'rgba(239, 68, 68, 0.2)' }} onClick={() => updateAppStatus(app.id, 'REJECTED')}>
                       <XCircle size={16} /> Reject
                     </button>

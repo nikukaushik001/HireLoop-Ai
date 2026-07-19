@@ -7,8 +7,10 @@ const applicationService = new ApplicationService();
 export class ApplicationController {
   async getAllInterviews(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await applicationService.getAllInterviews();
-      sendSuccess(res, result);
+      const hrId = req.user?.id;
+      if (!hrId) throw new Error('Unauthorized');
+      const result = await applicationService.getAllInterviews(hrId);
+      sendSuccess(res, result, 200);
     } catch (error) {
       next(error);
     }
@@ -55,8 +57,10 @@ export class ApplicationController {
 
   async getDashboardStats(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await applicationService.getDashboardStats();
-      sendSuccess(res, result);
+      const hrId = req.user?.id;
+      if (!hrId) throw new Error('Unauthorized');
+      const result = await applicationService.getDashboardStats(hrId);
+      sendSuccess(res, result, 200);
     } catch (error) {
       next(error);
     }

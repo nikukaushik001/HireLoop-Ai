@@ -13,7 +13,7 @@ export const Sidebar: React.FC = () => {
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
+    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'Jobs', path: '/jobs', icon: <Briefcase size={20} /> },
     { name: 'Candidates', path: '/candidates', icon: <Users size={20} /> },
     { name: 'Resumes', path: '/resumes', icon: <FileText size={20} /> },

@@ -20,6 +20,7 @@ export const JobsPage = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingJobId, setEditingJobId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Job Form State
@@ -50,6 +51,7 @@ export const JobsPage = () => {
     setRequirements('');
     setEditingJobId(null);
     setShowForm(false);
+    setError(null);
   };
 
   const handleOpenCreate = () => {
@@ -75,19 +77,21 @@ export const JobsPage = () => {
 
   const handleDelete = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
+    setError(null);
     if (window.confirm('Are you sure you want to delete this job? This will delete all associated applications.')) {
       try {
         await apiClient.delete(`/jobs/${id}`);
         fetchJobs();
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
-        alert('Failed to delete job');
+        setError(err?.response?.data?.error?.message || 'Failed to delete job');
       }
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     try {
       if (editingJobId) {
         await apiClient.patch(`/jobs/${editingJobId}`, { title, department, description, requirements });
@@ -96,9 +100,9 @@ export const JobsPage = () => {
       }
       resetForm();
       fetchJobs();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Failed to save job');
+      setError(err?.response?.data?.error?.message || 'Failed to save job');
     }
   };
 
@@ -110,6 +114,12 @@ export const JobsPage = () => {
           <Plus size={16} /> Create Job
         </button>
       </div>
+
+      {error && (
+        <div className="animate-fade-in" style={{ padding: '12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--accent-danger)', color: 'var(--accent-danger)', borderRadius: '8px', marginBottom: '24px', fontSize: '14px' }}>
+          {error}
+        </div>
+      )}
 
       {showForm && (
         <div className="glass-panel animate-fade-in" style={{ padding: '24px', marginBottom: '32px' }}>

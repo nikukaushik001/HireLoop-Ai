@@ -18,6 +18,10 @@ export const Layout: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
+  if (user.role === 'ADMIN') {
+    return <Navigate to="/admin" replace />;
+  }
+
   return (
     <div className="layout-container animate-fade-in">
       <Sidebar />

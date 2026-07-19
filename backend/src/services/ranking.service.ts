@@ -52,7 +52,10 @@ export class RankingService {
       where: { id: jobId },
       include: {
         applications: {
-          include: { candidate: true }
+          include: { 
+            candidate: true,
+            resume: true
+          }
         }
       }
     });
@@ -72,34 +75,19 @@ export class RankingService {
       }
     }
 
-    // 1. Fetch candidate resumes to run BM25 and extract achievements
-    const candidateIds = job.applications.map(app => app.candidateId).filter(Boolean);
-    const resumes = await prisma.resume.findMany({
-      where: {
-        candidateId: { in: candidateIds }
-      }
-    });
-
-    // Create mapping from candidateId to achievements and resume text for BM25
-    const candidateResumesMap: Record<string, { rawText: string; achievements: string[] }> = {};
+    // 1. Prepare BM25 docs based on specific resumes used for the application
     const bm25Docs = [];
 
-    for (const resume of resumes) {
-      if (!resume.candidateId) continue;
+    for (const app of job.applications) {
+      if (!app.resume) continue;
       
-      const parsedData = (resume.parsedData as any) || {};
-      const achievements = parsedData.achievements || [];
-      const rawText = resume.rawText || '';
-
-      candidateResumesMap[resume.candidateId] = {
-        rawText,
-        achievements
-      };
+      const parsedData = (app.resume.parsedData as any) || {};
+      const rawText = app.resume.rawText || '';
 
       // Combine raw resume text with parsed skills for BM25 indexing
       const skillsStr = parsedData.skills ? parsedData.skills.join(' ') : '';
       bm25Docs.push({
-        id: resume.candidateId,
+        id: app.id,
         text: `${rawText} ${skillsStr} ${parsedData.currentCompany || ''}`
       });
     }
@@ -114,12 +102,17 @@ export class RankingService {
 
     for (const app of job.applications) {
       const candidate = app.candidate;
-      const resumeInfo = candidateResumesMap[candidate.id] || { rawText: '', achievements: [] };
+      const resume = app.resume;
+      
+      const parsedData = (resume?.parsedData as any) || {};
+      const achievements = parsedData.achievements || [];
 
-      // A. Cosine similarity score (0-100)
+      // A. Cosine similarity score (0-100) using specific resume embedding
       let embeddingScore = 0;
-      if (jobEmbedding && jobEmbedding.length > 0 && candidate.embedding && candidate.embedding.length > 0) {
-        const raw = this.cosineSimilarity(jobEmbedding, candidate.embedding);
+      const resumeEmbedding = resume?.embedding?.length ? resume.embedding : candidate.embedding;
+      
+      if (jobEmbedding && jobEmbedding.length > 0 && resumeEmbedding && resumeEmbedding.length > 0) {
+        const raw = this.cosineSimilarity(jobEmbedding, resumeEmbedding);
         embeddingScore = Math.max(0, Math.round(raw * 100));
       }
 
@@ -127,10 +120,10 @@ export class RankingService {
       const aiScore = app.aiScore ?? 0;
 
       // C. BM25 Keyword score (0-100)
-      const bm25Score = bm25Scores[candidate.id] || 0;
+      const bm25Score = bm25Scores[app.id] || 0;
 
       // D. Achievement Priority Bonus (+5 points per achievement, capped at +10)
-      const achievementsCount = resumeInfo.achievements.length;
+      const achievementsCount = achievements.length;
       const achievementBonus = Math.min(10, achievementsCount * 5);
 
       // E. Hybrid Blend: 40% AI + 30% Embedding + 30% BM25 + Achievement Bonus
@@ -143,14 +136,14 @@ export class RankingService {
           id: candidate.id,
           name: candidate.name,
           email: candidate.email,
-          skills: candidate.skills,
-          experienceYears: candidate.experienceYears,
-          location: candidate.location,
+          skills: parsedData.skills || candidate.skills,
+          experienceYears: parsedData.experienceYears || candidate.experienceYears,
+          location: parsedData.location || candidate.location,
         },
         aiScore,
         embeddingScore,
         bm25Score,
-        achievements: resumeInfo.achievements,
+        achievements,
         achievementBonus,
         finalScore,
         aiReasoning: app.aiReasoning || null,

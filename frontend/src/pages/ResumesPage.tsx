@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { UploadCloud, FileText, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { UploadCloud, FileText, CheckCircle, Loader } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import { apiClient } from '../api/client';
 
 export const ResumesPage = () => {
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState<{ id: string, title: string }[]>([]);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [results, setResults] = useState<any[]>([]);
 
   useEffect(() => {
     apiClient.get('/jobs').then(res => setJobs(res.data.data)).catch(console.error);
@@ -23,6 +26,7 @@ export const ResumesPage = () => {
     if (!selectedJob || files.length === 0) return;
     
     setUploading(true);
+    setError(null);
     const formData = new FormData();
     formData.append('jobId', selectedJob);
     files.forEach(file => formData.append('files', file));
@@ -31,25 +35,93 @@ export const ResumesPage = () => {
       // Explicitly delete Content-Type so Axios/browser sets the correct
       // multipart/form-data with the boundary. Without this, our default
       // application/json header breaks Multer's multipart parsing.
-      const res = await apiClient.post('/resumes/upload', formData, {
+      await apiClient.post('/resumes/upload', formData, {
         headers: { 'Content-Type': undefined },
       });
-      setResults(res.data.data.processed);
+      setShowSuccess(true);
       setFiles([]);
     } catch (err: any) {
       console.error('Upload error:', err?.response?.data ?? err);
-      alert(`Upload failed: ${err?.response?.data?.error?.message ?? 'Unknown error'}`);
+      setError(`Upload failed: ${err?.response?.data?.error?.message ?? 'Unknown error'}`);
     } finally {
       setUploading(false);
     }
   };
 
+  if (showSuccess) {
+    return (
+      <div className="animate-fade-in" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
+        <style>{`
+          @keyframes scaleInGlow {
+            0% { transform: scale(0.8); opacity: 0; box-shadow: 0 0 0 rgba(16, 185, 129, 0); }
+            50% { transform: scale(1.1); box-shadow: 0 0 40px rgba(16, 185, 129, 0.4); }
+            100% { transform: scale(1); opacity: 1; box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
+          }
+          @keyframes slideUpFade {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+        `}</style>
+        <div className="glass-card" style={{ textAlign: 'center', padding: '64px', maxWidth: '500px', position: 'relative', overflow: 'hidden' }}>
+          {/* Animated background glow */}
+          <div style={{
+            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            width: '200px', height: '200px', background: 'var(--accent-emerald)', 
+            filter: 'blur(80px)', opacity: 0.15, zIndex: 0
+          }}></div>
+          
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ 
+              width: '80px', height: '80px', background: 'rgba(16, 185, 129, 0.1)', 
+              borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 24px auto', border: '2px solid var(--accent-emerald)',
+              animation: 'scaleInGlow 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards'
+            }}>
+              <CheckCircle size={40} color="var(--accent-emerald)" />
+            </div>
+            
+            <h2 style={{ 
+              fontSize: '32px', marginBottom: '16px', fontWeight: 'bold',
+              background: 'linear-gradient(135deg, #34d399 0%, #059669 100%)', 
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+              animation: 'slideUpFade 0.5s ease-out 0.2s both'
+            }}>
+              Processing Complete!
+            </h2>
+            
+            <p style={{ 
+              color: 'var(--text-secondary)', fontSize: '16px', marginBottom: '32px', lineHeight: '1.6',
+              animation: 'slideUpFade 0.5s ease-out 0.3s both'
+            }}>
+              The AI has successfully parsed your resumes. The new candidates have been automatically added to your talent pool.
+            </p>
+            
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', animation: 'slideUpFade 0.5s ease-out 0.4s both' }}>
+              <button className="btn" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }} onClick={() => setShowSuccess(false)}>
+                Upload More
+              </button>
+              <button className="btn btn-primary" onClick={() => navigate('/candidates')} style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', border: 'none', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }}>
+                View Candidates
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="animate-fade-in">
       <h1 className="text-gradient" style={{ marginBottom: '24px' }}>Resume Processing Dashboard</h1>
 
-      <div style={{ display: 'flex', gap: '32px' }}>
-        <div style={{ flex: 1 }}>
+      {error && (
+        <div style={{ padding: '12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--accent-danger)', color: 'var(--accent-danger)', borderRadius: '8px', marginBottom: '24px', fontSize: '14px', maxWidth: '600px', margin: '0 auto 24px auto' }}>
+          {error}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: '600px' }}>
           <div className="glass-card">
             <h3 style={{ marginBottom: '24px' }}>Upload Resumes (PDF)</h3>
             
@@ -114,37 +186,8 @@ export const ResumesPage = () => {
               disabled={!selectedJob || files.length === 0 || uploading}
               onClick={handleUpload}
             >
-              {uploading ? <><Loader size={16} className="animate-spin" /> Processing with AI...</> : 'Process Resumes'}
+              {uploading ? <><Loader size={16} className="animate-spin" /> Uploading files...</> : 'Process Resumes'}
             </button>
-          </div>
-        </div>
-
-        <div style={{ flex: 1 }}>
-          <div className="glass-card" style={{ minHeight: '100%' }}>
-            <h3 style={{ marginBottom: '24px' }}>Processing Results</h3>
-            {results.length === 0 && !uploading && (
-              <div style={{ color: 'var(--text-muted)', textAlign: 'center', marginTop: '64px' }}>
-                Upload resumes to see the AI processing results.
-              </div>
-            )}
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {results.map((res, i) => (
-                <div key={i} className="glass-panel" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  {res.status === 'success' ? (
-                    <CheckCircle color="var(--accent-emerald)" size={24} />
-                  ) : (
-                    <AlertCircle color="var(--accent-rose)" size={24} />
-                  )}
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600, fontSize: '14px' }}>{res.filename}</div>
-                    <div style={{ fontSize: '12px', color: res.status === 'success' ? 'var(--accent-emerald)' : 'var(--accent-rose)', marginTop: '4px' }}>
-                      {res.status === 'success' ? `Successfully parsed as ${res.candidateName}` : res.error}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>

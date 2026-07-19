@@ -138,7 +138,9 @@ export const CandidateDetailPage = () => {
                     <div className="glass-panel" style={{ padding: '16px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                         <div>
-                          <div style={{ fontWeight: 600, fontSize: '16px', color: 'var(--text-primary)', marginBottom: '4px' }}>Applied for {app.job.title}</div>
+                          <div style={{ fontWeight: 600, fontSize: '16px', color: 'var(--text-primary)', marginBottom: '4px' }}>
+                            Applied for {app.job.title} {app.resume?.version ? <span style={{fontSize: '12px', background: 'rgba(99,102,241,0.1)', color: 'var(--accent-primary)', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px'}}>Resume v{app.resume.version}</span> : null}
+                          </div>
                           <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{new Date(app.appliedAt).toLocaleDateString()}</div>
                         </div>
                         <StatusBadge status={app.status} />

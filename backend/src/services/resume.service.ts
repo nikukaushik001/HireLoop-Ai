@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { prisma } from '../config/db';
 import { AppError, NotFoundError } from '../utils/api-error';
 import { StorageService } from './storage.service';
@@ -27,6 +28,11 @@ interface AIProcessedCandidate {
   };
 }
 
+import FormData from 'form-data';
+import axios from 'axios';
+
+// ... (existing interface)
+
 export class ResumeService {
   private storageService = new StorageService();
   private emailService = new EmailService();
@@ -35,14 +41,14 @@ export class ResumeService {
    * Sends PDF files to the FastAPI AI service for processing,
    * then saves the structured candidate data into the database.
    */
-  async processResumes(userId: string, jobId: string, files: Express.Multer.File[]) {
+  async processResumes(userId: string, jobId: string, files: Array<{ path: string; originalname: string; mimetype: string }>) {
     // 1. Verify the job exists and include recruiter info
-    const job = await prisma.job.findUnique({ 
+    const job = await prisma.job.findUnique({
       where: { id: jobId },
       include: { user: true }
     });
     if (!job) throw new NotFoundError('Job');
-    
+
     // Prepare job description for the AI Agent
     const jobDescriptionStr = `Title: ${job.title}\nDepartment: ${job.department || 'N/A'}\nDescription: ${job.description || ''}\nRequirements: ${job.requirements || ''}`;
 
@@ -50,24 +56,33 @@ export class ResumeService {
     const formData = new FormData();
     formData.append('job_description', jobDescriptionStr);
     for (const file of files) {
-      const blob = new Blob([new Uint8Array(file.buffer)], { type: 'application/pdf' });
-      formData.append('files', blob, file.originalname);
+      if (!fs.existsSync(file.path)) {
+        console.warn(`File not found on disk: ${file.path}`);
+        continue;
+      }
+      const fileBuffer = fs.readFileSync(file.path);
+      formData.append('files', fileBuffer, {
+        filename: file.originalname,
+        contentType: file.mimetype || 'application/pdf',
+      });
     }
 
     // 3. Call FastAPI AI service
     const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
-    const response = await fetch(`${AI_SERVICE_URL}/api/v1/ai/process-resumes`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      require('fs').appendFileSync('ai_error.log', new Date().toISOString() + '\nStatus: ' + response.status + '\nBody: ' + errorText + '\n\n');
+    
+    let aiResult;
+    try {
+      const response = await axios.post(`${AI_SERVICE_URL}/api/v1/ai/process-resumes`, formData, {
+        headers: {
+          ...formData.getHeaders()
+        }
+      });
+      aiResult = response.data;
+    } catch (err: any) {
+      const errorText = err.response?.data ? JSON.stringify(err.response.data) : err.message;
+      fs.appendFileSync('ai_error.log', new Date().toISOString() + '\nStatus: ' + (err.response?.status || 500) + '\nBody: ' + errorText + '\n\n');
       throw new AppError('Failed to process resumes through AI pipeline', 502, 'AI_SERVICE_ERROR');
     }
-
-    const aiResult = await response.json() as { success: boolean; results: AIProcessedCandidate[] };
 
     // 4. Save each processed candidate into the database
     const savedCandidates = [];
@@ -86,10 +101,11 @@ export class ResumeService {
       // Find the uploaded file to get its buffer for storage upload
       const uploadedFile = files.find(f => f.originalname === result.filename);
       let filePath = `uploads/${result.filename}`;
-      if (uploadedFile) {
+      if (uploadedFile && fs.existsSync(uploadedFile.path)) {
         try {
+          const fileBuffer = fs.readFileSync(uploadedFile.path);
           filePath = await this.storageService.uploadFile(
-            uploadedFile.buffer,
+            fileBuffer,
             uploadedFile.originalname,
             uploadedFile.mimetype
           );
@@ -100,7 +116,7 @@ export class ResumeService {
 
       // Create or update the candidate in the talent pool
       const candidate = await prisma.candidate.upsert({
-        where: { email: parsed.email },
+        where: { email_userId: { email: parsed.email, userId: userId } },
         update: {
           name: parsed.name,
           phone: parsed.phone,
@@ -113,6 +129,7 @@ export class ResumeService {
         create: {
           name: parsed.name,
           email: parsed.email,
+          userId: userId,
           phone: parsed.phone,
           skills: parsed.skills,
           experienceYears: parsed.experienceYears,
@@ -122,8 +139,14 @@ export class ResumeService {
         },
       });
 
+      // Get version count
+      const existingResumesCount = await prisma.resume.count({
+        where: { candidateId: candidate.id }
+      });
+      const newVersion = existingResumesCount + 1;
+
       // Create the resume record
-      await prisma.resume.create({
+      const resume = await prisma.resume.create({
         data: {
           fileName: result.filename,
           filePath: filePath,
@@ -131,6 +154,8 @@ export class ResumeService {
           rawText: result.pipeline_result.raw_text,
           parsedData: parsed as any,
           parseStatus: 'COMPLETED',
+          version: newVersion,
+          embedding: result.pipeline_result.embedding,
         },
       });
 
@@ -138,19 +163,21 @@ export class ResumeService {
       const aiScore = result.pipeline_result.evaluation?.score || 0;
       const aiReasoning = result.pipeline_result.evaluation?.reasoning || '';
 
-      // Create a job application linking candidate to job
+      // Create a job application linking candidate to job and specific resume version
       await prisma.application.upsert({
         where: {
           candidateId_jobId: { jobId, candidateId: candidate.id },
         },
-        update: { 
+        update: {
           status: 'NEW',
           aiScore: aiScore,
-          aiReasoning: aiReasoning
+          aiReasoning: aiReasoning,
+          resumeId: resume.id
         },
         create: {
           jobId,
           candidateId: candidate.id,
+          resumeId: resume.id,
           aiScore: aiScore,
           aiReasoning: aiReasoning,
           status: 'NEW',

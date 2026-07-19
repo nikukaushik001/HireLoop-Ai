@@ -337,7 +337,7 @@ export const RankingPage: React.FC = () => {
       });
 
       setEmailSuccess(`Shortlisting email invitations have been sent to top ${candidateIds.length} candidate(s) successfully!`);
-      
+
       // Refresh ranking data to reflect status updates
       const res = await apiClient.get(`/jobs/${selectedJobId}/rank`);
       setRankingData(res.data.data);
@@ -435,7 +435,7 @@ export const RankingPage: React.FC = () => {
             <div className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '16px 24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Filters:</span>
-                <button 
+                <button
                   className={`btn ${showTop10Only ? 'btn-primary' : 'btn-secondary'}`}
                   style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '8px', width: 'auto' }}
                   onClick={() => setShowTop10Only(!showTop10Only)}
@@ -447,13 +447,13 @@ export const RankingPage: React.FC = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <button
                   className="btn"
-                  style={{ 
-                    padding: '8px 18px', 
-                    fontSize: '13px', 
-                    borderRadius: '8px', 
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+                  style={{
+                    padding: '8px 18px',
+                    fontSize: '13px',
+                    borderRadius: '8px',
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                     color: 'white',
-                    border: 'none', 
+                    border: 'none',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px',
