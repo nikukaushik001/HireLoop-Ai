@@ -43,7 +43,7 @@ export const getSystemUsers = async (req: Request, res: Response) => {
 
 export const approveUser = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const user = await prisma.user.update({
       where: { id },
       data: { isApproved: true }
@@ -56,7 +56,7 @@ export const approveUser = async (req: Request, res: Response) => {
 
 export const upgradeUser = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const user = await prisma.user.update({
       where: { id },
       data: { role: 'SUPERADMIN' }

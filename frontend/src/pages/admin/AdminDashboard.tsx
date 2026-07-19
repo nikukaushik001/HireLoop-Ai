@@ -57,6 +57,24 @@ export const AdminDashboard: React.FC = () => {
     );
   }
 
+  const handleApprove = async (userId: string) => {
+    try {
+      await apiClient.put(`/admin/users/${userId}/approve`);
+      setUsers(users.map(u => u.id === userId ? { ...u, isApproved: true } : u));
+    } catch (err) {
+      alert('Failed to approve user');
+    }
+  };
+
+  const handleUpgrade = async (userId: string) => {
+    try {
+      await apiClient.put(`/admin/users/${userId}/upgrade`);
+      setUsers(users.map(u => u.id === userId ? { ...u, role: 'SUPERADMIN' } : u));
+    } catch (err) {
+      alert('Failed to upgrade user');
+    }
+  };
+
   return (
     <div className="animate-fade-in">
       <div style={{ marginBottom: '32px' }}>
@@ -129,7 +147,9 @@ export const AdminDashboard: React.FC = () => {
               <th style={{ textAlign: 'left', padding: '16px', borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>User</th>
               <th style={{ textAlign: 'left', padding: '16px', borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>Email</th>
               <th style={{ textAlign: 'left', padding: '16px', borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>Role</th>
+              <th style={{ textAlign: 'left', padding: '16px', borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>Status</th>
               <th style={{ textAlign: 'left', padding: '16px', borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>Joined</th>
+              <th style={{ textAlign: 'right', padding: '16px', borderBottom: '1px solid var(--glass-border)', color: 'var(--text-muted)', fontWeight: 600, fontSize: '13px', textTransform: 'uppercase' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -147,15 +167,36 @@ export const AdminDashboard: React.FC = () => {
                 <td style={{ padding: '16px' }}>
                   <span style={{ 
                     padding: '4px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: 600,
-                    background: u.role === 'ADMIN' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)',
-                    color: u.role === 'ADMIN' ? '#ef4444' : '#10b981',
-                    border: u.role === 'ADMIN' ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(16,185,129,0.3)'
+                    background: u.role === 'SUPERADMIN' ? 'rgba(239,68,68,0.15)' : u.role === 'ADMIN' ? 'rgba(245,158,11,0.15)' : 'rgba(16,185,129,0.15)',
+                    color: u.role === 'SUPERADMIN' ? '#ef4444' : u.role === 'ADMIN' ? '#f59e0b' : '#10b981',
+                    border: u.role === 'SUPERADMIN' ? '1px solid rgba(239,68,68,0.3)' : u.role === 'ADMIN' ? '1px solid rgba(245,158,11,0.3)' : '1px solid rgba(16,185,129,0.3)'
                   }}>
                     {u.role}
                   </span>
                 </td>
+                <td style={{ padding: '16px' }}>
+                  {u.isApproved ? (
+                    <span style={{ color: '#10b981', fontSize: '13px', fontWeight: 500 }}>Approved</span>
+                  ) : (
+                    <span style={{ color: '#f59e0b', fontSize: '13px', fontWeight: 500 }}>Pending</span>
+                  )}
+                </td>
                 <td style={{ padding: '16px', color: 'var(--text-muted)', fontSize: '13px' }}>
                   {new Date(u.createdAt).toLocaleDateString()}
+                </td>
+                <td style={{ padding: '16px', textAlign: 'right' }}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                    {!u.isApproved && (
+                      <button onClick={() => handleApprove(u.id)} className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }}>
+                        Approve
+                      </button>
+                    )}
+                    {u.role !== 'SUPERADMIN' && (
+                      <button onClick={() => handleUpgrade(u.id)} className="btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }}>
+                        Make Superadmin
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
