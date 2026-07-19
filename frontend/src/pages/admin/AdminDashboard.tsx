@@ -14,6 +14,7 @@ interface UserData {
   name: string;
   email: string;
   role: string;
+  isApproved: boolean;
   createdAt: string;
 }
 
