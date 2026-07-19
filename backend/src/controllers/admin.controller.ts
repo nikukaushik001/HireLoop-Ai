@@ -54,15 +54,3 @@ export const approveUser = async (req: Request, res: Response) => {
   }
 };
 
-export const upgradeUser = async (req: Request, res: Response) => {
-  try {
-    const id = req.params.id as string;
-    const user = await prisma.user.update({
-      where: { id },
-      data: { role: 'SUPERADMIN' }
-    });
-    res.status(200).json({ success: true, data: { id: user.id, role: user.role } });
-  } catch (error: any) {
-    res.status(500).json({ success: false, error: { message: 'Failed to upgrade user' } });
-  }
-};

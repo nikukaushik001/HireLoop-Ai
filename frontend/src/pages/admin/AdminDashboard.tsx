@@ -67,15 +67,6 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleUpgrade = async (userId: string) => {
-    try {
-      await apiClient.put(`/admin/users/${userId}/upgrade`);
-      setUsers(users.map(u => u.id === userId ? { ...u, role: 'SUPERADMIN' } : u));
-    } catch (err) {
-      alert('Failed to upgrade user');
-    }
-  };
-
   return (
     <div className="animate-fade-in">
       <div style={{ marginBottom: '32px' }}>
@@ -190,11 +181,6 @@ export const AdminDashboard: React.FC = () => {
                     {!u.isApproved && (
                       <button onClick={() => handleApprove(u.id)} className="btn-primary" style={{ padding: '6px 12px', fontSize: '12px' }}>
                         Approve
-                      </button>
-                    )}
-                    {u.role !== 'SUPERADMIN' && (
-                      <button onClick={() => handleUpgrade(u.id)} className="btn-secondary" style={{ padding: '6px 12px', fontSize: '12px' }}>
-                        Make Superadmin
                       </button>
                     )}
                   </div>
