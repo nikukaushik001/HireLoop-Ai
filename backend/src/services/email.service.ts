@@ -1,12 +1,12 @@
 import nodemailer from "nodemailer";
-import { SESv2Client } from "@aws-sdk/client-sesv2";
+import * as aws from "@aws-sdk/client-ses";
 
 // Initialize Nodemailer transporter with AWS SES
 // Ensure AWS_REGION, AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY are set in .env
 let transporter: nodemailer.Transporter;
 
 try {
-  const sesClient = new SESv2Client({
+  const ses = new aws.SES({
     region: process.env.AWS_REGION || "ap-south-1",
     credentials: {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
@@ -15,7 +15,7 @@ try {
   });
 
   transporter = nodemailer.createTransport({
-    SES: { ses: sesClient },
+    SES: { ses, aws },
   });
 } catch (error) {
   console.warn("⚠️ Warning: AWS SES credentials not configured properly in .env");
