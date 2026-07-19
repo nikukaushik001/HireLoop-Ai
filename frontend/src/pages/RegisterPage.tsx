@@ -34,12 +34,19 @@ export const RegisterPage = () => {
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setIsSubmitting(true);
+    setError('');
+    setSuccessMsg('');
     try {
       const res = await apiClient.post('/auth/google', { token: credentialResponse.credential });
       await login(res.data.data.accessToken);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Google sign-up failed.');
+      const errorMsg = err.response?.data?.error?.message;
+      if (errorMsg === 'Account pending approval by Superadmin') {
+        setSuccessMsg('Google Account linked successfully. Pending approval by Superadmin.');
+      } else {
+        setError(errorMsg || 'Google sign-up failed.');
+      }
     } finally {
       setIsSubmitting(false);
     }
