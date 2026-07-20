@@ -13,10 +13,11 @@ const sdk = new NodeSDK({
 
 // Start the SDK and gracefully shutdown on exit
 sdk.start();
+console.log('OpenTelemetry initialized successfully.');
 
 process.on('SIGTERM', () => {
   sdk.shutdown()
-    .then(() => console.log('Tracing terminated'))
-    .catch((error) => console.log('Error terminating tracing', error))
+    .then(() => console.log('OpenTelemetry shut down successfully'))
+    .catch((error: any) => console.log('Error shutting down OpenTelemetry', error))
     .finally(() => process.exit(0));
 });

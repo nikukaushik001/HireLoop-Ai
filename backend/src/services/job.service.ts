@@ -1,5 +1,5 @@
 import { prisma } from '../config/db';
-import { NotFoundError, AppError } from '../utils/api-error';
+import { NotFoundError, BadRequestError } from '../utils/api-error';
 import { env } from '../config/env';
 
 export interface CreateJobDTO {
@@ -21,7 +21,7 @@ export class JobService {
     });
 
     if (existingJob) {
-      throw new AppError('You already have an active job posting with this exact title.', 400);
+      throw new BadRequestError('You already have an active job posting with this exact title.');
     }
 
     let embedding: number[] = [];
