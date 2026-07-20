@@ -37,7 +37,9 @@ export const ResumesPage = () => {
         headers: { 'Content-Type': undefined },
       });
       
-      const processed = res.data?.data?.processed || [];
+      // Axios payload -> sendSuccess 'data' wrapper -> Controller 'data' wrapper -> result
+      const payload = res.data?.data?.data || res.data?.data || {};
+      const processed = payload.processed || [];
       const successful = processed.filter((p: any) => p.status === 'success');
       const failed = processed.filter((p: any) => p.status === 'failed');
       
