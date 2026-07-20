@@ -352,3 +352,70 @@ a:hover {
 }
 .data-table tr:last-child td:first-child { border-bottom-left-radius: 12px; }
 .data-table tr:last-child td:last-child { border-bottom-right-radius: 12px; }
+
+/* Responsive Design (Milestone 5 Compliance) */
+@media (max-width: 768px) {
+  .layout-container {
+    flex-direction: column;
+  }
+  
+  .main-content {
+    padding: 20px;
+  }
+  
+  /* Make the sidebar full width and scrollable horizontally on mobile */
+  aside {
+    width: 100% !important;
+    height: auto !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--glass-border);
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px !important;
+  }
+  
+  aside > div:first-child {
+    margin-bottom: 0 !important;
+  }
+  
+  aside nav {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    width: 100%;
+    padding: 8px 0 !important;
+    margin-top: 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  aside nav a {
+    flex: 0 0 auto;
+    padding: 8px 12px !important;
+    border-left: none !important;
+    border-bottom: 3px solid transparent;
+  }
+  
+  aside nav a[class*="active"] {
+    border-left: none !important;
+    border-bottom: 3px solid var(--accent-primary) !important;
+  }
+  
+  aside > div:last-child {
+    display: none !important; /* Hide user profile on mobile to save space */
+  }
+  
+  .glass-card {
+    padding: 20px;
+  }
+  
+  h1 {
+    font-size: 24px !important;
+  }
+  
+  h2 {
+    font-size: 20px !important;
+  }
+}
