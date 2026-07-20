@@ -243,7 +243,7 @@ export const ActionCenterPage = () => {
                             </>
                           )}
                           {app.status === 'SHORTLISTED' && (
-                            <button onClick={() => navigate(`/schedule-interview?jobId=${app.job.id}&appId=${app.id}`)} className="action-btn action-btn-schedule">
+                            <button onClick={() => navigate(`/interviews/schedule?jobId=${app.job.id}&appId=${app.id}`)} className="action-btn action-btn-schedule">
                               <CalendarPlus size={12} /> Schedule
                             </button>
                           )}
