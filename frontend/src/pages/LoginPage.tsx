@@ -36,7 +36,7 @@ export const LoginPage = () => {
       await login(res.data.data.accessToken);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Google sign-in failed.');
+      setError(err.response?.data?.error?.message || 'Superadmin approval required then login.');
     } finally {
       setIsSubmitting(false);
     }
@@ -197,7 +197,7 @@ export const LoginPage = () => {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setError('Google sign-in failed.')} theme="filled_black" shape="pill" size="large" text="continue_with" />
+          <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setError('Superadmin approval required then login.')} theme="filled_black" shape="pill" size="large" text="continue_with" />
         </div>
 
         <p style={{ textAlign: 'center', fontSize: '13px', color: 'rgba(148,163,184,0.45)', marginTop: '28px' }}>
