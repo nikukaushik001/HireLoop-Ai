@@ -45,7 +45,7 @@ echo "🚀 Starting services with PM2..."
 
 # 6. Start Node.js Backend (Port 4000)
 cd backend
-pm2 start dist/server.js --name "hireloop-backend"
+pm2 start dist/index.js --name "hireloop-server"
 # Start the queue workers
 pm2 start dist/workers/index.js --name "hireloop-workers"
 cd ..
