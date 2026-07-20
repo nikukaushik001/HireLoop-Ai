@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router';
 import { Layout } from './components/Layout';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { ActionCenterPage } from './pages/ActionCenterPage';
 import { JobsPage } from './pages/JobsPage';
 import { JobDetailPage } from './pages/JobDetailPage';
 import { CandidatesPage } from './pages/CandidatesPage';
@@ -36,6 +37,7 @@ function App() {
       {/* Protected Routes inside Layout */}
       <Route element={<Layout />}>
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/action-center" element={<ActionCenterPage />} />
         <Route path="/jobs" element={<JobsPage />} />
         <Route path="/jobs/:id" element={<JobDetailPage />} />
         <Route path="/candidates" element={<CandidatesPage />} />
