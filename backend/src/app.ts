@@ -2,11 +2,20 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
+import rateLimit from 'express-rate-limit';
 import { env } from './config/env';
 import { authRoutes } from './routes/auth.routes';
 import { globalErrorHandler } from './middleware/error.middleware';
 
 const app = express();
+
+// Rate Limiting (Prevents DDoS and brute-force attacks)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { success: false, error: { message: 'Too many requests from this IP, please try again after 15 minutes' } }
+});
+app.use('/api', limiter);
 
 // Serve static uploads
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

@@ -1,3 +1,4 @@
+import './instrumentation'; // Initialize OpenTelemetry before anything else
 import { app } from './app';
 import { env } from './config/env';
 import './workers';
