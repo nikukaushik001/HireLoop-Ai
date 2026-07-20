@@ -28,6 +28,9 @@ def parse_and_evaluate_node(state: ResumeState):
         result = extract_structured_data(state["raw_text"], state.get("job_description", ""))
         if not result:
             return {"status": "failed", "error": "AI failed to parse and evaluate resume."}
+            
+        if not result.get("is_valid_resume", True):
+            return {"status": "failed", "error": "The uploaded file does not appear to be a valid resume or CV. Please upload a real resume."}
         
         # Separate the profile details from the evaluation info
         parsed_data = {
@@ -38,7 +41,8 @@ def parse_and_evaluate_node(state: ResumeState):
             "experienceYears": result.get("experienceYears", 0),
             "currentCompany": result.get("currentCompany", ""),
             "location": result.get("location", ""),
-            "achievements": result.get("achievements", [])
+            "achievements": result.get("achievements", []),
+            "culture_fit_summary": result.get("culture_fit_summary", "")
         }
         
         evaluation = {

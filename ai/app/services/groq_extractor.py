@@ -7,6 +7,7 @@ from typing import List, Optional
 
 # Define the expected combined JSON structure using Pydantic
 class CandidateData(BaseModel):
+    is_valid_resume: bool = Field(description="Return True if the text looks like a valid resume or CV. Return False if it looks like a train ticket, random receipt, or unrelated document.")
     name: str = Field(description="The full name of the candidate")
     email: str = Field(description="The email address of the candidate")
     phone: str = Field(description="The phone number of the candidate, or empty string if not found")
@@ -17,6 +18,7 @@ class CandidateData(BaseModel):
     achievements: List[str] = Field(description="A list of key achievements, honors, awards, hackathons, certifications, research papers, open source contributions, or standout credentials found in the resume. Return empty list if none.")
     score: int = Field(description="A compatibility score between 0 and 100 indicating how well the candidate fits the job description. Default to 50 if job description is empty or not provided.")
     reasoning: str = Field(description="A brief explanation of why this score was given, highlighting matches, missing skills, and potential.")
+    culture_fit_summary: str = Field(description="A 2-sentence AI analysis of the candidate's professional trajectory and potential culture fit based on their experience.")
 
 def extract_structured_data(raw_text: str, job_description: str = "") -> dict:
     """

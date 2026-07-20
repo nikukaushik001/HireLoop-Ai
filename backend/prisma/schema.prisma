@@ -108,6 +108,7 @@ model Candidate {
   experienceYears Int?
   currentCompany  String?
   location        String?
+  cultureFitSummary String?
   
   // Embedding for fast similarity search during matching
   embedding       Float[]

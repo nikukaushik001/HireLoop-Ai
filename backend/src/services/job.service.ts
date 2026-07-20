@@ -1,5 +1,5 @@
 import { prisma } from '../config/db';
-import { NotFoundError } from '../utils/api-error';
+import { NotFoundError, AppError } from '../utils/api-error';
 import { env } from '../config/env';
 
 export interface CreateJobDTO {
@@ -11,6 +11,19 @@ export interface CreateJobDTO {
 
 export class JobService {
   async createJob(userId: string, data: CreateJobDTO) {
+    // Prevent duplicate job titles for the same recruiter
+    const existingJob = await prisma.job.findFirst({
+      where: {
+        title: data.title,
+        createdBy: userId,
+        status: 'OPEN'
+      }
+    });
+
+    if (existingJob) {
+      throw new AppError('You already have an active job posting with this exact title.', 400);
+    }
+
     let embedding: number[] = [];
     try {
       const textToEmbed = `${data.title} ${data.department || ''} ${data.description} ${data.requirements || ''}`;

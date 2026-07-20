@@ -13,6 +13,7 @@ interface CandidateDetail {
   skills: string[];
   experienceYears: number;
   currentCompany: string;
+  cultureFitSummary: string;
   applications: any[];
   resumes: any[];
 }
@@ -74,6 +75,15 @@ export const CandidateDetailPage = () => {
               {candidate.phone && <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Phone size={16} /> {candidate.phone}</div>}
               {candidate.location && <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><MapPin size={16} /> {candidate.location}</div>}
             </div>
+            
+            {candidate.cultureFitSummary && (
+              <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--glass-border)' }}>
+                <h4 style={{ color: 'var(--text-primary)', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>AI Culture Fit Summary</h4>
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.6', background: 'rgba(99,102,241,0.05)', padding: '12px', borderRadius: '8px', borderLeft: '2px solid var(--accent-primary)' }}>
+                  {candidate.cultureFitSummary}
+                </div>
+              </div>
+            )}
             
             <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--glass-border)' }}>
               <h4 style={{ color: 'var(--text-primary)', marginBottom: '12px' }}>Skills</h4>

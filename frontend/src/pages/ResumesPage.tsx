@@ -35,10 +35,19 @@ export const ResumesPage = () => {
       // Explicitly delete Content-Type so Axios/browser sets the correct
       // multipart/form-data with the boundary. Without this, our default
       // application/json header breaks Multer's multipart parsing.
-      await apiClient.post('/resumes/upload', formData, {
+      const res = await apiClient.post('/resumes/upload', formData, {
         headers: { 'Content-Type': undefined },
       });
-      setShowSuccess(true);
+      
+      const processed = res.data?.data?.processed || [];
+      const failed = processed.filter((p: any) => p.status === 'failed');
+      
+      if (failed.length > 0) {
+        // If some or all failed, show the exact error from the backend/AI
+        setError(`Upload failed for ${failed.length} file(s). Reason: ${failed[0].error}`);
+      } else {
+        setShowSuccess(true);
+      }
       setFiles([]);
     } catch (err: any) {
       console.error('Upload error:', err?.response?.data ?? err);

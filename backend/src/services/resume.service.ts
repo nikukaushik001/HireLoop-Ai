@@ -17,6 +17,7 @@ interface AIProcessedCandidate {
       currentCompany: string;
       location: string;
       achievements?: string[];
+      culture_fit_summary?: string;
     };
     embedding: number[];
     evaluation?: {
@@ -124,6 +125,7 @@ export class ResumeService {
           experienceYears: parsed.experienceYears,
           currentCompany: parsed.currentCompany,
           location: parsed.location,
+          cultureFitSummary: parsed.culture_fit_summary,
           embedding: result.pipeline_result.embedding,
         },
         create: {
@@ -135,6 +137,7 @@ export class ResumeService {
           experienceYears: parsed.experienceYears,
           currentCompany: parsed.currentCompany,
           location: parsed.location,
+          cultureFitSummary: parsed.culture_fit_summary,
           embedding: result.pipeline_result.embedding,
         },
       });
