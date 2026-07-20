@@ -8,6 +8,7 @@ export const ResumesPage = () => {
   const [jobs, setJobs] = useState<{ id: string, title: string }[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadResults, setUploadResults] = useState<{ processed: any[], failed: any[] }>({ processed: [], failed: [] });
   const [selectedJob, setSelectedJob] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -32,22 +33,16 @@ export const ResumesPage = () => {
     files.forEach(file => formData.append('files', file));
 
     try {
-      // Explicitly delete Content-Type so Axios/browser sets the correct
-      // multipart/form-data with the boundary. Without this, our default
-      // application/json header breaks Multer's multipart parsing.
       const res = await apiClient.post('/resumes/upload', formData, {
         headers: { 'Content-Type': undefined },
       });
       
       const processed = res.data?.data?.processed || [];
+      const successful = processed.filter((p: any) => p.status === 'success');
       const failed = processed.filter((p: any) => p.status === 'failed');
       
-      if (failed.length > 0) {
-        // If some or all failed, show the exact error from the backend/AI
-        setError(`Upload failed for ${failed.length} file(s). Reason: ${failed[0].error}`);
-      } else {
-        setShowSuccess(true);
-      }
+      setUploadResults({ processed: successful, failed });
+      setShowSuccess(true);
       setFiles([]);
     } catch (err: any) {
       console.error('Upload error:', err?.response?.data ?? err);
@@ -58,6 +53,9 @@ export const ResumesPage = () => {
   };
 
   if (showSuccess) {
+    const successCount = uploadResults.processed.length;
+    const failedCount = uploadResults.failed.length;
+    
     return (
       <div className="animate-fade-in" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
         <style>{`
@@ -71,41 +69,55 @@ export const ResumesPage = () => {
             to { transform: translateY(0); opacity: 1; }
           }
         `}</style>
-        <div className="glass-card" style={{ textAlign: 'center', padding: '64px', maxWidth: '500px', position: 'relative', overflow: 'hidden' }}>
-          {/* Animated background glow */}
-          <div style={{
-            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-            width: '200px', height: '200px', background: 'var(--accent-emerald)', 
-            filter: 'blur(80px)', opacity: 0.15, zIndex: 0
-          }}></div>
-          
+        <div className="glass-card" style={{ textAlign: 'center', padding: '64px', maxWidth: '600px', width: '100%', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div style={{ 
-              width: '80px', height: '80px', background: 'rgba(16, 185, 129, 0.1)', 
+              width: '80px', height: '80px', 
+              background: successCount > 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
               borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 24px auto', border: '2px solid var(--accent-emerald)',
+              margin: '0 auto 24px auto', 
+              border: `2px solid ${successCount > 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)'}`,
               animation: 'scaleInGlow 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards'
             }}>
-              <CheckCircle size={40} color="var(--accent-emerald)" />
+              {successCount > 0 ? <CheckCircle size={40} color="var(--accent-emerald)" /> : <AlertCircle size={40} color="var(--accent-rose)" />}
             </div>
             
             <h2 style={{ 
               fontSize: '32px', marginBottom: '16px', fontWeight: 'bold',
-              background: 'linear-gradient(135deg, #34d399 0%, #059669 100%)', 
+              background: successCount > 0 ? 'linear-gradient(135deg, #34d399 0%, #059669 100%)' : 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)', 
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
               animation: 'slideUpFade 0.5s ease-out 0.2s both'
             }}>
-              Processing Complete!
+              {successCount > 0 ? 'Processing Complete!' : 'All Uploads Failed'}
             </h2>
             
-            <p style={{ 
-              color: 'var(--text-secondary)', fontSize: '16px', marginBottom: '32px', lineHeight: '1.6',
-              animation: 'slideUpFade 0.5s ease-out 0.3s both'
-            }}>
-              The AI has successfully parsed your resumes. The new candidates have been automatically added to your talent pool.
+            <p style={{ color: 'var(--text-secondary)', fontSize: '16px', marginBottom: '24px', animation: 'slideUpFade 0.5s ease-out 0.3s both' }}>
+              {successCount} resume{successCount !== 1 ? 's' : ''} successfully parsed and added to talent pool.
             </p>
+
+            {failedCount > 0 && (
+              <div style={{ 
+                background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', 
+                borderRadius: '12px', padding: '16px', marginBottom: '32px', textAlign: 'left',
+                animation: 'slideUpFade 0.5s ease-out 0.4s both'
+              }}>
+                <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#f87171', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <AlertCircle size={16} /> {failedCount} File{failedCount !== 1 ? 's' : ''} Rejected by AI Validation:
+                </h3>
+                <div style={{ maxHeight: '150px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {uploadResults.failed.map((f: any, idx: number) => (
+                    <div key={idx} style={{ fontSize: '13px', background: 'rgba(0,0,0,0.2)', padding: '10px', borderRadius: '8px', color: '#cbd5e1' }}>
+                      <strong style={{ color: '#f1f5f9' }}>{f.filename}</strong>
+                      <div style={{ color: '#94a3b8', marginTop: '4px', fontSize: '12px' }}>
+                        {f.error?.includes('valid resume') ? "Invalid document format (e.g., ticket, receipt, non-resume)." : f.error}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', animation: 'slideUpFade 0.5s ease-out 0.4s both' }}>
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', animation: 'slideUpFade 0.5s ease-out 0.5s both' }}>
               <button className="btn" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }} onClick={() => setShowSuccess(false)}>
                 Upload More
               </button>
