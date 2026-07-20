@@ -205,6 +205,24 @@ const InterviewCard: React.FC<{ interview: Interview; onRefresh: () => void }> =
 
           {/* Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+            {interview.status === 'SCHEDULED' && (
+              <button 
+                onClick={() => {
+                  const link = `${window.location.origin}/feedback/${interview.id}`;
+                  navigator.clipboard.writeText(link);
+                  alert('Magic feedback link copied to clipboard! Send this to the external interviewer.');
+                }}
+                className="btn" 
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px',
+                  borderRadius: '8px', fontSize: '12px', fontWeight: 600,
+                  background: 'rgba(16,185,129,0.15)', color: '#10b981',
+                  border: '1px solid rgba(16,185,129,0.3)'
+                }}
+              >
+                <MessageSquare size={13} /> Copy Link
+              </button>
+            )}
             {interview.meetingLink && interview.status === 'SCHEDULED' && (
               <a href={interview.meetingLink} target="_blank" rel="noreferrer" style={{
                 display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px',

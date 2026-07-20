@@ -183,6 +183,39 @@ export class ApplicationService {
   }
 
   /**
+   * Get public interview details for Magic Feedback Link
+   */
+  async getMagicInterviewDetails(interviewId: string) {
+    const interview = await prisma.interview.findUnique({
+      where: { id: interviewId },
+      include: {
+        application: {
+          include: {
+            candidate: { select: { name: true } },
+            job: { select: { title: true } }
+          }
+        }
+      }
+    });
+
+    if (!interview) {
+      throw new NotFoundError('Interview');
+    }
+
+    // Only return non-sensitive fields
+    return {
+      id: interview.id,
+      scheduledAt: interview.scheduledAt,
+      durationMinutes: interview.durationMinutes,
+      status: interview.status,
+      candidateName: interview.application.candidate.name,
+      jobTitle: interview.application.job.title,
+      interviewerName: interview.interviewerName,
+      hasFeedback: !!interview.feedbackText
+    };
+  }
+
+  /**
    * Get dashboard stats
    */
   async getDashboardStats(hrId: string) {

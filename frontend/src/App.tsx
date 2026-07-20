@@ -17,6 +17,7 @@ import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { LandingPage } from './pages/LandingPage';
+import { MagicFeedbackPage } from './pages/MagicFeedbackPage';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/" element={<LandingPage />} />
+      <Route path="/feedback/:id" element={<MagicFeedbackPage />} />
       
       {/* Protected Routes inside Layout */}
       <Route element={<Layout />}>

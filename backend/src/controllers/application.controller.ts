@@ -55,6 +55,26 @@ export class ApplicationController {
     }
   }
 
+  async getMagicInterviewDetails(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.params.id as string;
+      const result = await applicationService.getMagicInterviewDetails(id);
+      sendSuccess(res, result, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async submitMagicInterviewFeedback(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = req.params.id as string;
+      const result = await applicationService.submitInterviewFeedback(id, req.body);
+      sendSuccess(res, result, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getDashboardStats(req: Request, res: Response, next: NextFunction) {
     try {
       const hrId = req.user?.id;
