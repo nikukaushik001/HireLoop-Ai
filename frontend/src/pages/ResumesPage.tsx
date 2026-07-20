@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UploadCloud, FileText, CheckCircle, Loader } from 'lucide-react';
+import { UploadCloud, FileText, CheckCircle, Loader, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { apiClient } from '../api/client';
 
@@ -119,15 +119,81 @@ export const ResumesPage = () => {
     );
   }
 
+  if (error) {
+    const isInvalidDoc = error.includes("valid resume") || error.includes("valid resume or CV");
+    
+    return (
+      <div className="animate-fade-in" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
+        <style>{`
+          @keyframes slideUpFade {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+          @keyframes pulseRed {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+          }
+        `}</style>
+        <div className="glass-card" style={{ 
+          textAlign: 'center', padding: '56px', maxWidth: '540px', position: 'relative', 
+          overflow: 'hidden', border: '1px solid rgba(239, 68, 68, 0.3)',
+          background: 'linear-gradient(135deg, rgba(15,23,42,0.8), rgba(239,68,68,0.05))'
+        }}>
+          <div style={{
+            position: 'absolute', top: '-100px', left: '50%', transform: 'translateX(-50%)',
+            width: '200px', height: '200px', background: 'var(--accent-rose)', 
+            filter: 'blur(100px)', opacity: 0.15, zIndex: 0
+          }}></div>
+          
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ 
+              width: '80px', height: '80px', background: 'rgba(239, 68, 68, 0.1)', 
+              borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 24px auto', border: '2px solid var(--accent-rose)',
+              animation: 'pulseRed 2s infinite'
+            }}>
+              <AlertCircle size={40} color="var(--accent-rose)" />
+            </div>
+            
+            <h2 style={{ 
+              fontSize: '28px', marginBottom: '16px', fontWeight: 'bold',
+              background: 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)', 
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+              animation: 'slideUpFade 0.5s ease-out 0.1s both'
+            }}>
+              {isInvalidDoc ? 'Invalid Document Detected' : 'Upload Failed'}
+            </h2>
+            
+            <div style={{ 
+              background: 'rgba(0,0,0,0.3)', padding: '20px', borderRadius: '12px',
+              border: '1px solid rgba(255,255,255,0.05)', marginBottom: '32px',
+              animation: 'slideUpFade 0.5s ease-out 0.2s both', textAlign: 'left'
+            }}>
+              <p style={{ color: '#f1f5f9', fontSize: '15px', margin: '0 0 12px 0', lineHeight: '1.6' }}>
+                {isInvalidDoc 
+                  ? "The AI Analysis Engine rejected this file because it does not appear to be a valid resume or CV." 
+                  : "We encountered an error while processing your files."}
+              </p>
+              <div style={{ color: 'var(--accent-rose)', fontSize: '13px', fontFamily: 'monospace', padding: '12px', background: 'rgba(239,68,68,0.1)', borderRadius: '8px' }}>
+                Error Code: {error}
+              </div>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', animation: 'slideUpFade 0.5s ease-out 0.3s both' }}>
+              <button className="btn" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))', border: '1px solid rgba(255,255,255,0.1)' }} onClick={() => setError(null)}>
+                Try Again with a valid PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="animate-fade-in">
       <h1 className="text-gradient" style={{ marginBottom: '24px' }}>Resume Processing Dashboard</h1>
-
-      {error && (
-        <div style={{ padding: '12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--accent-danger)', color: 'var(--accent-danger)', borderRadius: '8px', marginBottom: '24px', fontSize: '14px', maxWidth: '600px', margin: '0 auto 24px auto' }}>
-          {error}
-        </div>
-      )}
 
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <div style={{ width: '100%', maxWidth: '600px' }}>
