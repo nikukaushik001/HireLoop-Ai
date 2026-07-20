@@ -7,7 +7,7 @@ from typing import List, Optional
 
 # Define the expected combined JSON structure using Pydantic
 class CandidateData(BaseModel):
-    is_valid_resume: bool = Field(description="Return True if the text looks like a valid resume or CV. Return False if it looks like a train ticket, random receipt, or unrelated document.")
+    is_valid_resume: bool = Field(description="Return True ONLY if the text is explicitly a candidate's resume, CV, or professional profile. Return False if the text is a slide deck, presentation (PPT), receipt, ticket, invoice, form, or any other non-resume document.")
     name: str = Field(description="The full name of the candidate")
     email: str = Field(description="The email address of the candidate")
     phone: str = Field(description="The phone number of the candidate, or empty string if not found")
