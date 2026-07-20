@@ -82,16 +82,37 @@ const StatCard = ({
 
 export const DashboardPage = () => {
   const [stats, setStats] = useState<Stats>({ totalJobs: 0, totalCandidates: 0, totalResumes: 0, upcomingInterviews: 0 });
+  const [recentApps, setRecentApps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    apiClient.get('/dashboard/stats')
-      .then(res => setStats(res.data.data))
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    fetchDashboardData();
   }, []);
+
+  const fetchDashboardData = () => {
+    setLoading(true);
+    Promise.all([
+      apiClient.get('/dashboard/stats'),
+      apiClient.get('/dashboard/recent-applications')
+    ])
+    .then(([statsRes, appsRes]) => {
+      setStats(statsRes.data.data);
+      setRecentApps(appsRes.data.data);
+    })
+    .catch(console.error)
+    .finally(() => setLoading(false));
+  };
+
+  const handleAction = async (jobId: string, appId: string, status: string) => {
+    try {
+      await apiClient.patch(`/jobs/${jobId}/applications/${appId}/status`, { status });
+      fetchDashboardData(); // Refresh the table
+    } catch (err) {
+      console.error('Failed to update status', err);
+    }
+  };
 
   const getDisplayName = () => {
     const raw = user?.name || '';
@@ -270,7 +291,90 @@ export const DashboardPage = () => {
             </span>
           </div>
         </div>
+      </div>
 
+      {/* ── Action Center (Recent Applications) ─────────────────── */}
+      <div className="dash-s4" style={{ animation: 'fade-up 0.45s 0.3s ease-out both', marginTop: '24px' }}>
+        <div className="glass-card" style={{ padding: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'rgba(56,189,248,0.15)', border: '1px solid rgba(56,189,248,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Users size={16} color="#38bdf8" />
+              </div>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#f1f5f9' }}>Action Center</h3>
+            </div>
+            <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Recent Applications</span>
+          </div>
+          
+          {recentApps.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>
+              No recent applications found.
+            </div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'var(--text-muted)', textAlign: 'left' }}>
+                    <th style={{ padding: '12px 16px', fontWeight: 600 }}>Candidate</th>
+                    <th style={{ padding: '12px 16px', fontWeight: 600 }}>Job</th>
+                    <th style={{ padding: '12px 16px', fontWeight: 600 }}>Score</th>
+                    <th style={{ padding: '12px 16px', fontWeight: 600 }}>Status</th>
+                    <th style={{ padding: '12px 16px', fontWeight: 600, textAlign: 'right' }}>Quick Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentApps.map(app => (
+                    <tr key={app.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                      <td style={{ padding: '16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-emerald))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 'bold' }}>
+                            {app.candidate.name.charAt(0)}
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '2px' }}>{app.candidate.name}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{app.candidate.currentCompany || 'No Company'}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding: '16px', color: 'var(--text-secondary)' }}>{app.job.title}</td>
+                      <td style={{ padding: '16px' }}>
+                        {app.aiScore ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '40px', height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
+                              <div style={{ width: `${app.aiScore}%`, height: '100%', background: app.aiScore > 75 ? 'var(--accent-emerald)' : app.aiScore > 50 ? 'var(--accent-amber)' : 'var(--accent-danger)' }} />
+                            </div>
+                            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>{app.aiScore}</span>
+                          </div>
+                        ) : <span style={{ color: 'var(--text-muted)' }}>N/A</span>}
+                      </td>
+                      <td style={{ padding: '16px' }}>
+                        <span style={{ 
+                          padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 600,
+                          background: app.status === 'NEW' ? 'rgba(99,102,241,0.1)' : app.status === 'SHORTLISTED' ? 'rgba(16,185,129,0.1)' : app.status === 'REJECTED' ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)',
+                          color: app.status === 'NEW' ? '#818cf8' : app.status === 'SHORTLISTED' ? '#34d399' : app.status === 'REJECTED' ? '#f87171' : '#fbbf24',
+                          border: `1px solid ${app.status === 'NEW' ? 'rgba(99,102,241,0.2)' : app.status === 'SHORTLISTED' ? 'rgba(16,185,129,0.2)' : app.status === 'REJECTED' ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)'}`
+                        }}>
+                          {app.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: '16px', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                          {app.status === 'NEW' && (
+                            <>
+                              <button onClick={() => handleAction(app.job.id, app.id, 'SHORTLISTED')} className="btn" style={{ padding: '6px 12px', fontSize: '11px', background: 'rgba(16,185,129,0.1)', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)' }}>Shortlist</button>
+                              <button onClick={() => handleAction(app.job.id, app.id, 'REJECTED')} className="btn" style={{ padding: '6px 12px', fontSize: '11px', background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)' }}>Reject</button>
+                            </>
+                          )}
+                          <button onClick={() => navigate(`/candidates/${app.candidate.id}`)} className="btn" style={{ padding: '6px 12px', fontSize: '11px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>View</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -66,6 +66,17 @@ export class ApplicationController {
     }
   }
 
+  async getRecentApplications(req: Request, res: Response, next: NextFunction) {
+    try {
+      const hrId = req.user?.id;
+      if (!hrId) throw new Error('Unauthorized');
+      const result = await applicationService.getRecentApplications(hrId);
+      sendSuccess(res, result, 200);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getRecommendedJobs(req: Request, res: Response, next: NextFunction) {
     try {
       const id = req.params.id as string; // candidateId

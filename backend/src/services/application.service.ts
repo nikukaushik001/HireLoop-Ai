@@ -219,6 +219,23 @@ export class ApplicationService {
   }
 
   /**
+   * Get recent applications across all jobs for the Quick Action Center
+   */
+  async getRecentApplications(hrId: string) {
+    return await prisma.application.findMany({
+      where: {
+        job: { createdBy: hrId }
+      },
+      orderBy: { appliedAt: 'desc' },
+      take: 15, // Return top 15 recent applications
+      include: {
+        candidate: { select: { id: true, name: true, email: true, currentCompany: true } },
+        job: { select: { id: true, title: true } }
+      }
+    });
+  }
+
+  /**
    * Get future role recommendations for a candidate based on embeddings
    */
   async getRecommendedJobs(candidateId: string) {
