@@ -224,7 +224,7 @@ export const AdminDashboard: React.FC = () => {
                       )}
                       {u.isApproved && u.role !== 'SUPERADMIN' && (
                         <button onClick={() => handleRevoke(u.id)} style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.2)'; e.currentTarget.style.color = '#fff'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; e.currentTarget.style.color = '#f87171'; }}>
-                          Revoke
+                          Suspend
                         </button>
                       )}
                       {u.role !== 'SUPERADMIN' && (
