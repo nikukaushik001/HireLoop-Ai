@@ -88,11 +88,11 @@ export class ResumeService {
     // 4. Save each processed candidate into the database
     const savedCandidates = [];
     for (const result of aiResult.results) {
-      if (result.pipeline_result?.status !== 'completed' && !result.pipeline_result?.parsed_data) {
+      if (result.status === 'failed' || (result.pipeline_result?.status !== 'completed' && !result.pipeline_result?.parsed_data)) {
         savedCandidates.push({
           filename: result.filename,
           status: 'failed',
-          error: result.pipeline_result?.error || 'Unknown error',
+          error: result.error || result.pipeline_result?.error || 'Unknown error',
         });
         continue;
       }
