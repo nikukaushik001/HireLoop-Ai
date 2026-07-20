@@ -53,7 +53,7 @@ export class AuthService {
       }
     });
 
-    return { message: 'Account created successfully. Pending approval by Superadmin.' };
+    return { message: 'Account created successfully. Superadmin approval required then login.' };
   }
 
   /**
@@ -74,7 +74,7 @@ export class AuthService {
     }
 
     if (!user.isApproved) {
-      throw new UnauthorizedError('Account pending approval by Superadmin');
+      throw new UnauthorizedError('Superadmin approval required then login');
     }
 
     return this.generateTokens(user.id, user.email, user.role);
@@ -116,7 +116,7 @@ export class AuthService {
       }
 
       if (!user.isApproved) {
-        throw new UnauthorizedError('Account pending approval by Superadmin');
+        throw new UnauthorizedError('Superadmin approval required then login');
       }
 
       return this.generateTokens(user.id, user.email, user.role);

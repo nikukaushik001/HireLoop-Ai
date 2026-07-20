@@ -365,6 +365,9 @@ export const DashboardPage = () => {
                               <button onClick={() => handleAction(app.job.id, app.id, 'REJECTED')} className="btn" style={{ padding: '6px 12px', fontSize: '11px', background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)' }}>Reject</button>
                             </>
                           )}
+                          {app.status === 'SHORTLISTED' && (
+                            <button onClick={() => navigate(`/schedule-interview?jobId=${app.job.id}&appId=${app.id}`)} className="btn" style={{ padding: '6px 12px', fontSize: '11px', background: 'rgba(99,102,241,0.1)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.2)' }}>Schedule Interview</button>
+                          )}
                           <button onClick={() => navigate(`/candidates/${app.candidate.id}`)} className="btn" style={{ padding: '6px 12px', fontSize: '11px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>View</button>
                         </div>
                       </td>
