@@ -24,6 +24,9 @@ const getScoreColor = (score: number) => {
 export const ActionCenterPage = () => {
   const [apps, setApps] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState('NEW');
+  const [filterJob, setFilterJob] = useState('ALL');
+  const [sortBy, setSortBy] = useState('SCORE_DESC');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,9 +36,6 @@ export const ActionCenterPage = () => {
   const fetchApps = async () => {
     setLoading(true);
     try {
-      // Re-using the same dashboard recent apps logic, but it fetches the latest applications.
-      // Ideally, there would be a dedicated `/applications` endpoint, but we can just use this for now
-      // since the user wants the exact same table separated out.
       const res = await apiClient.get('/dashboard/recent-applications');
       setApps(res.data.data);
     } catch (err) {
@@ -65,6 +65,23 @@ export const ActionCenterPage = () => {
     );
   }
 
+  // Extract unique jobs for the filter dropdown
+  const uniqueJobs = Array.from(new Set(apps.map(a => a.job.title)));
+
+  // Apply filters and sorting
+  let processedApps = [...apps];
+  if (filterStatus !== 'ALL') {
+    processedApps = processedApps.filter(a => a.status === filterStatus);
+  }
+  
+  if (filterJob !== 'ALL') {
+    processedApps = processedApps.filter(a => a.job.title === filterJob);
+  }
+  
+  if (sortBy === 'SCORE_DESC') {
+    processedApps.sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0));
+  }
+
   return (
     <div className="animate-fade-in" style={{ padding: '0 24px 48px' }}>
       <style>{`
@@ -86,6 +103,14 @@ export const ActionCenterPage = () => {
         .action-btn-schedule:hover { background: rgba(99,102,241,0.2); }
         .action-btn-view { background: rgba(255,255,255,0.04); color: #94a3b8; border-color: rgba(255,255,255,0.1); }
         .action-btn-view:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+        
+        .filter-select {
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+          color: #f1f5f9; padding: 8px 12px; border-radius: 8px; font-size: 12px;
+          font-family: 'Inter', sans-serif; outline: none; cursor: pointer;
+        }
+        .filter-select:hover { background: rgba(255,255,255,0.08); }
+        .filter-select option { background: #0f172a; color: white; }
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
       
@@ -93,6 +118,25 @@ export const ActionCenterPage = () => {
         <div>
           <h1 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 8px 0' }} className="text-gradient">Action Center</h1>
           <p style={{ color: 'var(--text-secondary)', margin: 0 }}>Review, shortlist, and schedule interviews for recent applications.</p>
+        </div>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <select className="filter-select" value={filterJob} onChange={(e) => setFilterJob(e.target.value)}>
+            <option value="ALL">All Jobs</option>
+            {uniqueJobs.map(jobTitle => (
+              <option key={jobTitle} value={jobTitle}>{jobTitle}</option>
+            ))}
+          </select>
+          <select className="filter-select" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+            <option value="ALL">All Statuses</option>
+            <option value="NEW">Needs Review (New)</option>
+            <option value="SHORTLISTED">Shortlisted</option>
+            <option value="INTERVIEWING">Interviewing</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+          <select className="filter-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+            <option value="SCORE_DESC">Sort by: Highest AI Score</option>
+            <option value="DATE">Sort by: Newest First</option>
+          </select>
         </div>
       </div>
 
@@ -113,19 +157,24 @@ export const ActionCenterPage = () => {
             </div>
             <div>
               <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.3px' }}>Applications Queue</h3>
-              <span style={{ fontSize: '12px', color: 'rgba(148,163,184,0.5)' }}>Pending your review</span>
+              <span style={{ fontSize: '12px', color: 'rgba(148,163,184,0.5)' }}>
+                {filterStatus === 'NEW' ? 'Pending your review' : `Showing ${filterStatus} applications`}
+              </span>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 14px', background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.15)', borderRadius: '99px' }}>
             <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#38bdf8' }} />
-            <span style={{ fontSize: '11px', fontWeight: 600, color: '#7dd3fc' }}>{apps.length} Total</span>
+            <span style={{ fontSize: '11px', fontWeight: 600, color: '#7dd3fc' }}>{processedApps.length} Candidates</span>
           </div>
         </div>
         
-        {apps.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 24px', color: 'var(--text-muted)' }}>
-            <Users size={40} style={{ opacity: 0.2, marginBottom: '16px' }} />
-            <p style={{ fontSize: '14px', margin: 0 }}>No recent applications found.</p>
+        {processedApps.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '80px 24px', color: 'var(--text-muted)' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(255,255,255,0.02)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <Users size={32} style={{ opacity: 0.3 }} />
+            </div>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#e2e8f0' }}>No candidates found</h3>
+            <p style={{ fontSize: '14px', margin: 0, color: 'rgba(148,163,184,0.6)' }}>Try changing your filters or check back later.</p>
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
@@ -140,10 +189,10 @@ export const ActionCenterPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {apps.map((app, idx) => {
+                {processedApps.map((app, idx) => {
                   const sc = getStatusConfig(app.status);
                   return (
-                    <tr key={app.id} className="action-row" style={{ borderBottom: idx < apps.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none', cursor: 'default' }}>
+                    <tr key={app.id} className="action-row" style={{ borderBottom: idx < processedApps.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none', cursor: 'default' }}>
                       <td style={{ padding: '16px 28px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <div style={{
