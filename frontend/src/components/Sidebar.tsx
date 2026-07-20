@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router';
-import { LayoutDashboard, Briefcase, Users, FileText, Calendar, LogOut, Hexagon, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Users, FileText, Calendar, LogOut, Hexagon, TrendingUp, Zap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const Sidebar: React.FC = () => {
@@ -15,7 +15,7 @@ export const Sidebar: React.FC = () => {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'Jobs', path: '/jobs', icon: <Briefcase size={20} /> },
-    { name: 'Action Center', path: '/action-center', icon: <Hexagon size={20} /> },
+    { name: 'Action Center', path: '/action-center', icon: <Zap size={20} /> },
     { name: 'Candidates', path: '/candidates', icon: <Users size={20} /> },
     { name: 'Resumes', path: '/resumes', icon: <FileText size={20} /> },
     { name: 'Ranking', path: '/ranking', icon: <TrendingUp size={20} /> },
