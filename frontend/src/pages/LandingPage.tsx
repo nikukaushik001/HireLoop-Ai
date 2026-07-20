@@ -291,29 +291,80 @@ export const LandingPage = () => {
       </section>
 
       {/* ── WHY UNIQUE ── */}
-      <section id="why-unique" style={{ padding: '80px 48px', position: 'relative', zIndex: 2, background: 'rgba(255,255,255,0.015)' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#8b5cf6', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>The HireLoop Difference</div>
-            <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-1.5px', lineHeight: 1.1 }}>
-              Why we're <span className="gradient-text">unlike any other ATS.</span>
+      <section id="why-unique" style={{ padding: '100px 48px', position: 'relative', overflow: 'hidden' }}>
+        {/* Background glow */}
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '800px', height: '400px', background: 'radial-gradient(ellipse, rgba(99,102,241,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ maxWidth: '1100px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <div style={{ textAlign: 'center', marginBottom: '72px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '100px', padding: '6px 18px', marginBottom: '24px' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#c084fc', letterSpacing: '2px', textTransform: 'uppercase' }}>Why HireLoop?</span>
+            </div>
+            <h2 style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 900, letterSpacing: '-2px', lineHeight: 1.05, margin: 0 }}>
+              Built different.<br />
+              <span className="gradient-text">Performs different.</span>
             </h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-            <div className="feature-card" style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.05), rgba(139,92,246,0.05))', borderColor: 'rgba(139,92,246,0.2)' }}>
-              <div style={{ fontSize: '32px', marginBottom: '16px' }}>🧠</div>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '12px', color: '#f1f5f9' }}>Semantic Vector Matching</h3>
-              <p style={{ fontSize: '15px', color: 'rgba(226,232,240,0.6)', lineHeight: 1.6 }}>Traditional ATS systems use basic "keyword matching", which candidates easily trick. We use advanced HuggingFace Machine Learning to understand the actual <em>meaning</em> of the resume and match it against the job description.</p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2px', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)' }}>
+            {/* Card 1 */}
+            <div style={{ padding: '48px 40px', background: 'rgba(99,102,241,0.06)', position: 'relative', overflow: 'hidden', transition: 'background 0.3s' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.12)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.06)')}>
+              <div style={{ position: 'absolute', top: '-20px', right: '-20px', fontSize: '120px', fontWeight: 900, color: 'rgba(99,102,241,0.08)', lineHeight: 1, userSelect: 'none' }}>01</div>
+              <div style={{ marginBottom: '24px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 700, color: '#6366f1', letterSpacing: '1px', textTransform: 'uppercase' }}>Not keyword matching</span>
+              </div>
+              <h3 style={{ fontSize: '32px', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.1, marginBottom: '20px', color: '#f8fafc' }}>
+                AI Understands<br /><span style={{ background: 'linear-gradient(135deg,#6366f1,#a5b4fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Intent.</span>
+              </h3>
+              <p style={{ fontSize: '15px', color: 'rgba(226,232,240,0.55)', lineHeight: 1.7, margin: 0 }}>
+                Traditional ATS is tricked by resume stuffing. Our HuggingFace vector engine reads meaning, not just words — so the best candidate always rises to the top.
+              </p>
+              <div style={{ marginTop: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '40px', height: '2px', background: 'linear-gradient(90deg, #6366f1, #a5b4fc)' }} />
+                <span style={{ fontSize: '13px', fontWeight: 600, color: '#a5b4fc' }}>Vector Similarity Scoring</span>
+              </div>
             </div>
-            <div className="feature-card" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.05), rgba(6,182,212,0.05))', borderColor: 'rgba(16,185,129,0.2)' }}>
-              <div style={{ fontSize: '32px', marginBottom: '16px' }}>⚡</div>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '12px', color: '#f1f5f9' }}>True Automation</h3>
-              <p style={{ fontSize: '15px', color: 'rgba(226,232,240,0.6)', lineHeight: 1.6 }}>Most platforms still require HR to copy-paste candidate details. Our Gemini 1.5 LangGraph pipeline automatically reads the PDF, extracts structured JSON data, and updates your pipeline with zero human effort.</p>
+
+            {/* Card 2 - Center hero card */}
+            <div style={{ padding: '48px 40px', background: 'linear-gradient(145deg, rgba(139,92,246,0.15), rgba(99,102,241,0.08))', position: 'relative', overflow: 'hidden', borderLeft: '1px solid rgba(255,255,255,0.07)', borderRight: '1px solid rgba(255,255,255,0.07)' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'linear-gradient(145deg, rgba(139,92,246,0.22), rgba(99,102,241,0.15))')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'linear-gradient(145deg, rgba(139,92,246,0.15), rgba(99,102,241,0.08))')}>
+              <div style={{ position: 'absolute', top: '-20px', right: '-20px', fontSize: '120px', fontWeight: 900, color: 'rgba(139,92,246,0.1)', lineHeight: 1, userSelect: 'none' }}>02</div>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4)' }} />
+              <div style={{ marginBottom: '24px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 700, color: '#a78bfa', letterSpacing: '1px', textTransform: 'uppercase' }}>Zero Manual Work</span>
+              </div>
+              <h3 style={{ fontSize: '32px', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.1, marginBottom: '20px', color: '#f8fafc' }}>
+                Gemini Reads<br /><span style={{ background: 'linear-gradient(135deg,#8b5cf6,#c084fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Every Resume.</span>
+              </h3>
+              <p style={{ fontSize: '15px', color: 'rgba(226,232,240,0.55)', lineHeight: 1.7, margin: 0 }}>
+                Upload 500 PDFs at once. Gemini 1.5 Flash extracts every name, skill, and year of experience automatically and saves it — in under 30 seconds each.
+              </p>
+              <div style={{ marginTop: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '40px', height: '2px', background: 'linear-gradient(90deg, #8b5cf6, #c084fc)' }} />
+                <span style={{ fontSize: '13px', fontWeight: 600, color: '#c084fc' }}>Powered by LangGraph + Gemini</span>
+              </div>
             </div>
-            <div className="feature-card" style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.05), rgba(245,158,11,0.05))', borderColor: 'rgba(239,68,68,0.2)' }}>
-              <div style={{ fontSize: '32px', marginBottom: '16px' }}>🛡️</div>
-              <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '12px', color: '#f1f5f9' }}>Enterprise Security</h3>
-              <p style={{ fontSize: '15px', color: 'rgba(226,232,240,0.6)', lineHeight: 1.6 }}>We don't just let anyone join your hiring team. Our robust SuperAdmin architecture ensures that even if someone registers with Google Auth, their account stays locked until a SuperAdmin explicitly verifies and approves them.</p>
+
+            {/* Card 3 */}
+            <div style={{ padding: '48px 40px', background: 'rgba(16,185,129,0.05)', position: 'relative', overflow: 'hidden', transition: 'background 0.3s' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(16,185,129,0.1)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(16,185,129,0.05)')}>
+              <div style={{ position: 'absolute', top: '-20px', right: '-20px', fontSize: '120px', fontWeight: 900, color: 'rgba(16,185,129,0.08)', lineHeight: 1, userSelect: 'none' }}>03</div>
+              <div style={{ marginBottom: '24px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 700, color: '#10b981', letterSpacing: '1px', textTransform: 'uppercase' }}>Enterprise-grade</span>
+              </div>
+              <h3 style={{ fontSize: '32px', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.1, marginBottom: '20px', color: '#f8fafc' }}>
+                No One Gets In<br /><span style={{ background: 'linear-gradient(135deg,#10b981,#06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Uninvited.</span>
+              </h3>
+              <p style={{ fontSize: '15px', color: 'rgba(226,232,240,0.55)', lineHeight: 1.7, margin: 0 }}>
+                Every recruiter is locked until a SuperAdmin reviews and approves them. Google Auth, JWT protection, and isolated data — built for companies that take HR data seriously.
+              </p>
+              <div style={{ marginTop: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '40px', height: '2px', background: 'linear-gradient(90deg, #10b981, #06b6d4)' }} />
+                <span style={{ fontSize: '13px', fontWeight: 600, color: '#34d399' }}>Multi-layer Security</span>
+              </div>
             </div>
           </div>
         </div>
