@@ -291,84 +291,67 @@ export const LandingPage = () => {
       </section>
 
       {/* ── WHY UNIQUE ── */}
-      <section id="why-unique" style={{ padding: '100px 48px', position: 'relative', overflow: 'hidden' }}>
-        {/* Background glow */}
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '800px', height: '400px', background: 'radial-gradient(ellipse, rgba(99,102,241,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        <div style={{ maxWidth: '1100px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+      <section id="why-unique" style={{ padding: '100px 48px', position: 'relative', zIndex: 2, overflow: 'hidden' }}>
+        {/* background glow */}
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '800px', height: '400px', background: 'radial-gradient(ellipse, rgba(99,102,241,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ maxWidth: '1100px', margin: '0 auto', position: 'relative' }}>
+          {/* Heading */}
           <div style={{ textAlign: 'center', marginBottom: '72px' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '100px', padding: '6px 18px', marginBottom: '24px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#c084fc', letterSpacing: '2px', textTransform: 'uppercase' }}>Why HireLoop?</span>
+            <div style={{ display: 'inline-block', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '100px', padding: '6px 20px', marginBottom: '20px' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#c084fc', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Why HireLoop?</span>
             </div>
-            <h2 style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 900, letterSpacing: '-2px', lineHeight: 1.05, margin: 0 }}>
-              Built different.<br />
-              <span className="gradient-text">Performs different.</span>
+            <h2 style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 900, letterSpacing: '-2px', lineHeight: 1.05, marginBottom: '16px' }}>
+              Built different.<br /><span className="gradient-text">Performs different.</span>
             </h2>
+            <p style={{ fontSize: '17px', color: 'rgba(226,232,240,0.5)', maxWidth: '560px', margin: '0 auto', lineHeight: 1.6 }}>
+              Every other ATS gives you a spreadsheet. We give you an AI-powered co-recruiter.
+            </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2px', borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)' }}>
-            {/* Card 1 */}
-            <div style={{ padding: '48px 40px', background: 'rgba(99,102,241,0.06)', position: 'relative', overflow: 'hidden', transition: 'background 0.3s' }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.12)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.06)')}>
-              <div style={{ position: 'absolute', top: '-20px', right: '-20px', fontSize: '120px', fontWeight: 900, color: 'rgba(99,102,241,0.08)', lineHeight: 1, userSelect: 'none' }}>01</div>
-              <div style={{ marginBottom: '24px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 700, color: '#6366f1', letterSpacing: '1px', textTransform: 'uppercase' }}>Not keyword matching</span>
-              </div>
-              <h3 style={{ fontSize: '32px', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.1, marginBottom: '20px', color: '#f8fafc' }}>
-                AI Understands<br /><span style={{ background: 'linear-gradient(135deg,#6366f1,#a5b4fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Intent.</span>
-              </h3>
-              <p style={{ fontSize: '15px', color: 'rgba(226,232,240,0.55)', lineHeight: 1.7, margin: 0 }}>
-                Traditional ATS is tricked by resume stuffing. Our HuggingFace vector engine reads meaning, not just words — so the best candidate always rises to the top.
-              </p>
-              <div style={{ marginTop: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '40px', height: '2px', background: 'linear-gradient(90deg, #6366f1, #a5b4fc)' }} />
-                <span style={{ fontSize: '13px', fontWeight: 600, color: '#a5b4fc' }}>Vector Similarity Scoring</span>
-              </div>
+          {/* Comparison Table */}
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', overflow: 'hidden', marginBottom: '48px' }}>
+            {/* Table Header */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ padding: '20px 28px', fontSize: '13px', fontWeight: 600, color: 'rgba(148,163,184,0.6)', letterSpacing: '1px', textTransform: 'uppercase' }}>Feature</div>
+              <div style={{ padding: '20px 28px', fontSize: '13px', fontWeight: 700, color: 'rgba(148,163,184,0.5)', letterSpacing: '1px', textTransform: 'uppercase', borderLeft: '1px solid rgba(255,255,255,0.06)' }}>❌ Traditional ATS</div>
+              <div style={{ padding: '20px 28px', fontSize: '13px', fontWeight: 700, color: '#a78bfa', letterSpacing: '1px', textTransform: 'uppercase', borderLeft: '1px solid rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.05)' }}>✅ HireLoop AI</div>
             </div>
+            {[
+              ['Resume Reading', 'Manual, keyword-based', 'Gemini 1.5 AI extracts everything in 30s'],
+              ['Candidate Ranking', 'HR reads every PDF', 'Vector AI scores & ranks automatically'],
+              ['Candidate Communication', 'Manually sent emails', 'Auto emails via Amazon SES pipeline'],
+              ['Team Access Control', 'Anyone can sign up', 'SuperAdmin approves every recruiter'],
+              ['Data Entry', 'Copy-paste into forms', 'Zero — AI populates all fields instantly'],
+            ].map(([feat, bad, good], i) => (
+              <div key={feat} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', borderBottom: i < 4 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                <div style={{ padding: '18px 28px', fontSize: '14px', fontWeight: 600, color: '#e2e8f0' }}>{feat}</div>
+                <div style={{ padding: '18px 28px', fontSize: '14px', color: 'rgba(148,163,184,0.5)', borderLeft: '1px solid rgba(255,255,255,0.05)' }}>{bad}</div>
+                <div style={{ padding: '18px 28px', fontSize: '14px', fontWeight: 600, color: '#a5b4fc', borderLeft: '1px solid rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.03)' }}>{good}</div>
+              </div>
+            ))}
+          </div>
 
-            {/* Card 2 - Center hero card */}
-            <div style={{ padding: '48px 40px', background: 'linear-gradient(145deg, rgba(139,92,246,0.15), rgba(99,102,241,0.08))', position: 'relative', overflow: 'hidden', borderLeft: '1px solid rgba(255,255,255,0.07)', borderRight: '1px solid rgba(255,255,255,0.07)' }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'linear-gradient(145deg, rgba(139,92,246,0.22), rgba(99,102,241,0.15))')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'linear-gradient(145deg, rgba(139,92,246,0.15), rgba(99,102,241,0.08))')}>
-              <div style={{ position: 'absolute', top: '-20px', right: '-20px', fontSize: '120px', fontWeight: 900, color: 'rgba(139,92,246,0.1)', lineHeight: 1, userSelect: 'none' }}>02</div>
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4)' }} />
-              <div style={{ marginBottom: '24px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 700, color: '#a78bfa', letterSpacing: '1px', textTransform: 'uppercase' }}>Zero Manual Work</span>
+          {/* 3 Bold Stat Cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+            {[
+              { num: '10x', label: 'Faster Than Manual Screening', color: '#6366f1', glow: 'rgba(99,102,241,0.3)' },
+              { num: '<30s', label: 'To Parse & Rank One Resume', color: '#8b5cf6', glow: 'rgba(139,92,246,0.3)' },
+              { num: '100%', label: 'Automated Email Notifications', color: '#06b6d4', glow: 'rgba(6,182,212,0.3)' },
+            ].map(s => (
+              <div key={s.num} style={{
+                padding: '36px 28px', borderRadius: '20px', textAlign: 'center',
+                background: `linear-gradient(135deg, ${s.glow.replace('0.3', '0.08')}, transparent)`,
+                border: `1px solid ${s.glow.replace('0.3', '0.25')}`,
+                boxShadow: `0 0 40px ${s.glow.replace('0.3', '0.08')}`,
+              }}>
+                <div style={{ fontSize: '56px', fontWeight: 900, letterSpacing: '-2px', color: s.color, marginBottom: '8px', lineHeight: 1 }}>{s.num}</div>
+                <div style={{ fontSize: '14px', color: 'rgba(226,232,240,0.55)', fontWeight: 500, lineHeight: 1.4 }}>{s.label}</div>
               </div>
-              <h3 style={{ fontSize: '32px', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.1, marginBottom: '20px', color: '#f8fafc' }}>
-                Gemini Reads<br /><span style={{ background: 'linear-gradient(135deg,#8b5cf6,#c084fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Every Resume.</span>
-              </h3>
-              <p style={{ fontSize: '15px', color: 'rgba(226,232,240,0.55)', lineHeight: 1.7, margin: 0 }}>
-                Upload 500 PDFs at once. Gemini 1.5 Flash extracts every name, skill, and year of experience automatically and saves it — in under 30 seconds each.
-              </p>
-              <div style={{ marginTop: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '40px', height: '2px', background: 'linear-gradient(90deg, #8b5cf6, #c084fc)' }} />
-                <span style={{ fontSize: '13px', fontWeight: 600, color: '#c084fc' }}>Powered by LangGraph + Gemini</span>
-              </div>
-            </div>
-
-            {/* Card 3 */}
-            <div style={{ padding: '48px 40px', background: 'rgba(16,185,129,0.05)', position: 'relative', overflow: 'hidden', transition: 'background 0.3s' }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(16,185,129,0.1)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(16,185,129,0.05)')}>
-              <div style={{ position: 'absolute', top: '-20px', right: '-20px', fontSize: '120px', fontWeight: 900, color: 'rgba(16,185,129,0.08)', lineHeight: 1, userSelect: 'none' }}>03</div>
-              <div style={{ marginBottom: '24px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 700, color: '#10b981', letterSpacing: '1px', textTransform: 'uppercase' }}>Enterprise-grade</span>
-              </div>
-              <h3 style={{ fontSize: '32px', fontWeight: 900, letterSpacing: '-1px', lineHeight: 1.1, marginBottom: '20px', color: '#f8fafc' }}>
-                No One Gets In<br /><span style={{ background: 'linear-gradient(135deg,#10b981,#06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Uninvited.</span>
-              </h3>
-              <p style={{ fontSize: '15px', color: 'rgba(226,232,240,0.55)', lineHeight: 1.7, margin: 0 }}>
-                Every recruiter is locked until a SuperAdmin reviews and approves them. Google Auth, JWT protection, and isolated data — built for companies that take HR data seriously.
-              </p>
-              <div style={{ marginTop: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '40px', height: '2px', background: 'linear-gradient(90deg, #10b981, #06b6d4)' }} />
-                <span style={{ fontSize: '13px', fontWeight: 600, color: '#34d399' }}>Multi-layer Security</span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
+
 
       {/* ── STATS ── */}
       <section style={{ borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
