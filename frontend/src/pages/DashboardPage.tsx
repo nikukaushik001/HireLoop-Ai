@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router';
 import {
   Briefcase, Users, FileText, Calendar,
   ArrowUpRight, Plus, Upload, TrendingUp,
-  Zap, Activity, ChevronRight, Sparkles
+  Zap, Activity, ChevronRight, Sparkles,
+  CheckCircle, XCircle, Eye, CalendarPlus
 } from 'lucide-react';
 
 interface Stats {
@@ -33,52 +34,76 @@ const AnimatedNumber = ({ value }: { value: number }) => {
 };
 
 const StatCard = ({
-  title, value, icon, color, sub, trend
+  title, value, icon, color, sub, trend, accentGradient
 }: {
-  title: string; value: number; icon: React.ReactNode; color: string; sub: string; trend?: string;
+  title: string; value: number; icon: React.ReactNode; color: string; sub: string; trend?: string; accentGradient: string;
 }) => (
   <div
     style={{
       background: 'linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)',
       border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: '20px', padding: '24px', position: 'relative', overflow: 'hidden',
+      borderRadius: '20px', position: 'relative', overflow: 'hidden',
       transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)', cursor: 'default'
     }}
     onMouseEnter={e => {
       const el = e.currentTarget as HTMLDivElement;
-      el.style.transform = 'translateY(-4px)';
+      el.style.transform = 'translateY(-5px) scale(1.01)';
       el.style.borderColor = `${color}40`;
-      el.style.boxShadow = `0 20px 40px rgba(0,0,0,0.3), 0 0 0 1px ${color}20`;
+      el.style.boxShadow = `0 20px 50px rgba(0,0,0,0.35), 0 0 0 1px ${color}20, inset 0 1px 0 rgba(255,255,255,0.06)`;
     }}
     onMouseLeave={e => {
       const el = e.currentTarget as HTMLDivElement;
-      el.style.transform = 'translateY(0)';
+      el.style.transform = 'translateY(0) scale(1)';
       el.style.borderColor = 'rgba(255,255,255,0.07)';
       el.style.boxShadow = 'none';
     }}
   >
-    {/* Background glow */}
-    <div style={{ position: 'absolute', bottom: '-30px', right: '-30px', width: '130px', height: '130px', borderRadius: '50%', background: `radial-gradient(circle, ${color}20 0%, transparent 70%)`, filter: 'blur(20px)' }} />
-    {/* Top row */}
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-      <div style={{ width: '46px', height: '46px', borderRadius: '14px', background: `linear-gradient(135deg, ${color}22, ${color}10)`, border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', color }}>
-        {icon}
-      </div>
-      {trend && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '99px' }}>
-          <ArrowUpRight size={12} color="#10b981" />
-          <span style={{ fontSize: '11px', fontWeight: 700, color: '#10b981' }}>{trend}</span>
+    {/* Top accent bar */}
+    <div style={{ height: '3px', background: accentGradient, opacity: 0.8 }} />
+    <div style={{ padding: '22px 24px 24px' }}>
+      {/* Background glow */}
+      <div style={{ position: 'absolute', bottom: '-40px', right: '-40px', width: '160px', height: '160px', borderRadius: '50%', background: `radial-gradient(circle, ${color}18 0%, transparent 70%)`, filter: 'blur(25px)' }} />
+      {/* Top row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+        <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: `linear-gradient(135deg, ${color}25, ${color}10)`, border: `1px solid ${color}35`, display: 'flex', alignItems: 'center', justifyContent: 'center', color, backdropFilter: 'blur(8px)' }}>
+          {icon}
         </div>
-      )}
+        {trend && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 10px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '99px' }}>
+            <ArrowUpRight size={12} color="#10b981" />
+            <span style={{ fontSize: '11px', fontWeight: 700, color: '#10b981' }}>{trend}</span>
+          </div>
+        )}
+      </div>
+      {/* Value */}
+      <div style={{ fontSize: '44px', fontWeight: 900, color: '#ffffff', letterSpacing: '-2px', lineHeight: 1, marginBottom: '8px', fontVariantNumeric: 'tabular-nums' }}>
+        <AnimatedNumber value={value} />
+      </div>
+      <div style={{ fontSize: '14px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginBottom: '4px' }}>{title}</div>
+      <div style={{ fontSize: '12px', color: 'rgba(148,163,184,0.45)' }}>{sub}</div>
     </div>
-    {/* Value */}
-    <div style={{ fontSize: '42px', fontWeight: 900, color: '#ffffff', letterSpacing: '-2px', lineHeight: 1, marginBottom: '6px', fontVariantNumeric: 'tabular-nums' }}>
-      <AnimatedNumber value={value} />
-    </div>
-    <div style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.65)', marginBottom: '3px' }}>{title}</div>
-    <div style={{ fontSize: '12px', color: 'rgba(148,163,184,0.4)' }}>{sub}</div>
   </div>
 );
+
+// Status config helper
+const getStatusConfig = (status: string) => {
+  const configs: Record<string, { bg: string; color: string; border: string; label: string }> = {
+    NEW: { bg: 'rgba(99,102,241,0.12)', color: '#818cf8', border: 'rgba(99,102,241,0.25)', label: 'New' },
+    SHORTLISTED: { bg: 'rgba(16,185,129,0.12)', color: '#34d399', border: 'rgba(16,185,129,0.25)', label: 'Shortlisted' },
+    INTERVIEWING: { bg: 'rgba(245,158,11,0.12)', color: '#fbbf24', border: 'rgba(245,158,11,0.25)', label: 'Interviewing' },
+    REJECTED: { bg: 'rgba(239,68,68,0.12)', color: '#f87171', border: 'rgba(239,68,68,0.25)', label: 'Rejected' },
+    OFFERED: { bg: 'rgba(16,185,129,0.12)', color: '#10b981', border: 'rgba(16,185,129,0.25)', label: 'Offered' },
+  };
+  return configs[status] || { bg: 'rgba(148,163,184,0.1)', color: '#94a3b8', border: 'rgba(148,163,184,0.2)', label: status };
+};
+
+// Score bar color helper
+const getScoreColor = (score: number) => {
+  if (score >= 80) return '#10b981';
+  if (score >= 60) return '#f59e0b';
+  if (score >= 40) return '#f97316';
+  return '#ef4444';
+};
 
 export const DashboardPage = () => {
   const [stats, setStats] = useState<Stats>({ totalJobs: 0, totalCandidates: 0, totalResumes: 0, upcomingInterviews: 0 });
@@ -108,7 +133,7 @@ export const DashboardPage = () => {
   const handleAction = async (jobId: string, appId: string, status: string) => {
     try {
       await apiClient.patch(`/jobs/${jobId}/applications/${appId}/status`, { status });
-      fetchDashboardData(); // Refresh the table
+      fetchDashboardData();
     } catch (err) {
       console.error('Failed to update status', err);
     }
@@ -133,10 +158,10 @@ export const DashboardPage = () => {
   );
 
   const pipelineItems = [
-    { label: 'Resume Parser', sub: 'Gemini AI', color: '#10b981' },
-    { label: 'Vector Embeddings', sub: 'Similarity engine', color: '#10b981' },
-    { label: 'Email Notifications', sub: 'SMTP / Nodemailer', color: '#10b981' },
-    { label: 'Candidate Ranking', sub: 'AI scoring', color: '#10b981' },
+    { label: 'Resume Parser', sub: 'Gemini AI', color: '#10b981', icon: <FileText size={14} /> },
+    { label: 'Vector Embeddings', sub: 'Similarity engine', color: '#10b981', icon: <Sparkles size={14} /> },
+    { label: 'Email Notifications', sub: 'SMTP / Nodemailer', color: '#10b981', icon: <Zap size={14} /> },
+    { label: 'Candidate Ranking', sub: 'AI scoring', color: '#10b981', icon: <TrendingUp size={14} /> },
   ];
 
   const actions = [
@@ -153,81 +178,105 @@ export const DashboardPage = () => {
         @keyframes fade-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse-dot { 0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); } 50% { box-shadow: 0 0 0 5px rgba(16,185,129,0); } }
+        @keyframes mesh-shift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
         .dash-s1 { animation: fade-up 0.45s ease-out both; }
         .dash-s2 { animation: fade-up 0.45s 0.1s ease-out both; }
         .dash-s3 { animation: fade-up 0.45s 0.2s ease-out both; }
+        .dash-s4 { animation: fade-up 0.45s 0.3s ease-out both; }
         .act-btn { transition: all 0.22s; }
         .act-btn:hover { background: rgba(255,255,255,0.06) !important; transform: translateX(4px); }
+        .action-row { transition: all 0.2s ease; }
+        .action-row:hover { background: rgba(99,102,241,0.04) !important; }
+        .action-row:hover td { color: #e2e8f0 !important; }
+        .action-btn {
+          display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px;
+          border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;
+          transition: all 0.2s ease; font-family: 'Inter', sans-serif; border: 1px solid;
+          white-space: nowrap;
+        }
+        .action-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .action-btn-shortlist { background: rgba(16,185,129,0.1); color: #34d399; border-color: rgba(16,185,129,0.25); }
+        .action-btn-shortlist:hover { background: rgba(16,185,129,0.2); }
+        .action-btn-reject { background: rgba(239,68,68,0.1); color: #f87171; border-color: rgba(239,68,68,0.25); }
+        .action-btn-reject:hover { background: rgba(239,68,68,0.2); }
+        .action-btn-schedule { background: rgba(99,102,241,0.1); color: #818cf8; border-color: rgba(99,102,241,0.25); }
+        .action-btn-schedule:hover { background: rgba(99,102,241,0.2); }
+        .action-btn-view { background: rgba(255,255,255,0.04); color: #94a3b8; border-color: rgba(255,255,255,0.1); }
+        .action-btn-view:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
       `}</style>
 
       {/* ── Hero Banner ───────────────────────────────────────────── */}
       <div className="dash-s1" style={{
-        position: 'relative', borderRadius: '24px', padding: '32px 36px', marginBottom: '28px', overflow: 'hidden',
-        background: 'linear-gradient(135deg, #13111f 0%, #0f1629 60%, #0d1a2a 100%)',
+        position: 'relative', borderRadius: '24px', padding: '36px 40px', marginBottom: '28px', overflow: 'hidden',
+        background: 'linear-gradient(135deg, #13111f 0%, #0f1629 40%, #111a30 70%, #0d1a2a 100%)',
         border: '1px solid rgba(99,102,241,0.15)'
       }}>
+        {/* Animated mesh gradient overlay */}
+        <div style={{
+          position: 'absolute', inset: 0, opacity: 0.5,
+          background: 'linear-gradient(270deg, rgba(99,102,241,0.12), rgba(16,185,129,0.08), rgba(139,92,246,0.1), rgba(6,182,212,0.06))',
+          backgroundSize: '400% 400%', animation: 'mesh-shift 12s ease infinite'
+        }} />
         {/* Banner glows */}
-        <div style={{ position: 'absolute', top: '-40px', right: '80px', width: '280px', height: '200px', background: 'radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 70%)', filter: 'blur(40px)' }} />
-        <div style={{ position: 'absolute', bottom: '-20px', right: '20%', width: '200px', height: '150px', background: 'radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)', filter: 'blur(30px)' }} />
+        <div style={{ position: 'absolute', top: '-60px', right: '60px', width: '320px', height: '240px', background: 'radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%)', filter: 'blur(50px)' }} />
+        <div style={{ position: 'absolute', bottom: '-30px', left: '30%', width: '250px', height: '180px', background: 'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)', filter: 'blur(40px)' }} />
         {/* Dot grid */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '28px 28px', borderRadius: '24px' }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '24px 24px', borderRadius: '24px' }} />
 
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
           <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '5px 14px', background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.25)', borderRadius: '99px', marginBottom: '14px' }}>
-            <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#06b6d4', boxShadow: '0 0 8px rgba(6,182,212,0.7)', animation: 'pulse-dot 2s infinite' }} />
-            <span style={{ fontSize: '12px', fontWeight: 700, color: '#67e8f9', letterSpacing: '0.4px' }}>AI HIRING AUTOPILOT — ACTIVE</span>
-          </div>
-            <h1 style={{ fontSize: '32px', fontWeight: 900, color: '#ffffff', letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '8px' }}>
-              Welcome back, {getDisplayName()}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '5px 14px', background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.25)', borderRadius: '99px', marginBottom: '16px' }}>
+              <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#06b6d4', boxShadow: '0 0 10px rgba(6,182,212,0.8)', animation: 'pulse-dot 2s infinite' }} />
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#67e8f9', letterSpacing: '0.8px', textTransform: 'uppercase' }}>AI Hiring Autopilot — Active</span>
+            </div>
+            <h1 style={{ fontSize: '34px', fontWeight: 900, color: '#ffffff', letterSpacing: '-1px', lineHeight: 1.15, marginBottom: '10px' }}>
+              Welcome back, <span style={{ background: 'linear-gradient(135deg, #818cf8, #34d399)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{getDisplayName()}</span>
             </h1>
-            <p style={{ fontSize: '14px', color: 'rgba(148,163,184,0.55)', lineHeight: 1.6, maxWidth: '400px' }}>
-              Your AI hiring pipeline is live. Here's your workspace at a glance.
+            <p style={{ fontSize: '14px', color: 'rgba(148,163,184,0.6)', lineHeight: 1.7, maxWidth: '420px', margin: 0 }}>
+              Your AI hiring pipeline is live and processing. Here's your workspace at a glance.
             </p>
           </div>
           <div style={{ display: 'flex', gap: '10px', flexShrink: 0 }}>
             <button onClick={() => navigate('/resumes')} style={{
-              display: 'flex', alignItems: 'center', gap: '7px', padding: '10px 18px',
-              background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+              display: 'flex', alignItems: 'center', gap: '7px', padding: '11px 20px',
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
               borderRadius: '12px', color: '#e2e8f0', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
-              fontFamily: "'Inter', sans-serif", transition: 'all 0.2s'
+              fontFamily: "'Inter', sans-serif", transition: 'all 0.2s', backdropFilter: 'blur(8px)'
             }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
             >
               <Upload size={14} /> Upload Resumes
             </button>
             <button onClick={() => navigate('/jobs')} style={{
-              display: 'flex', alignItems: 'center', gap: '7px', padding: '10px 18px',
+              display: 'flex', alignItems: 'center', gap: '7px', padding: '11px 20px',
               background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', border: 'none',
               borderRadius: '12px', color: 'white', fontSize: '13px', fontWeight: 700, cursor: 'pointer',
-              fontFamily: "'Inter', sans-serif", transition: 'all 0.2s',
-              boxShadow: '0 4px 20px rgba(99,102,241,0.4)'
+              fontFamily: "'Inter', sans-serif", transition: 'all 0.25s',
+              boxShadow: '0 4px 20px rgba(99,102,241,0.4), inset 0 1px 0 rgba(255,255,255,0.15)'
             }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(99,102,241,0.55)'; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(99,102,241,0.4)'; }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 30px rgba(99,102,241,0.55), inset 0 1px 0 rgba(255,255,255,0.15)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(99,102,241,0.4), inset 0 1px 0 rgba(255,255,255,0.15)'; }}
             >
               <Plus size={14} /> New Job
             </button>
           </div>
         </div>
-
-
       </div>
 
       {/* ── Stats Grid ────────────────────────────────────────────── */}
       <div className="dash-s2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
-        <StatCard title="Active Jobs" value={stats.totalJobs} icon={<Briefcase size={20} />} color="#6366f1" sub="Open positions" trend="+2 this week" />
-        <StatCard title="Talent Pool" value={stats.totalCandidates} icon={<Users size={20} />} color="#10b981" sub="AI-parsed candidates" trend="Live" />
-        <StatCard title="Resumes Processed" value={stats.totalResumes} icon={<FileText size={20} />} color="#f59e0b" sub="By Gemini pipeline" />
-        <StatCard title="Upcoming Interviews" value={stats.upcomingInterviews} icon={<Calendar size={20} />} color="#ef4444" sub="Scheduled" />
+        <StatCard title="Active Jobs" value={stats.totalJobs} icon={<Briefcase size={21} />} color="#6366f1" sub="Open positions" trend="+2 this week" accentGradient="linear-gradient(90deg, #6366f1, #818cf8)" />
+        <StatCard title="Talent Pool" value={stats.totalCandidates} icon={<Users size={21} />} color="#10b981" sub="AI-parsed candidates" trend="Live" accentGradient="linear-gradient(90deg, #10b981, #34d399)" />
+        <StatCard title="Resumes Processed" value={stats.totalResumes} icon={<FileText size={21} />} color="#f59e0b" sub="By Gemini pipeline" accentGradient="linear-gradient(90deg, #f59e0b, #fbbf24)" />
+        <StatCard title="Upcoming Interviews" value={stats.upcomingInterviews} icon={<Calendar size={21} />} color="#ef4444" sub="Scheduled" accentGradient="linear-gradient(90deg, #ef4444, #f87171)" />
       </div>
 
       {/* ── Bottom Grid ───────────────────────────────────────────── */}
       <div className="dash-s3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
 
         {/* Quick Actions */}
-        <div style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '24px' }}>
+        <div style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01))', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
             <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Zap size={16} color="#818cf8" />
@@ -255,7 +304,7 @@ export const DashboardPage = () => {
         </div>
 
         {/* AI Pipeline Status */}
-        <div style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '24px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01))', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '24px', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', top: '-60px', right: '-40px', width: '220px', height: '220px', background: 'radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%)', filter: 'blur(30px)' }} />
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', position: 'relative' }}>
@@ -263,7 +312,7 @@ export const DashboardPage = () => {
               <Activity size={16} color="#10b981" />
             </div>
             <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#f1f5f9' }}>AI Pipeline</h3>
-            <div style={{ marginLeft: 'auto', padding: '3px 10px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '99px', fontSize: '11px', fontWeight: 700, color: '#10b981' }}>
+            <div style={{ marginLeft: 'auto', padding: '4px 12px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '99px', fontSize: '11px', fontWeight: 700, color: '#10b981' }}>
               4/4 Online
             </div>
           </div>
@@ -271,8 +320,11 @@ export const DashboardPage = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', position: 'relative' }}>
             {pipelineItems.map((item, i) => (
               <div key={item.label} style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: i < pipelineItems.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: `${item.color}12`, border: `1px solid ${item.color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.color, marginRight: '12px', flexShrink: 0 }}>
+                  {item.icon}
+                </div>
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>{item.label}</span>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>{item.label}</span>
                   <span style={{ fontSize: '11px', color: 'rgba(148,163,184,0.4)' }}>{item.sub}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
@@ -294,85 +346,117 @@ export const DashboardPage = () => {
       </div>
 
       {/* ── Action Center (Recent Applications) ─────────────────── */}
-      <div className="dash-s4" style={{ animation: 'fade-up 0.45s 0.3s ease-out both', marginTop: '24px' }}>
-        <div className="glass-card" style={{ padding: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'rgba(56,189,248,0.15)', border: '1px solid rgba(56,189,248,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Users size={16} color="#38bdf8" />
+      <div className="dash-s4" style={{ marginTop: '24px' }}>
+        <div style={{
+          background: 'linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.008))',
+          border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', overflow: 'hidden',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.15)'
+        }}>
+          {/* Header */}
+          <div style={{
+            padding: '20px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            borderBottom: '1px solid rgba(255,255,255,0.05)',
+            background: 'linear-gradient(90deg, rgba(56,189,248,0.04), transparent)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'linear-gradient(135deg, rgba(56,189,248,0.2), rgba(99,102,241,0.15))', border: '1px solid rgba(56,189,248,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Users size={18} color="#38bdf8" />
               </div>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#f1f5f9' }}>Action Center</h3>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.3px' }}>Action Center</h3>
+                <span style={{ fontSize: '12px', color: 'rgba(148,163,184,0.5)' }}>Manage recent candidate applications</span>
+              </div>
             </div>
-            <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Recent Applications</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '5px 14px', background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.15)', borderRadius: '99px' }}>
+              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#38bdf8' }} />
+              <span style={{ fontSize: '11px', fontWeight: 600, color: '#7dd3fc' }}>{recentApps.length} Applications</span>
+            </div>
           </div>
           
           {recentApps.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>
-              No recent applications found.
+            <div style={{ textAlign: 'center', padding: '60px 24px', color: 'var(--text-muted)' }}>
+              <Users size={40} style={{ opacity: 0.2, marginBottom: '16px' }} />
+              <p style={{ fontSize: '14px', margin: 0 }}>No recent applications found.</p>
             </div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'var(--text-muted)', textAlign: 'left' }}>
-                    <th style={{ padding: '12px 16px', fontWeight: 600 }}>Candidate</th>
-                    <th style={{ padding: '12px 16px', fontWeight: 600 }}>Job</th>
-                    <th style={{ padding: '12px 16px', fontWeight: 600 }}>Score</th>
-                    <th style={{ padding: '12px 16px', fontWeight: 600 }}>Status</th>
-                    <th style={{ padding: '12px 16px', fontWeight: 600, textAlign: 'right' }}>Quick Actions</th>
+                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    <th style={{ padding: '14px 28px', fontWeight: 600, fontSize: '11px', color: 'rgba(148,163,184,0.6)', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'left' }}>Candidate</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 600, fontSize: '11px', color: 'rgba(148,163,184,0.6)', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'left' }}>Job Position</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 600, fontSize: '11px', color: 'rgba(148,163,184,0.6)', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'left' }}>AI Score</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 600, fontSize: '11px', color: 'rgba(148,163,184,0.6)', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'left' }}>Status</th>
+                    <th style={{ padding: '14px 28px', fontWeight: 600, fontSize: '11px', color: 'rgba(148,163,184,0.6)', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'right' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {recentApps.map(app => (
-                    <tr key={app.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                      <td style={{ padding: '16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-emerald))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 'bold' }}>
-                            {app.candidate.name.charAt(0)}
-                          </div>
-                          <div>
-                            <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '2px' }}>{app.candidate.name}</div>
-                            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{app.candidate.currentCompany || 'No Company'}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px', color: 'var(--text-secondary)' }}>{app.job.title}</td>
-                      <td style={{ padding: '16px' }}>
-                        {app.aiScore ? (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <div style={{ width: '40px', height: '6px', borderRadius: '3px', background: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
-                              <div style={{ width: `${app.aiScore}%`, height: '100%', background: app.aiScore > 75 ? 'var(--accent-emerald)' : app.aiScore > 50 ? 'var(--accent-amber)' : 'var(--accent-danger)' }} />
+                  {recentApps.map((app, idx) => {
+                    const sc = getStatusConfig(app.status);
+                    return (
+                      <tr key={app.id} className="action-row" style={{ borderBottom: idx < recentApps.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none', cursor: 'default' }}>
+                        <td style={{ padding: '16px 28px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{
+                              width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
+                              background: `linear-gradient(135deg, ${sc.color}30, ${sc.color}10)`,
+                              border: `1px solid ${sc.color}30`,
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: '14px', fontWeight: 800, color: sc.color
+                            }}>
+                              {app.candidate.name.charAt(0).toUpperCase()}
                             </div>
-                            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>{app.aiScore}</span>
+                            <div>
+                              <div style={{ fontWeight: 700, color: '#f1f5f9', marginBottom: '2px', fontSize: '13px' }}>{app.candidate.name}</div>
+                              <div style={{ fontSize: '11px', color: 'rgba(148,163,184,0.45)' }}>{app.candidate.currentCompany || 'No Company'}</div>
+                            </div>
                           </div>
-                        ) : <span style={{ color: 'var(--text-muted)' }}>N/A</span>}
-                      </td>
-                      <td style={{ padding: '16px' }}>
-                        <span style={{ 
-                          padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: 600,
-                          background: app.status === 'NEW' ? 'rgba(99,102,241,0.1)' : app.status === 'SHORTLISTED' ? 'rgba(16,185,129,0.1)' : app.status === 'REJECTED' ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)',
-                          color: app.status === 'NEW' ? '#818cf8' : app.status === 'SHORTLISTED' ? '#34d399' : app.status === 'REJECTED' ? '#f87171' : '#fbbf24',
-                          border: `1px solid ${app.status === 'NEW' ? 'rgba(99,102,241,0.2)' : app.status === 'SHORTLISTED' ? 'rgba(16,185,129,0.2)' : app.status === 'REJECTED' ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)'}`
-                        }}>
-                          {app.status}
-                        </span>
-                      </td>
-                      <td style={{ padding: '16px', textAlign: 'right' }}>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                          {app.status === 'NEW' && (
-                            <>
-                              <button onClick={() => handleAction(app.job.id, app.id, 'SHORTLISTED')} className="btn" style={{ padding: '6px 12px', fontSize: '11px', background: 'rgba(16,185,129,0.1)', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)' }}>Shortlist</button>
-                              <button onClick={() => handleAction(app.job.id, app.id, 'REJECTED')} className="btn" style={{ padding: '6px 12px', fontSize: '11px', background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)' }}>Reject</button>
-                            </>
-                          )}
-                          {app.status === 'SHORTLISTED' && (
-                            <button onClick={() => navigate(`/schedule-interview?jobId=${app.job.id}&appId=${app.id}`)} className="btn" style={{ padding: '6px 12px', fontSize: '11px', background: 'rgba(99,102,241,0.1)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.2)' }}>Schedule Interview</button>
-                          )}
-                          <button onClick={() => navigate(`/candidates/${app.candidate.id}`)} className="btn" style={{ padding: '6px 12px', fontSize: '11px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>View</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td style={{ padding: '16px', color: 'rgba(226,232,240,0.75)', fontSize: '13px', fontWeight: 500 }}>{app.job.title}</td>
+                        <td style={{ padding: '16px' }}>
+                          {app.aiScore ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <div style={{ width: '48px', height: '5px', borderRadius: '3px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                                <div style={{ width: `${app.aiScore}%`, height: '100%', borderRadius: '3px', background: `linear-gradient(90deg, ${getScoreColor(app.aiScore)}, ${getScoreColor(app.aiScore)}cc)`, transition: 'width 0.5s ease' }} />
+                              </div>
+                              <span style={{ fontSize: '12px', fontWeight: 700, color: getScoreColor(app.aiScore), fontVariantNumeric: 'tabular-nums' }}>{app.aiScore}</span>
+                            </div>
+                          ) : <span style={{ color: 'rgba(148,163,184,0.35)', fontSize: '12px' }}>—</span>}
+                        </td>
+                        <td style={{ padding: '16px' }}>
+                          <span style={{ 
+                            padding: '5px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 700,
+                            background: sc.bg, color: sc.color, border: `1px solid ${sc.border}`,
+                            letterSpacing: '0.2px'
+                          }}>
+                            {sc.label}
+                          </span>
+                        </td>
+                        <td style={{ padding: '16px 28px', textAlign: 'right' }}>
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', flexWrap: 'nowrap' }}>
+                            {app.status === 'NEW' && (
+                              <>
+                                <button onClick={() => handleAction(app.job.id, app.id, 'SHORTLISTED')} className="action-btn action-btn-shortlist">
+                                  <CheckCircle size={12} /> Shortlist
+                                </button>
+                                <button onClick={() => handleAction(app.job.id, app.id, 'REJECTED')} className="action-btn action-btn-reject">
+                                  <XCircle size={12} /> Reject
+                                </button>
+                              </>
+                            )}
+                            {app.status === 'SHORTLISTED' && (
+                              <button onClick={() => navigate(`/schedule-interview?jobId=${app.job.id}&appId=${app.id}`)} className="action-btn action-btn-schedule">
+                                <CalendarPlus size={12} /> Schedule
+                              </button>
+                            )}
+                            <button onClick={() => navigate(`/candidates/${app.candidate.id}`)} className="action-btn action-btn-view">
+                              <Eye size={12} /> View
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
