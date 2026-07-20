@@ -290,6 +290,35 @@ export const LandingPage = () => {
         </div>
       </section>
 
+      {/* ── WHY UNIQUE ── */}
+      <section id="why-unique" style={{ padding: '80px 48px', position: 'relative', zIndex: 2, background: 'rgba(255,255,255,0.015)' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: '#8b5cf6', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>The HireLoop Difference</div>
+            <h2 style={{ fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 800, letterSpacing: '-1.5px', lineHeight: 1.1 }}>
+              Why we're <span className="gradient-text">unlike any other ATS.</span>
+            </h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+            <div className="feature-card" style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.05), rgba(139,92,246,0.05))', borderColor: 'rgba(139,92,246,0.2)' }}>
+              <div style={{ fontSize: '32px', marginBottom: '16px' }}>🧠</div>
+              <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '12px', color: '#f1f5f9' }}>Semantic Vector Matching</h3>
+              <p style={{ fontSize: '15px', color: 'rgba(226,232,240,0.6)', lineHeight: 1.6 }}>Traditional ATS systems use basic "keyword matching", which candidates easily trick. We use advanced HuggingFace Machine Learning to understand the actual <em>meaning</em> of the resume and match it against the job description.</p>
+            </div>
+            <div className="feature-card" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.05), rgba(6,182,212,0.05))', borderColor: 'rgba(16,185,129,0.2)' }}>
+              <div style={{ fontSize: '32px', marginBottom: '16px' }}>⚡</div>
+              <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '12px', color: '#f1f5f9' }}>True Automation</h3>
+              <p style={{ fontSize: '15px', color: 'rgba(226,232,240,0.6)', lineHeight: 1.6 }}>Most platforms still require HR to copy-paste candidate details. Our Gemini 1.5 LangGraph pipeline automatically reads the PDF, extracts structured JSON data, and updates your pipeline with zero human effort.</p>
+            </div>
+            <div className="feature-card" style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.05), rgba(245,158,11,0.05))', borderColor: 'rgba(239,68,68,0.2)' }}>
+              <div style={{ fontSize: '32px', marginBottom: '16px' }}>🛡️</div>
+              <h3 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '12px', color: '#f1f5f9' }}>Enterprise Security</h3>
+              <p style={{ fontSize: '15px', color: 'rgba(226,232,240,0.6)', lineHeight: 1.6 }}>We don't just let anyone join your hiring team. Our robust SuperAdmin architecture ensures that even if someone registers with Google Auth, their account stays locked until a SuperAdmin explicitly verifies and approves them.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── STATS ── */}
       <section style={{ borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
