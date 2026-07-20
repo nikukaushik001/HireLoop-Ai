@@ -20,7 +20,7 @@ import { LandingPage } from './pages/LandingPage';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 function App() {
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+  const clientId = '654960981351-i3ttv0pukp6ufvb5v7a4atrt6haei40s.apps.googleusercontent.com';
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
