@@ -112,14 +112,40 @@ export const ActionCenterPage = () => {
         .filter-select:hover { background: rgba(255,255,255,0.08); }
         .filter-select option { background: #0f172a; color: white; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .ac-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          margin-bottom: 24px;
+          gap: 16px;
+        }
+        .ac-filters {
+          display: flex;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+        @media (max-width: 768px) {
+          .ac-header {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          .ac-filters {
+            width: 100%;
+          }
+          .filter-select {
+            flex: 1;
+            min-width: 120px;
+          }
+        }
       `}</style>
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
+      <div className="ac-header">
         <div>
           <h1 style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 8px 0' }} className="text-gradient">Action Center</h1>
           <p style={{ color: 'var(--text-secondary)', margin: 0 }}>Review, shortlist, and schedule interviews for recent applications.</p>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div className="ac-filters">
           <select className="filter-select" value={filterJob} onChange={(e) => setFilterJob(e.target.value)}>
             <option value="ALL">All Jobs</option>
             {uniqueJobs.map(jobTitle => (
