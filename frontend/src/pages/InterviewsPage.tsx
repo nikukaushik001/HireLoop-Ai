@@ -158,7 +158,7 @@ const InterviewCard: React.FC<{ interview: Interview; onRefresh: () => void }> =
         borderRadius: '14px', padding: '20px 24px', backdropFilter: 'blur(12px)',
         transition: 'all 0.2s ease', boxShadow: '0 2px 12px rgba(0,0,0,0.2)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div className="interview-card-layout" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {/* Calendar Icon */}
           <div style={{
             width: '52px', height: '52px', borderRadius: '12px', flexShrink: 0,
@@ -175,7 +175,7 @@ const InterviewCard: React.FC<{ interview: Interview; onRefresh: () => void }> =
           </div>
 
           {/* Info */}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="interview-card-info" style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px', flexWrap: 'wrap' }}>
               <span style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)' }}>
                 {interview.application.candidate.name}
@@ -204,7 +204,7 @@ const InterviewCard: React.FC<{ interview: Interview; onRefresh: () => void }> =
           </div>
 
           {/* Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+          <div className="interview-card-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
             {interview.status === 'SCHEDULED' && (
               <button 
                 onClick={() => {
