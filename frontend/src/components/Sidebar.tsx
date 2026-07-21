@@ -46,12 +46,12 @@ export const Sidebar: React.FC = () => {
         <button 
           className="mobile-menu-btn" 
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}
+          style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', padding: 0, width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
           {isMobileOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'center' }}>
           <div style={{
             background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-emerald))',
             padding: '8px',
@@ -66,6 +66,9 @@ export const Sidebar: React.FC = () => {
             <div style={{ fontSize: '11px', color: 'var(--accent-emerald)', marginTop: '2px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>Intelligent ATS</div>
           </div>
         </div>
+
+        {/* Mobile Spacer to perfectly center the logo via space-between */}
+        <div className="mobile-menu-btn" style={{ width: '28px', visibility: 'hidden' }}></div>
       </div>
 
       <div className={`sidebar-nav-container ${isMobileOpen ? 'open' : ''}`} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
