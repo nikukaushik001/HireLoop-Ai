@@ -108,8 +108,8 @@ export const JobsPage = () => {
 
   return (
     <div className="animate-fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-        <h1 className="text-gradient">Jobs</h1>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <h1 className="text-gradient" style={{ margin: 0 }}>Jobs</h1>
         <button className="btn btn-primary" onClick={handleOpenCreate}>
           <Plus size={16} /> Create Job
         </button>

@@ -41,9 +41,9 @@ export const CandidatesPage = () => {
 
   return (
     <div className="animate-fade-in">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-        <h1 className="text-gradient">Talent Pool</h1>
-        <div style={{ width: '300px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <h1 className="text-gradient" style={{ margin: 0 }}>Talent Pool</h1>
+        <div style={{ flex: '1 1 250px', maxWidth: '400px' }}>
           <input 
             type="text" 
             placeholder="Search candidates or skills..." 
