@@ -210,6 +210,23 @@ export const LandingPage = () => {
           .landing-hero {
             padding: 120px 24px 60px !important;
           }
+          .responsive-grid-stats {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 32px 16px !important;
+          }
+          .responsive-grid-features, .responsive-grid-steps {
+            grid-template-columns: 1fr !important;
+          }
+          .stat-item {
+            border-right: none !important;
+            padding: 16px 8px !important;
+          }
+          .step-connector {
+            display: none !important;
+          }
+          .section-padding {
+            padding: 80px 24px !important;
+          }
         }
       `}</style>
 
@@ -304,7 +321,7 @@ export const LandingPage = () => {
 
       {/* ── STATS ── */}
       <section style={{ borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
+        <div className="responsive-grid-stats" style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
           {STATS.map(s => (
             <div key={s.label} className="stat-item">
               <div style={{ fontSize: '48px', fontWeight: 900, letterSpacing: '-2px' }} className="gradient-text">{s.value}</div>
@@ -315,7 +332,7 @@ export const LandingPage = () => {
       </section>
 
       {/* ── FEATURES ── */}
-      <section id="features" style={{ padding: '120px 48px', maxWidth: '1200px', margin: '0 auto' }}>
+      <section id="features" className="section-padding" style={{ padding: '120px 48px', maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '80px' }}>
           <div style={{ fontSize: '13px', fontWeight: 700, color: '#6366f1', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Everything You Need</div>
           <h2 style={{ fontSize: 'clamp(36px, 4vw, 56px)', fontWeight: 800, letterSpacing: '-1.5px', lineHeight: 1.1 }}>
@@ -323,7 +340,7 @@ export const LandingPage = () => {
           </h2>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
+        <div className="responsive-grid-features" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px' }}>
           {FEATURES.map(f => (
             <div key={f.title} className="feature-card">
               <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: `${f.color}20`, border: `1px solid ${f.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
@@ -337,7 +354,7 @@ export const LandingPage = () => {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" style={{ padding: '80px 48px 120px', background: 'rgba(255,255,255,0.015)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <section id="how-it-works" className="section-padding" style={{ padding: '80px 48px 120px', background: 'rgba(255,255,255,0.015)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '80px' }}>
             <div style={{ fontSize: '13px', fontWeight: 700, color: '#10b981', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Simple Process</div>
@@ -346,9 +363,9 @@ export const LandingPage = () => {
             </h2>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', position: 'relative' }}>
+          <div className="responsive-grid-steps" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', position: 'relative' }}>
             {/* Connector Line */}
-            <div style={{ position: 'absolute', top: '48px', left: '12.5%', right: '12.5%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.4), rgba(99,102,241,0.4), transparent)', zIndex: 0 }}></div>
+            <div className="step-connector" style={{ position: 'absolute', top: '48px', left: '12.5%', right: '12.5%', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.4), rgba(99,102,241,0.4), transparent)', zIndex: 0 }}></div>
             {STEPS.map(s => (
               <div key={s.num} className="step-card" style={{ zIndex: 1 }}>
                 <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, rgba(99,102,241,0.3), rgba(139,92,246,0.3))', border: '1px solid rgba(99,102,241,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', fontSize: '16px', fontWeight: 800, color: '#a5b4fc' }}>
@@ -363,7 +380,7 @@ export const LandingPage = () => {
       </section>
 
       {/* ── CTA ── */}
-      <section style={{ padding: '120px 48px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+      <section className="section-padding" style={{ padding: '120px 48px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div className="orb" style={{ width: '700px', height: '400px', background: 'radial-gradient(ellipse, rgba(99,102,241,0.2) 0%, transparent 70%)', top: '0', left: '50%', transform: 'translateX(-50%)' }}></div>
         <div style={{ position: 'relative', zIndex: 1, maxWidth: '700px', margin: '0 auto' }}>
           <h2 style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 900, letterSpacing: '-2px', marginBottom: '24px', lineHeight: 1.05 }}>
