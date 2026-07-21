@@ -42,6 +42,15 @@ export const Sidebar: React.FC = () => {
       position: 'relative'
     }}>
       <div style={{ padding: '0 24px', marginBottom: '48px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+        {/* Mobile Hamburger Toggle */}
+        <button 
+          className="mobile-menu-btn" 
+          onClick={() => setIsMobileOpen(!isMobileOpen)}
+          style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}
+        >
+          {isMobileOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
             background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-emerald))',
@@ -57,15 +66,6 @@ export const Sidebar: React.FC = () => {
             <div style={{ fontSize: '11px', color: 'var(--accent-emerald)', marginTop: '2px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>Intelligent ATS</div>
           </div>
         </div>
-        
-        {/* Mobile Hamburger Toggle */}
-        <button 
-          className="mobile-menu-btn" 
-          onClick={() => setIsMobileOpen(!isMobileOpen)}
-          style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}
-        >
-          {isMobileOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
       </div>
 
       <div className={`sidebar-nav-container ${isMobileOpen ? 'open' : ''}`} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
