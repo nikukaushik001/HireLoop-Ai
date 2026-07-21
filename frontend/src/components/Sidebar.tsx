@@ -27,8 +27,6 @@ export const Sidebar: React.FC = () => {
       width: '280px',
       borderRight: '1px solid var(--glass-border)',
       background: 'rgba(3, 7, 18, 0.6)',
-      backdropFilter: 'blur(24px)',
-      WebkitBackdropFilter: 'blur(24px)',
       display: 'flex',
       flexDirection: 'column',
       padding: '32px 0',
