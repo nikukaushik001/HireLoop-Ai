@@ -7,7 +7,7 @@ from typing import List, Optional
 
 # Define the expected combined JSON structure using Pydantic
 class CandidateData(BaseModel):
-    is_valid_resume: bool = Field(description="Return True ONLY if the text is explicitly a candidate's resume, CV, or professional profile. Return False if the text is a slide deck, presentation (PPT), receipt, ticket, invoice, form, or any other non-resume document.")
+    is_valid_resume: bool = Field(description="Return True if the text resembles a resume, CV, LinkedIn profile, or any professional summary. If in doubt, return True. Return False ONLY if it is obviously a non-resume document like a receipt or ticket.")
     name: str = Field(description="The full name of the candidate")
     email: str = Field(description="The email address of the candidate")
     phone: str = Field(description="The phone number of the candidate, or empty string if not found")
@@ -62,13 +62,22 @@ Formatting Instructions:
     # Create the extraction chain
     chain = prompt | llm | parser
 
-    # Run the chain
-    try:
-      result = chain.invoke({
-          "raw_text": raw_text,
-          "job_description": job_description if job_description.strip() else "No job description provided."
-      })
-      return result
-    except Exception as e:
-      print(f"Error during Groq extraction and evaluation: {e}")
-      raise
+    # Run the chain with retry logic for rate limits
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            result = chain.invoke({
+                "raw_text": raw_text,
+                "job_description": job_description if job_description.strip() else "No job description provided."
+            })
+            return result
+        except Exception as e:
+            error_str = str(e).lower()
+            if ("rate limit" in error_str or "429" in error_str) and attempt < max_retries - 1:
+                import time
+                sleep_time = (attempt + 1) * 2
+                print(f"Rate limit hit, retrying in {sleep_time} seconds...")
+                time.sleep(sleep_time)
+            else:
+                print(f"Error during Groq extraction and evaluation: {e}")
+                raise

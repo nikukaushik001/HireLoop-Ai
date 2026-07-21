@@ -108,12 +108,12 @@ export const ResumesPage = () => {
                 </h3>
                 <div style={{ maxHeight: '150px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {uploadResults.failed.map((f: any, idx: number) => {
-                    const isFormatError = f.error?.toLowerCase().includes('valid resume') || f.error?.toLowerCase().includes('pdf');
+                    const isFormatError = f.error?.toLowerCase().includes('valid resume');
                     return (
                       <div key={idx} style={{ fontSize: '13px', background: 'rgba(0,0,0,0.2)', padding: '10px', borderRadius: '8px', color: '#cbd5e1' }}>
                         <strong style={{ color: '#f1f5f9' }}>{f.filename}</strong>
                         <div style={{ color: '#94a3b8', marginTop: '4px', fontSize: '12px' }}>
-                          {isFormatError ? "Invalid document format (e.g., ticket, receipt, non-resume or broken PDF)." : f.error}
+                          {isFormatError ? "Invalid document format (e.g., ticket, receipt, non-resume)." : f.error}
                         </div>
                       </div>
                     );
