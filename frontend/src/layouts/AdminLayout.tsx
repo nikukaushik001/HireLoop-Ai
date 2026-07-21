@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, Navigate } from 'react-router';
 import { AdminSidebar } from '../components/AdminSidebar';
 import { useAuth } from '../context/AuthContext';
+import { Logo } from '../components/Logo';
 
 export const AdminLayout: React.FC = () => {
   const { user, loading } = useAuth();
@@ -9,7 +10,7 @@ export const AdminLayout: React.FC = () => {
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', width: '100vw' }}>
-        <div className="text-gradient" style={{ fontSize: '24px', fontWeight: 'bold' }}>Loading HireLoop...</div>
+        <Logo size="lg" />
       </div>
     );
   }

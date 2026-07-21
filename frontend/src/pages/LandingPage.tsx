@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router';
-import { Brain, Upload, Star, Users, Zap, Shield, BarChart3, Mail, ChevronRight, CheckCircle } from 'lucide-react';
+import { Brain, Upload, Star, Users, Zap, Shield, BarChart3, Mail, ChevronRight, CheckCircle, Radar } from 'lucide-react';
+import { Logo } from '../components/Logo';
 
 const FEATURES = [
   {
@@ -254,22 +255,12 @@ export const LandingPage = () => {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between'
       }}>
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <div style={{
-            width: '42px', height: '42px',
-            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-            borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 20px rgba(99,102,241,0.45)'
-          }}>
-            <Brain size={22} color="white" />
-          </div>
-          <div>
-            <span style={{ fontWeight: 900, fontSize: '22px', letterSpacing: '-0.5px', lineHeight: 1 }}>
-              HireLoop<span className="gradient-text">AI</span>
-            </span>
-            <div style={{ fontSize: '10px', color: 'rgba(148,163,184,0.45)', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', marginTop: '1px' }}>Intelligent ATS</div>
-          </div>
-        </div>
+        <Logo 
+          size="md" 
+          showSubtitle 
+          subtitleText="Intelligent ATS" 
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+        />
 
         {/* Nav links */}
         <div className="landing-desktop-only" style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
@@ -412,12 +403,7 @@ export const LandingPage = () => {
 
       {/* ── FOOTER ── */}
       <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '40px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '28px', height: '28px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Brain size={14} color="white" />
-          </div>
-          <span style={{ fontWeight: 700, fontSize: '15px' }}>HireLoop<span className="gradient-text">AI</span></span>
-        </div>
+        <Logo size="sm" />
         <div style={{ fontSize: '13px', color: 'rgba(226,232,240,0.35)' }}>
           © 2026 HireLoop AI. Built with ❤️ for smarter hiring.
         </div>

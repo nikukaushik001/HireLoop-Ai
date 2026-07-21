@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router';
-import { LayoutDashboard, Briefcase, Users, FileText, Calendar, LogOut, Hexagon, TrendingUp, Zap, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Users, FileText, Calendar, LogOut, Radar, TrendingUp, Zap, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { Logo } from './Logo';
 
 export const Sidebar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -51,20 +52,8 @@ export const Sidebar: React.FC = () => {
           {isMobileOpen ? <X size={28} /> : <Menu size={28} />}
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'center' }}>
-          <div style={{
-            background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-emerald))',
-            padding: '8px',
-            borderRadius: '12px',
-            display: 'flex',
-            boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)'
-          }}>
-            <Hexagon size={24} color="white" />
-          </div>
-          <div>
-            <h1 style={{ fontSize: '24px', margin: 0, fontWeight: 700 }} className="text-gradient">HireLoop<span style={{color: 'white'}}>.ai</span></h1>
-            <div style={{ fontSize: '11px', color: 'var(--accent-emerald)', marginTop: '2px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>Intelligent ATS</div>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'center', width: '100%' }}>
+          <Logo size="md" showSubtitle subtitleText="Intelligent ATS" withLink linkTo="/" />
         </div>
 
         {/* Mobile Spacer to perfectly center the logo via space-between */}
