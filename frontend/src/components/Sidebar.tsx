@@ -1,11 +1,18 @@
-import React from 'react';
-import { NavLink, useNavigate } from 'react-router';
-import { LayoutDashboard, Briefcase, Users, FileText, Calendar, LogOut, Hexagon, TrendingUp, Zap } from 'lucide-react';
+import React, { useState } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router';
+import { LayoutDashboard, Briefcase, Users, FileText, Calendar, LogOut, Hexagon, TrendingUp, Zap, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const Sidebar: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // Close mobile menu when route changes
+  React.useEffect(() => {
+    setIsMobileOpen(false);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     logout();
@@ -34,23 +41,35 @@ export const Sidebar: React.FC = () => {
       zIndex: 10,
       position: 'relative'
     }}>
-      <div style={{ padding: '0 24px', marginBottom: '48px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{
-          background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-emerald))',
-          padding: '8px',
-          borderRadius: '12px',
-          display: 'flex',
-          boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)'
-        }}>
-          <Hexagon size={24} color="white" />
+      <div style={{ padding: '0 24px', marginBottom: '48px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-emerald))',
+            padding: '8px',
+            borderRadius: '12px',
+            display: 'flex',
+            boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)'
+          }}>
+            <Hexagon size={24} color="white" />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '24px', margin: 0, fontWeight: 700 }} className="text-gradient">HireLoop<span style={{color: 'white'}}>.ai</span></h1>
+            <div style={{ fontSize: '11px', color: 'var(--accent-emerald)', marginTop: '2px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>Intelligent ATS</div>
+          </div>
         </div>
-        <div>
-          <h1 style={{ fontSize: '24px', margin: 0, fontWeight: 700 }} className="text-gradient">HireLoop<span style={{color: 'white'}}>.ai</span></h1>
-          <div style={{ fontSize: '11px', color: 'var(--accent-emerald)', marginTop: '2px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>Intelligent ATS</div>
-        </div>
+        
+        {/* Mobile Hamburger Toggle */}
+        <button 
+          className="mobile-menu-btn" 
+          onClick={() => setIsMobileOpen(!isMobileOpen)}
+          style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}
+        >
+          {isMobileOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
       </div>
 
-      <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', padding: '0 16px' }}>
+      <div className={`sidebar-nav-container ${isMobileOpen ? 'open' : ''}`} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', padding: '0 16px' }}>
         {navItems.map((item) => (
           <NavLink
             key={item.path}
@@ -121,6 +140,7 @@ export const Sidebar: React.FC = () => {
         >
           <LogOut size={16} /> Sign Out
         </button>
+      </div>
       </div>
     </aside>
   );
