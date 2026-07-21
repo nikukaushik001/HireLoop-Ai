@@ -203,6 +203,7 @@ export const LandingPage = () => {
         @media (max-width: 768px) {
           .landing-nav {
             padding: 0 20px !important;
+            justify-content: center !important;
           }
           .landing-desktop-only {
             display: none !important;
