@@ -200,10 +200,21 @@ export const LandingPage = () => {
         .stat-item:last-child {
           border-right: none;
         }
+        @media (max-width: 768px) {
+          .landing-nav {
+            padding: 0 20px !important;
+          }
+          .landing-desktop-only {
+            display: none !important;
+          }
+          .landing-hero {
+            padding: 120px 24px 60px !important;
+          }
+        }
       `}</style>
 
       {/* ── NAV ── */}
-      <nav style={{
+      <nav className="landing-nav" style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
         background: 'rgba(10,10,15,0.85)', backdropFilter: 'blur(24px)',
         borderBottom: '1px solid rgba(255,255,255,0.07)',
@@ -229,14 +240,14 @@ export const LandingPage = () => {
         </div>
 
         {/* Nav links */}
-        <div style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
+        <div className="landing-desktop-only" style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
           <span className="nav-link" style={{ fontSize: '15px', fontWeight: 500 }} onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>Features</span>
           <span className="nav-link" style={{ fontSize: '15px', fontWeight: 500 }} onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How It Works</span>
           <span className="nav-link" style={{ fontSize: '15px', fontWeight: 500 }} onClick={() => document.getElementById('stats')?.scrollIntoView({ behavior: 'smooth' })}>Why HireLoop</span>
         </div>
 
         {/* CTA buttons */}
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <div className="landing-desktop-only" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <button className="btn-secondary-landing" style={{ padding: '11px 24px', fontSize: '14px', fontWeight: 600, borderRadius: '10px' }} onClick={() => navigate('/login')}>Sign In</button>
           <button className="btn-primary-landing" style={{ padding: '11px 24px', fontSize: '14px', fontWeight: 700, borderRadius: '10px' }} onClick={() => navigate('/register')}>
             Get Started <ChevronRight size={15} />
@@ -245,7 +256,7 @@ export const LandingPage = () => {
       </nav>
 
       {/* ── HERO ── */}
-      <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '140px 48px 80px', overflow: 'hidden' }}>
+      <section className="landing-hero" style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '140px 48px 80px', overflow: 'hidden' }}>
         {/* Background Orbs */}
         <div className="orb" style={{ width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%)', top: '10%', left: '10%' }}></div>
         <div className="orb" style={{ width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%)', top: '20%', right: '5%', animationDelay: '-2s' }}></div>
