@@ -182,18 +182,28 @@ const CandidateCard: React.FC<{ item: RankedCandidate; isTop3: boolean }> = ({ i
 
           {/* Achievements summary if present */}
           {item.achievements && item.achievements.length > 0 && (
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '10px', alignItems: 'center' }}>
-              <Medal size={13} style={{ color: '#eab308' }} />
-              <span style={{ fontSize: '11px', color: '#eab308', fontWeight: 600 }}>Achievements:</span>
+            <div 
+              className="achievements-scroll" 
+              style={{ 
+                display: 'flex', gap: '6px', flexWrap: 'nowrap', marginTop: '10px', 
+                alignItems: 'center', overflowX: 'auto', paddingBottom: '4px', 
+                maxWidth: '100%', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' 
+              }}
+            >
+              <style>{`.achievements-scroll::-webkit-scrollbar { display: none; }`}</style>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+                <Medal size={13} style={{ color: '#eab308' }} />
+                <span style={{ fontSize: '11px', color: '#eab308', fontWeight: 600 }}>Achievements:</span>
+              </div>
               {item.achievements.slice(0, 2).map((ach, idx) => (
                 <span key={idx} style={{
-                  padding: '1px 6px', borderRadius: '4px', fontSize: '10px',
+                  padding: '3px 8px', borderRadius: '4px', fontSize: '11px',
                   background: 'rgba(234,179,8,0.08)', color: '#eab308',
-                  border: '1px solid rgba(234,179,8,0.2)', whiteSpace: 'nowrap'
+                  border: '1px solid rgba(234,179,8,0.2)', whiteSpace: 'nowrap', flexShrink: 0
                 }}>{ach}</span>
               ))}
               {item.achievements.length > 2 && (
-                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>+{item.achievements.length - 2} more</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)', flexShrink: 0 }}>+{item.achievements.length - 2} more</span>
               )}
             </div>
           )}
