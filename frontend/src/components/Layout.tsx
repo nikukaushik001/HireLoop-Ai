@@ -2,7 +2,6 @@ import React from 'react';
 import { Outlet, Navigate } from 'react-router';
 import { Sidebar } from './Sidebar';
 import { useAuth } from '../context/AuthContext';
-import { Logo } from './Logo';
 
 export const Layout: React.FC = () => {
   const { user, loading } = useAuth();
@@ -10,7 +9,7 @@ export const Layout: React.FC = () => {
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', width: '100vw' }}>
-        <Logo size="lg" />
+        <div className="text-gradient" style={{ fontSize: '24px', fontWeight: 'bold' }}>Loading HireLoop...</div>
       </div>
     );
   }
