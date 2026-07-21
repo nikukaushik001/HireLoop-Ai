@@ -34,7 +34,7 @@ export const ResumesPage = () => {
 
     try {
       const res = await apiClient.post('/resumes/upload', formData, {
-        headers: { 'Content-Type': undefined },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       
       // Axios payload -> sendSuccess 'data' wrapper -> Controller 'data' wrapper -> result
@@ -242,7 +242,7 @@ export const ResumesPage = () => {
               <input 
                 type="file" 
                 multiple 
-                accept="application/pdf"
+                accept=".pdf,application/pdf"
                 onChange={handleFileChange}
                 style={{
                   position: 'absolute',
@@ -250,7 +250,8 @@ export const ResumesPage = () => {
                   width: '100%',
                   height: '100%',
                   opacity: 0,
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  zIndex: 10
                 }}
               />
               <UploadCloud size={48} color="var(--accent-primary)" style={{ marginBottom: '16px' }} />
