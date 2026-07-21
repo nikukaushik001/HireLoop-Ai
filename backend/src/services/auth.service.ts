@@ -155,7 +155,7 @@ export class AuthService {
   /**
    * Request password reset
    */
-  async forgotPassword(email: string) {
+  async forgotPassword(email: string, origin?: string) {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       // Return silently to prevent email enumeration
@@ -171,8 +171,8 @@ export class AuthService {
       data: { passwordResetToken, passwordResetExpires }
     });
 
-    // If CORS_ORIGIN contains multiple comma-separated domains, pick the first one
-    const frontendUrl = env.CORS_ORIGIN.split(',')[0];
+    // Use the origin from the request if provided, otherwise fallback to the first CORS domain
+    const frontendUrl = origin || env.CORS_ORIGIN.split(',')[0];
     const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
     await this.emailService.sendPasswordReset(user.email, user.name, resetUrl);
 
