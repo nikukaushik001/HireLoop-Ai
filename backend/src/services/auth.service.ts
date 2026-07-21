@@ -172,7 +172,8 @@ export class AuthService {
     });
 
     // Use the origin from the request if provided, otherwise fallback to the first CORS domain
-    const frontendUrl = origin || env.CORS_ORIGIN.split(',')[0];
+    let frontendUrl = origin || env.CORS_ORIGIN.split(',')[0];
+    frontendUrl = frontendUrl.trim();
     const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
     await this.emailService.sendPasswordReset(user.email, user.name, resetUrl);
 
