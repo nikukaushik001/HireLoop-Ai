@@ -46,7 +46,7 @@ export const Sidebar: React.FC = () => {
         <button 
           className="mobile-menu-btn" 
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', padding: 0, width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', padding: 0, width: '28px', height: '28px', alignItems: 'center', justifyContent: 'center' }}
         >
           {isMobileOpen ? <X size={28} /> : <Menu size={28} />}
         </button>

@@ -429,7 +429,7 @@ a:hover {
   
   /* Mobile Menu Styles */
   .mobile-menu-btn {
-    display: block !important;
+    display: flex !important;
   }
   
   .sidebar-nav-container {
