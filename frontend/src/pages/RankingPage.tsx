@@ -360,7 +360,7 @@ export const RankingPage: React.FC = () => {
   return (
     <div className="animate-fade-in">
       <style>{`
-        @media (max-width: 768px) {
+        @media (max-width: 1100px) {
           .candidate-card-header {
             flex-direction: column !important;
             align-items: flex-start !important;
