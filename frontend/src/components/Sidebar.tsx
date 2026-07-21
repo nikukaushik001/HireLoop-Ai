@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router';
-import { LayoutDashboard, Briefcase, Users, FileText, Calendar, LogOut, Hexagon, TrendingUp, Zap, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Briefcase, Users, FileText, Calendar, LogOut, Hexagon, Brain, TrendingUp, Zap, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const Sidebar: React.FC = () => {
@@ -59,7 +59,7 @@ export const Sidebar: React.FC = () => {
             display: 'flex',
             boxShadow: '0 4px 20px rgba(99, 102, 241, 0.4)'
           }}>
-            <Hexagon size={24} color="white" />
+            <Brain size={24} color="white" />
           </div>
           <div>
             <h1 style={{ fontSize: '24px', margin: 0, fontWeight: 700 }} className="text-gradient">HireLoop<span style={{color: 'white'}}>.ai</span></h1>
