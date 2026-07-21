@@ -265,7 +265,7 @@ export const DashboardPage = () => {
       </div>
 
       {/* ── Stats Grid ────────────────────────────────────────────── */}
-      <div className="dash-s2" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+      <div className="dash-s2 stats-grid">
         <StatCard title="Active Jobs" value={stats.totalJobs} icon={<Briefcase size={21} />} color="#6366f1" sub="Open positions" trend="+2 this week" accentGradient="linear-gradient(90deg, #6366f1, #818cf8)" />
         <StatCard title="Talent Pool" value={stats.totalCandidates} icon={<Users size={21} />} color="#10b981" sub="AI-parsed candidates" trend="Live" accentGradient="linear-gradient(90deg, #10b981, #34d399)" />
         <StatCard title="Resumes Processed" value={stats.totalResumes} icon={<FileText size={21} />} color="#f59e0b" sub="By Gemini pipeline" accentGradient="linear-gradient(90deg, #f59e0b, #fbbf24)" />
@@ -273,7 +273,7 @@ export const DashboardPage = () => {
       </div>
 
       {/* ── Bottom Grid ───────────────────────────────────────────── */}
-      <div className="dash-s3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+      <div className="dash-s3 dashboard-content-grid">
 
         {/* Quick Actions */}
         <div style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01))', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '24px' }}>

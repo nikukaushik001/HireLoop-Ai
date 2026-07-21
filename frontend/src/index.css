@@ -353,6 +353,20 @@ a:hover {
 .data-table tr:last-child td:first-child { border-bottom-left-radius: 12px; }
 .data-table tr:last-child td:last-child { border-bottom-right-radius: 12px; }
 
+/* Dashboard Responsive Grids */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dashboard-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
 /* Responsive Design (Milestone 5 Compliance) */
 @media (max-width: 768px) {
   .layout-container {
@@ -362,6 +376,16 @@ a:hover {
   
   .main-content {
     padding: 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  
+  .dashboard-content-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
   
   /* Top Header (Logo Only) */
@@ -442,5 +466,12 @@ a:hover {
   
   h2 {
     font-size: 18px !important;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 }
