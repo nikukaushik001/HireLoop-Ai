@@ -227,6 +227,20 @@ export const LandingPage = () => {
           .section-padding {
             padding: 80px 24px !important;
           }
+          .hero-badge {
+            padding: 4px 10px !important;
+          }
+          .hero-badge svg {
+            width: 10px !important;
+            height: 10px !important;
+          }
+          .hero-badge span {
+            font-size: 8px !important;
+          }
+          h1.hero-title {
+            font-size: 52px !important;
+            line-height: 1 !important;
+          }
         }
       `}</style>
 
@@ -284,17 +298,17 @@ export const LandingPage = () => {
 
         <div style={{ position: 'relative', zIndex: 1, maxWidth: '900px' }}>
 
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)', borderRadius: '100px', padding: '7px 18px', marginBottom: '32px' }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c084fc" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: '#c084fc', letterSpacing: '0.5px' }}>THE FUTURE OF HIRING IS HERE</span>
+          <div className="hero-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)', borderRadius: '100px', padding: 'clamp(4px, 1vw, 10px) clamp(10px, 2vw, 24px)', marginBottom: '32px' }}>
+            <svg style={{ width: 'clamp(10px, 1.5vw, 18px)', height: 'clamp(10px, 1.5vw, 18px)' }} viewBox="0 0 24 24" fill="none" stroke="#c084fc" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span style={{ fontSize: 'clamp(8px, 1.5vw, 16px)', fontWeight: 700, color: '#c084fc', letterSpacing: '0.5px' }}>THE FUTURE OF HIRING IS HERE</span>
           </div>
 
-          <h1 className="hero-title" style={{ fontSize: 'clamp(48px, 7vw, 88px)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-2px', marginBottom: '24px' }}>
+          <h1 className="hero-title" style={{ fontSize: 'clamp(46px, 12vw, 72px)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-2px', marginBottom: '24px' }}>
             Hire Smarter,<br />
             <span className="gradient-text">Not Harder.</span>
           </h1>
 
-          <p className="hero-subtitle" style={{ fontSize: '20px', color: 'rgba(226,232,240,0.65)', lineHeight: 1.7, maxWidth: '640px', margin: '0 auto 48px', fontWeight: 400 }}>
+          <p className="hero-subtitle" style={{ fontSize: 'clamp(15px, 2.5vw, 24px)', color: 'rgba(226,232,240,0.65)', lineHeight: 1.7, maxWidth: '640px', margin: '0 auto 48px', fontWeight: 400 }}>
             HireLoop AI eliminates manual resume screening. Upload resumes in bulk, let Gemini parse and rank every candidate, then schedule interviews — all in one seamless platform.
           </p>
 
@@ -309,7 +323,7 @@ export const LandingPage = () => {
 
           <div style={{ marginTop: '56px', display: 'flex', gap: '32px', justifyContent: 'center', flexWrap: 'wrap' }}>
             {['No credit card required', 'AI-powered from day one', 'Automated email notifications'].map(t => (
-              <div key={t} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: 'rgba(226,232,240,0.5)' }}>
+              <div key={t} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 'clamp(11px, 1.5vw, 16px)', color: 'rgba(226,232,240,0.5)' }}>
                 <CheckCircle size={14} color="#10b981" />
                 {t}
               </div>
@@ -324,8 +338,8 @@ export const LandingPage = () => {
         <div className="responsive-grid-stats" style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
           {STATS.map(s => (
             <div key={s.label} className="stat-item">
-              <div style={{ fontSize: '48px', fontWeight: 900, letterSpacing: '-2px' }} className="gradient-text">{s.value}</div>
-              <div style={{ fontSize: '14px', color: 'rgba(226,232,240,0.5)', marginTop: '4px', fontWeight: 500 }}>{s.label}</div>
+              <div style={{ fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 900, letterSpacing: '-2px' }} className="gradient-text">{s.value}</div>
+              <div style={{ fontSize: 'clamp(11px, 1.5vw, 16px)', color: 'rgba(226,232,240,0.5)', marginTop: '4px', fontWeight: 500 }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -334,8 +348,8 @@ export const LandingPage = () => {
       {/* ── FEATURES ── */}
       <section id="features" className="section-padding" style={{ padding: '120px 48px', maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-          <div style={{ fontSize: '13px', fontWeight: 700, color: '#6366f1', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Everything You Need</div>
-          <h2 style={{ fontSize: 'clamp(36px, 4vw, 56px)', fontWeight: 800, letterSpacing: '-1.5px', lineHeight: 1.1 }}>
+          <div style={{ fontSize: 'clamp(10px, 1.5vw, 15px)', fontWeight: 700, color: '#6366f1', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Everything You Need</div>
+          <h2 className="landing-section-title" style={{ fontSize: 'clamp(32px, 6vw, 56px)', fontWeight: 800, letterSpacing: '-1.5px', lineHeight: 1.1 }}>
             Your entire hiring pipeline,<br /><span className="gradient-text">automated end-to-end.</span>
           </h2>
         </div>
@@ -346,8 +360,8 @@ export const LandingPage = () => {
               <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: `${f.color}20`, border: `1px solid ${f.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
                 <f.icon size={22} color={f.color} />
               </div>
-              <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '10px', color: '#f1f5f9' }}>{f.title}</h3>
-              <p style={{ fontSize: '14px', color: 'rgba(226,232,240,0.55)', lineHeight: 1.7 }}>{f.desc}</p>
+              <h3 style={{ fontSize: 'clamp(16px, 2vw, 22px)', fontWeight: 700, marginBottom: '10px', color: '#f1f5f9' }}>{f.title}</h3>
+              <p style={{ fontSize: 'clamp(12px, 1.5vw, 16px)', color: 'rgba(226,232,240,0.55)', lineHeight: 1.7 }}>{f.desc}</p>
             </div>
           ))}
         </div>
@@ -357,8 +371,8 @@ export const LandingPage = () => {
       <section id="how-it-works" className="section-padding" style={{ padding: '80px 48px 120px', background: 'rgba(255,255,255,0.015)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#10b981', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Simple Process</div>
-            <h2 style={{ fontSize: 'clamp(36px, 4vw, 56px)', fontWeight: 800, letterSpacing: '-1.5px', lineHeight: 1.1 }}>
+            <div style={{ fontSize: 'clamp(10px, 1.5vw, 15px)', fontWeight: 700, color: '#10b981', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Simple Process</div>
+            <h2 className="landing-section-title" style={{ fontSize: 'clamp(32px, 6vw, 56px)', fontWeight: 800, letterSpacing: '-1.5px', lineHeight: 1.1 }}>
               From <span className="gradient-text-green">job post</span> to<br />hired candidate in 4 steps.
             </h2>
           </div>
@@ -371,8 +385,8 @@ export const LandingPage = () => {
                 <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, rgba(99,102,241,0.3), rgba(139,92,246,0.3))', border: '1px solid rgba(99,102,241,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', fontSize: '16px', fontWeight: 800, color: '#a5b4fc' }}>
                   {s.num}
                 </div>
-                <h3 style={{ fontSize: '17px', fontWeight: 700, marginBottom: '8px', color: '#f1f5f9' }}>{s.title}</h3>
-                <p style={{ fontSize: '14px', color: 'rgba(226,232,240,0.5)', lineHeight: 1.6 }}>{s.desc}</p>
+                <h3 style={{ fontSize: 'clamp(15px, 2vw, 22px)', fontWeight: 700, marginBottom: '8px', color: '#f1f5f9' }}>{s.title}</h3>
+                <p style={{ fontSize: 'clamp(12px, 1.5vw, 16px)', color: 'rgba(226,232,240,0.5)', lineHeight: 1.6 }}>{s.desc}</p>
               </div>
             ))}
           </div>
@@ -383,10 +397,10 @@ export const LandingPage = () => {
       <section className="section-padding" style={{ padding: '120px 48px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div className="orb" style={{ width: '700px', height: '400px', background: 'radial-gradient(ellipse, rgba(99,102,241,0.2) 0%, transparent 70%)', top: '0', left: '50%', transform: 'translateX(-50%)' }}></div>
         <div style={{ position: 'relative', zIndex: 1, maxWidth: '700px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 900, letterSpacing: '-2px', marginBottom: '24px', lineHeight: 1.05 }}>
+          <h2 className="cta-title" style={{ fontSize: 'clamp(32px, 6vw, 64px)', fontWeight: 900, letterSpacing: '-2px', marginBottom: '24px', lineHeight: 1.05 }}>
             Ready to transform<br />your <span className="gradient-text">hiring process?</span>
           </h2>
-          <p style={{ fontSize: '18px', color: 'rgba(226,232,240,0.6)', marginBottom: '48px', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 'clamp(14px, 2vw, 22px)', color: 'rgba(226,232,240,0.6)', marginBottom: '48px', lineHeight: 1.6 }}>
             Join forward-thinking HR teams using HireLoop AI to find the best candidates — automatically.
           </p>
           <button className="btn-primary-landing" style={{ padding: '20px 48px', fontSize: '18px' }} onClick={() => navigate('/register')}>
