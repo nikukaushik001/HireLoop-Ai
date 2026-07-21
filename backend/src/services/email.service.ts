@@ -94,7 +94,7 @@ HireLoop-AI Team`;
         ` : ''}
 
         <p style="margin-top: 24px;">
-          <a href="${process.env.CORS_ORIGIN || 'http://localhost:5173'}/ranking" style="background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">View Ranked Candidates</a>
+          <a href="${(process.env.CORS_ORIGIN || 'http://localhost:5173').split(',')[0]}/ranking" style="background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">View Ranked Candidates</a>
         </p>
         
         <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;" />

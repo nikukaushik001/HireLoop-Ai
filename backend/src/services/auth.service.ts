@@ -171,7 +171,9 @@ export class AuthService {
       data: { passwordResetToken, passwordResetExpires }
     });
 
-    const resetUrl = `${env.CORS_ORIGIN}/reset-password?token=${resetToken}`;
+    // If CORS_ORIGIN contains multiple comma-separated domains, pick the first one
+    const frontendUrl = env.CORS_ORIGIN.split(',')[0];
+    const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
     await this.emailService.sendPasswordReset(user.email, user.name, resetUrl);
 
     return { success: true };
