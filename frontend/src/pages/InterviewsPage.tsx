@@ -340,7 +340,7 @@ export const InterviewsPage = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
+      <div className="hide-scrollbar" style={{ display: 'flex', gap: '8px', marginBottom: '24px', overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '4px' }}>
         {(['ALL', 'SCHEDULED', 'COMPLETED', 'CANCELLED'] as const).map(f => {
           const colors: Record<string, string> = { ALL: '#6366f1', SCHEDULED: '#3b82f6', COMPLETED: '#10b981', CANCELLED: '#ef4444' };
           const isActive = filter === f;
