@@ -236,7 +236,7 @@ export const DashboardPage = () => {
               Your AI hiring pipeline is live and processing. Here's your workspace at a glance.
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '10px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', gap: '10px', flexShrink: 0, flexWrap: 'wrap' }}>
             <button onClick={() => navigate('/resumes')} style={{
               display: 'flex', alignItems: 'center', gap: '7px', padding: '11px 20px',
               background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
