@@ -118,7 +118,7 @@ const CandidateCard: React.FC<{ item: RankedCandidate; isTop3: boolean }> = ({ i
         }} />
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div className="candidate-card-header" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         {/* Rank */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px' }}>
           {getRankIcon(item.rank)}
@@ -200,7 +200,7 @@ const CandidateCard: React.FC<{ item: RankedCandidate; isTop3: boolean }> = ({ i
         </div>
 
         {/* Score ring + bars */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <div className="candidate-score-bars" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           {/* Mini score bars */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', minWidth: '130px' }}>
             <div>
@@ -359,6 +359,32 @@ export const RankingPage: React.FC = () => {
 
   return (
     <div className="animate-fade-in">
+      <style>{`
+        @media (max-width: 768px) {
+          .candidate-card-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 20px !important;
+          }
+          .candidate-score-bars {
+            flex-direction: row !important;
+            width: 100% !important;
+            justify-content: space-between !important;
+          }
+          .responsive-stats-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .job-selector-flex {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          .action-toolbar-flex {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 16px !important;
+          }
+        }
+      `}</style>
       {/* Header */}
       <div style={{ marginBottom: '32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
@@ -377,7 +403,7 @@ export const RankingPage: React.FC = () => {
       </div>
 
       {/* Job Selector */}
-      <div className="glass-card" style={{ marginBottom: '28px', display: 'flex', gap: '16px', alignItems: 'flex-end' }}>
+      <div className="glass-card job-selector-flex" style={{ marginBottom: '28px', display: 'flex', gap: '16px', alignItems: 'flex-end' }}>
         <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
           <label>Select Job Position</label>
           <select className="input-field" value={selectedJobId} onChange={e => setSelectedJobId(e.target.value)}>
@@ -410,7 +436,7 @@ export const RankingPage: React.FC = () => {
       {rankingData && (
         <>
           {/* Summary stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '28px' }}>
+          <div className="responsive-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '28px' }}>
             {[
               { label: 'Job Position', value: rankingData.jobTitle, icon: <Briefcase size={18} />, color: '#6366f1' },
               { label: 'Total Applicants', value: rankingData.rankedCandidates.length, icon: <Users size={18} />, color: '#10b981' },
@@ -432,7 +458,7 @@ export const RankingPage: React.FC = () => {
 
           {/* Action Toolbar */}
           {rankingData.rankedCandidates.length > 0 && (
-            <div className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '16px 24px' }}>
+            <div className="glass-card action-toolbar-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '16px 24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Filters:</span>
                 <button
