@@ -56,7 +56,8 @@ export const CandidatesPage = () => {
       </div>
 
       <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
-        <table className="data-table">
+        <div style={{ overflowX: 'auto' }}>
+          <table className="data-table">
           <thead>
             <tr>
               <th>Candidate</th>
@@ -110,6 +111,7 @@ export const CandidatesPage = () => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
