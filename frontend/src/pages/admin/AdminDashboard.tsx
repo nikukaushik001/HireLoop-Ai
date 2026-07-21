@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { ShieldAlert, Users, Database, FileText, Briefcase, Activity, AlertCircle, Server, Cpu, AlertTriangle, Terminal, Clock, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router';
+import { ShieldAlert, Users, Database, FileText, Briefcase, Activity, AlertCircle, Server, Cpu, AlertTriangle, Terminal, Clock, CheckCircle, LogOut } from 'lucide-react';
 import { apiClient } from '../../api/client';
+import { useAuth } from '../../context/AuthContext';
 
 interface SystemStats {
   totalUsers: number;
@@ -19,6 +21,8 @@ interface UserData {
 }
 
 export const AdminDashboard: React.FC = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,6 +90,11 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <div className="animate-fade-in" style={{ position: 'relative' }}>
       {/* Premium Header */}
@@ -93,23 +102,33 @@ export const AdminDashboard: React.FC = () => {
         <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '200px', height: '200px', background: 'radial-gradient(circle, rgba(239,68,68,0.15) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(30px)' }} />
         <div style={{ position: 'absolute', bottom: '-50px', left: '20%', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(245,158,11,0.1) 0%, transparent 70%)', borderRadius: '50%', filter: 'blur(20px)' }} />
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px', position: 'relative', zIndex: 1 }}>
-          <div style={{
-            padding: '14px', borderRadius: '18px',
-            background: 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(245,158,11,0.2))',
-            border: '1px solid rgba(239,68,68,0.4)',
-            boxShadow: '0 8px 16px rgba(239,68,68,0.15)'
-          }}>
-            <ShieldAlert size={28} color="#ef4444" />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', position: 'relative', zIndex: 1, flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{
+              padding: '14px', borderRadius: '18px',
+              background: 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(245,158,11,0.2))',
+              border: '1px solid rgba(239,68,68,0.4)',
+              boxShadow: '0 8px 16px rgba(239,68,68,0.15)'
+            }}>
+              <ShieldAlert size={28} color="#ef4444" />
+            </div>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 800, background: 'linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.5px' }}>
+                Super Admin Portal
+              </h1>
+              <p style={{ color: '#94a3b8', margin: '4px 0 0 0', fontSize: '15px', fontWeight: 500 }}>
+                System-wide overview and administrative controls
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 800, background: 'linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.5px' }}>
-              Super Admin Portal
-            </h1>
-            <p style={{ color: '#94a3b8', margin: '4px 0 0 0', fontSize: '15px', fontWeight: 500 }}>
-              System-wide overview and administrative controls
-            </p>
-          </div>
+          
+          <button 
+            onClick={handleLogout}
+            className="btn btn-secondary" 
+            style={{ padding: '10px 20px', color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.05)' }}
+          >
+            <LogOut size={16} /> Sign Out
+          </button>
         </div>
       </div>
 
