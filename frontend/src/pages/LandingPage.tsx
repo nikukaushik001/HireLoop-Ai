@@ -267,7 +267,7 @@ export const LandingPage = () => {
             <span style={{ fontWeight: 900, fontSize: '22px', letterSpacing: '-0.5px', lineHeight: 1 }}>
               HireLoop<span className="gradient-text">AI</span>
             </span>
-            <div style={{ fontSize: '10px', color: 'rgba(148,163,184,0.45)', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', marginTop: '1px' }}>Intelligent ATS</div>
+            <div style={{ fontSize: '10px', color: 'var(--accent-emerald)', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', marginTop: '1px' }}>Intelligent ATS</div>
           </div>
         </div>
 

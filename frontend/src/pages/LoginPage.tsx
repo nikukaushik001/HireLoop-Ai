@@ -153,9 +153,12 @@ export const LoginPage = () => {
           <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(99,102,241,0.45)', flexShrink: 0 }}>
             <Brain size={18} color="white" strokeWidth={2.5} />
           </div>
-          <span style={{ fontSize: '17px', fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.3px' }}>
-            HireLoop<span style={{ background: 'linear-gradient(135deg,#a78bfa,#818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI</span>
-          </span>
+          <div>
+            <div style={{ fontSize: '17px', fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.3px', lineHeight: 1 }}>
+              HireLoop<span style={{ background: 'linear-gradient(135deg,#a78bfa,#818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI</span>
+            </div>
+            <div style={{ fontSize: '9px', color: 'var(--accent-emerald)', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase', marginTop: '3px' }}>Intelligent ATS</div>
+          </div>
         </Link>
 
         <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#f1f5f9', letterSpacing: '-0.5px', marginBottom: '4px' }}>Sign in</h1>
