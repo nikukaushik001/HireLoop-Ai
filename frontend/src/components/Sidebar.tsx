@@ -62,7 +62,7 @@ export const Sidebar: React.FC = () => {
             <Brain size={24} color="white" />
           </div>
           <div>
-            <h1 style={{ fontSize: '24px', margin: 0, fontWeight: 700 }} className="text-gradient">HireLoop<span style={{color: 'white'}}>.ai</span></h1>
+            <h1 style={{ fontSize: '24px', margin: 0, fontWeight: 700, color: 'var(--text-primary)' }}>HireLoop<span style={{ background: 'linear-gradient(135deg,#a78bfa,#818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI</span></h1>
             <div style={{ fontSize: '11px', color: 'var(--accent-emerald)', marginTop: '2px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase' }}>Intelligent ATS</div>
           </div>
         </div>
