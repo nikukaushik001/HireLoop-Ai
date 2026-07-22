@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const API_URL = 'https://13.201.8.194.nip.io/api/v1';
+export const API_URL = 'https://api.hireloopai.me/api/v1';
 
 export const apiClient = axios.create({
   baseURL: API_URL,
