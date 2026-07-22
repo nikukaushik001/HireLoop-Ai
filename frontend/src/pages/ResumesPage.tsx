@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { UploadCloud, FileText, CheckCircle, Loader, AlertCircle } from 'lucide-react';
+import { UploadCloud, FileText, CheckCircle, Loader, AlertCircle, X } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { apiClient } from '../api/client';
 
@@ -264,9 +264,18 @@ export const ResumesPage = () => {
                 <h4 style={{ color: 'var(--text-secondary)', marginBottom: '8px' }}>Selected Files ({files.length})</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
                   {files.map(file => (
-                    <div key={file.name} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', background: 'var(--bg-tertiary)', borderRadius: '6px', fontSize: '13px' }}>
-                      <FileText size={14} color="var(--accent-emerald)" />
-                      {file.name}
+                    <div key={file.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: 'var(--bg-tertiary)', borderRadius: '6px', fontSize: '13px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <FileText size={14} color="var(--accent-emerald)" />
+                        {file.name}
+                      </div>
+                      <button 
+                        onClick={() => setFiles(files.filter(f => f.name !== file.name))}
+                        style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }}
+                        title="Remove file"
+                      >
+                        <X size={14} />
+                      </button>
                     </div>
                   ))}
                 </div>
