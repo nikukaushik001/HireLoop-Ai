@@ -335,7 +335,7 @@ export const LandingPage = () => {
 
 
       {/* ── STATS ── */}
-      <section id="stats" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
+      <section id="stats" style={{ scrollMarginTop: '100px', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
         <div className="responsive-grid-stats" style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
           {STATS.map(s => (
             <div key={s.label} className="stat-item">
@@ -347,7 +347,7 @@ export const LandingPage = () => {
       </section>
 
       {/* ── FEATURES ── */}
-      <section id="features" className="section-padding" style={{ padding: '120px 48px', maxWidth: '1200px', margin: '0 auto' }}>
+      <section id="features" className="section-padding" style={{ scrollMarginTop: '100px', padding: '120px 48px', maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '80px' }}>
           <div style={{ fontSize: 'clamp(10px, 1.5vw, 15px)', fontWeight: 700, color: '#6366f1', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Everything You Need</div>
           <h2 className="landing-section-title" style={{ fontSize: 'clamp(32px, 6vw, 56px)', fontWeight: 800, letterSpacing: '-1.5px', lineHeight: 1.1 }}>
@@ -369,7 +369,7 @@ export const LandingPage = () => {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" className="section-padding" style={{ padding: '80px 48px 120px', background: 'rgba(255,255,255,0.015)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <section id="how-it-works" className="section-padding" style={{ scrollMarginTop: '100px', padding: '80px 48px 120px', background: 'rgba(255,255,255,0.015)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '80px' }}>
             <div style={{ fontSize: 'clamp(10px, 1.5vw, 15px)', fontWeight: 700, color: '#10b981', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Simple Process</div>
