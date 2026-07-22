@@ -257,6 +257,7 @@ export const ResumesPage = () => {
               <UploadCloud size={48} color="var(--accent-primary)" style={{ marginBottom: '16px' }} />
               <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>Drag & drop PDFs here</div>
               <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '8px' }}>or click to browse files</div>
+              <div style={{ fontSize: '11px', color: 'rgba(148,163,184,0.6)', marginTop: '8px', fontWeight: 500 }}>Max 500 files, up to 10MB each</div>
             </div>
 
             {files.length > 0 && (
