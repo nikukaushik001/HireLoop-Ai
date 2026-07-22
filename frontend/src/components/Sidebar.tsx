@@ -53,7 +53,7 @@ export const Sidebar: React.FC = () => {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'center' }}>
           <div style={{
-            background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-emerald))',
+            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
             padding: '8px',
             borderRadius: '12px',
             display: 'flex',
