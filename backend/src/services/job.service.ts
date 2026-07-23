@@ -26,14 +26,13 @@ export class JobService {
 
     const titleToSave = data.title.trim();
 
-    // Prevent duplicate job titles for the same recruiter (case-insensitive)
+    // Prevent duplicate job titles across the platform (case-insensitive)
     const existingJob = await prisma.job.findFirst({
       where: {
         title: {
           equals: titleToSave,
           mode: 'insensitive'
         },
-        createdBy: userId,
         status: 'OPEN'
       }
     });
