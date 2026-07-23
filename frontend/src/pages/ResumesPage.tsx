@@ -137,8 +137,27 @@ export const ResumesPage = () => {
                     }} />
                   </div>
                   {progress.status === 'completed' && (
-                    <div style={{ marginTop: '12px', color: 'var(--accent-emerald)', fontSize: '14px', fontWeight: 'bold' }}>
-                      All resumes processed! You can view them in Candidates.
+                    <div style={{ marginTop: '12px', fontSize: '14px', fontWeight: 'bold' }}>
+                      {progress.failedCount > 0 ? (
+                        <>
+                          <div style={{ color: 'var(--accent-rose)', marginBottom: '8px' }}>
+                            Processing complete. {progress.failedCount} file{progress.failedCount !== 1 ? 's' : ''} failed validation or processing.
+                          </div>
+                          {progress.failedFiles && progress.failedFiles.length > 0 && (
+                            <div style={{ maxHeight: '100px', overflowY: 'auto', textAlign: 'left', background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', padding: '12px', fontWeight: 'normal' }}>
+                              {progress.failedFiles.map((f: any, idx: number) => (
+                                <div key={idx} style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '4px' }}>
+                                  <strong style={{ color: '#f1f5f9' }}>{f.filename}</strong>: {f.error}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div style={{ color: 'var(--accent-emerald)' }}>
+                          All resumes processed successfully! You can view them in Candidates.
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

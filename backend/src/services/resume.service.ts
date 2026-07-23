@@ -218,11 +218,28 @@ export class ResumeService {
 
       // Update progress in Redis
       processedCount++;
-      await connection.set(`progress:${jobId}`, JSON.stringify({ processed: processedCount, total: totalFiles, status: 'processing' }), 'EX', 3600);
+      const currentFailed = savedCandidates.filter(c => c.status === 'failed');
+      const currentSuccess = savedCandidates.filter(c => c.status === 'success');
+      await connection.set(`progress:${jobId}`, JSON.stringify({ 
+        processed: processedCount, 
+        total: totalFiles, 
+        status: 'processing',
+        failedCount: currentFailed.length,
+        successCount: currentSuccess.length
+      }), 'EX', 3600);
     }
 
     // Set final progress status
-    await connection.set(`progress:${jobId}`, JSON.stringify({ processed: totalFiles, total: totalFiles, status: 'completed' }), 'EX', 3600);
+    const finalFailed = savedCandidates.filter(c => c.status === 'failed');
+    const finalSuccess = savedCandidates.filter(c => c.status === 'success');
+    await connection.set(`progress:${jobId}`, JSON.stringify({ 
+      processed: totalFiles, 
+      total: totalFiles, 
+      status: 'completed',
+      failedCount: finalFailed.length,
+      successCount: finalSuccess.length,
+      failedFiles: finalFailed
+    }), 'EX', 3600);
 
     // 4. Send recruiter summary email (asynchronously)
     const successList = savedCandidates
