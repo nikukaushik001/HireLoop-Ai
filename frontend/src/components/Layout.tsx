@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, Navigate } from 'react-router';
 import { Sidebar } from './Sidebar';
 import { useAuth } from '../context/AuthContext';
+import { GlobalProgressBar } from './GlobalProgressBar';
 
 export const Layout: React.FC = () => {
   const { user, loading } = useAuth();
@@ -30,6 +31,7 @@ export const Layout: React.FC = () => {
           <Outlet />
         </div>
       </main>
+      <GlobalProgressBar />
     </div>
   );
 };

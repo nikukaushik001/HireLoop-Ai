@@ -49,7 +49,7 @@ export class AuthService {
         name: data.name,
         passwordHash,
         role: 'RECRUITER', // All new signups are recruiters by default
-        isApproved: true  // Auto-approve for presentation demo
+        isApproved: false // Auto-approve disabled
       }
     });
 
@@ -73,9 +73,9 @@ export class AuthService {
       throw new UnauthorizedError('Invalid email or password');
     }
 
-    // if (!user.isApproved) {
-    //   throw new UnauthorizedError('Superadmin approval required then login');
-    // }
+    if (!user.isApproved) {
+      throw new UnauthorizedError('Superadmin approval required then login');
+    }
 
     return this.generateTokens(user.id, user.email, user.role);
   }
@@ -110,14 +110,14 @@ export class AuthService {
             name: payload.name || 'Google User',
             passwordHash,
             role: 'RECRUITER',
-            isApproved: true
+            isApproved: false
           }
         });
       }
 
-      // if (!user.isApproved) {
-      //   throw new UnauthorizedError('Superadmin approval required then login');
-      // }
+      if (!user.isApproved) {
+        throw new UnauthorizedError('Superadmin approval required then login');
+      }
 
       return this.generateTokens(user.id, user.email, user.role);
     } catch (error) {

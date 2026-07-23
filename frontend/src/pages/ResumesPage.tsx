@@ -68,6 +68,12 @@ export const ResumesPage = () => {
       
       setUploadResults({ processed: successful, failed, queued: payload.queued, jobId: payload.jobId });
       setProgress({ processed: 0, total: files.length, status: 'processing' });
+      
+      if (payload.queued && payload.jobId) {
+        localStorage.setItem('activeJobId', payload.jobId);
+        window.dispatchEvent(new Event('jobIdUpdated'));
+      }
+      
       setShowSuccess(true);
       setFiles([]);
     } catch (err: any) {
