@@ -78,7 +78,23 @@ export const ResumesPage = () => {
       setFiles([]);
     } catch (err: any) {
       console.error('Upload error:', err?.response?.data ?? err);
-      setError(`Upload failed: ${err?.response?.data?.error?.message ?? 'Unknown error'}`);
+      
+      let errorMessage = 'Unknown error';
+      if (err?.response?.status === 413) {
+        errorMessage = 'Files are too large. Please ensure total size is under server limits.';
+      } else if (err?.response?.data?.error?.message) {
+        errorMessage = err.response.data.error.message;
+      } else if (err?.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (typeof err?.response?.data === 'string') {
+        errorMessage = err.response.data.substring(0, 100).replace(/<[^>]*>?/gm, ''); // Strip HTML if Nginx error
+      } else if (err?.message) {
+        errorMessage = err.message;
+      } else if (typeof err === 'string') {
+        errorMessage = err;
+      }
+      
+      setError(`Upload failed: ${errorMessage}`);
     } finally {
       setUploading(false);
     }
