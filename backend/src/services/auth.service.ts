@@ -120,8 +120,11 @@ export class AuthService {
       }
 
       return this.generateTokens(user.id, user.email, user.role);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Google Auth Error:', error);
+      if (error.message === 'Superadmin approval required then login') {
+        throw error;
+      }
       throw new UnauthorizedError('Google authentication failed');
     }
   }
