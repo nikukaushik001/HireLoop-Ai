@@ -31,6 +31,38 @@ def parse_and_evaluate_node(state: ResumeState):
             
         if not result.get("is_valid_resume", True):
             return {"status": "failed", "error": "The uploaded file does not appear to be a valid resume or CV. Please upload a real resume."}
+            
+        # Hard Python Fallback: Even if AI says True, we reject if it doesn't meet basic resume thresholds
+        extracted_skills = result.get("skills", [])
+        extracted_name = result.get("name", "")
+        extracted_email = result.get("email", "")
+        extracted_phone = result.get("phone", "")
+        raw_text_str = state.get("raw_text", "")
+        raw_text_lower = raw_text_str.lower()
+        raw_length = len(raw_text_str)
+        
+        # 1. Reject if it is too short (certificates/receipts are usually very short)
+        if raw_length < 300:
+            return {"status": "failed", "error": "The uploaded file is too short to be a valid resume. Real resumes contain more detailed history."}
+            
+        # 2. Reject if no valid name or contact info is found
+        if not extracted_name or len(extracted_name.strip()) < 2:
+            return {"status": "failed", "error": "No candidate name could be identified. The file does not appear to be a valid resume."}
+            
+        if not extracted_email and not extracted_phone:
+            return {"status": "failed", "error": "No contact information (email or phone) detected. A valid resume must contain contact details."}
+            
+        # 3. Reject if no skills were found
+        if not extracted_skills or len(extracted_skills) < 2:
+            return {"status": "failed", "error": "Insufficient skills were detected. The file does not appear to be a valid resume."}
+            
+        # 4. Hardcoded Keyword Rejection (Block Certificates and Fake Templates)
+        if "this is to certify" in raw_text_lower or "certificate of completion" in raw_text_lower or "certificate of participation" in raw_text_lower:
+            return {"status": "failed", "error": "This document appears to be a certificate, not a valid resume."}
+            
+        if "lorem ipsum" in raw_text_lower:
+            return {"status": "failed", "error": "This document appears to be a fake dummy template containing placeholder text."}
+
         
         # Separate the profile details from the evaluation info
         parsed_data = {
