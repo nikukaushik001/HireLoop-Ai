@@ -7,7 +7,22 @@ from typing import List, Optional
 
 # Define the expected combined JSON structure using Pydantic
 class CandidateData(BaseModel):
-    is_valid_resume: bool = Field(description="Return True if the text resembles a resume, CV, LinkedIn profile, or any professional summary. If in doubt, return True. Return False ONLY if it is obviously a non-resume document like a receipt or ticket.")
+    is_valid_resume: bool = Field(
+        description="""
+        Determine if the uploaded document is an actual Candidate Resume/CV.
+        
+        CRITICAL RULES:
+        1. A valid resume is a personal career history document created by an individual applying for a job, typically containing contact info, chronological employment history, and education details.
+        
+        2. RETURN FALSE IF:
+           - The document is a travel ticket (train, flight, bus), booking confirmation, receipt, invoice, or utility bill.
+           - The document is a list of interview questions, exam prep sheet, syllabus, assignment, or course tutorial, even if it lists a creator's name and experience at the top.
+           - The document is a general book chapter, research paper, documentation guide, or corporate report.
+           - The document is missing a chronological work history or personal profile.
+        
+        Return True ONLY if the document is a genuine resume/CV. If it is any other type of document, return False.
+        """
+    )
     name: str = Field(description="The full name of the candidate")
     email: str = Field(description="The email address of the candidate")
     phone: str = Field(description="The phone number of the candidate, or empty string if not found")
@@ -41,10 +56,20 @@ def extract_structured_data(raw_text: str, job_description: str = "") -> dict:
     # Create the prompt template
     prompt = PromptTemplate(
         template="""
-You are an expert HR recruiter and Applicant Tracking System (ATS) parser. 
-Your task is to extract structured details from the candidate's resume text, identify their key achievements, and evaluate their compatibility against the target job description.
+You are an expert HR Recruiter and Applicant Tracking System (ATS) document classifier.
+Your task is to analyze the Candidate Resume Text and extract structured details only if the document is a genuine resume.
 
-Always return ONLY valid JSON matching the exact schema provided. Do not include markdown code blocks like ```json or any conversational text.
+STEP 1: Classify the Document
+Analyze the entire document. Determine its primary purpose and layout:
+- If the document contains lists of study questions, exam mock papers, train/flight ticket booking layouts, general articles, or homework tasks, classify it as a non-resume (is_valid_resume = false).
+- A teacher's study guide that says "Prepared by: Prof. John Doe, 10 years experience" is a study guide, not a resume. Classify it as is_valid_resume = false.
+- A resume must look like a personal application: it has contact info, past employers with dates, and a personal list of skills.
+
+STEP 2: Parse Candidates
+If and only if `is_valid_resume` is True, extract the candidate details.
+If `is_valid_resume` is False, return empty values for all other fields (name, email, skills, experience, etc.) and write the reason in the `reasoning` field.
+
+Always return ONLY valid JSON matching the exact schema provided. Do not include markdown code blocks like ```json.
 
 Candidate Resume Text:
 {raw_text}
