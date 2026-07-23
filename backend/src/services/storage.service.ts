@@ -60,4 +60,79 @@ export class StorageService {
     // Return relative URL path so frontend can fetch it
     return `uploads/${uniqueFileName}`;
   }
+
+  /**
+   * Downloads a file from S3 or local storage into a Buffer.
+   * Useful when files are temporarily stored in S3 by multer-s3.
+   */
+  async downloadFile(filePathOrUrl: string): Promise<Buffer> {
+    if (filePathOrUrl.startsWith('http')) {
+      if (this.s3Client) {
+        // Extract key from URL
+        const urlParts = filePathOrUrl.split('.amazonaws.com/');
+        if (urlParts.length === 2) {
+          const key = urlParts[1];
+          const { GetObjectCommand } = require('@aws-sdk/client-s3');
+          const command = new GetObjectCommand({
+            Bucket: this.bucketName,
+            Key: key,
+          });
+          const response = await this.s3Client.send(command);
+          // Convert readable stream to buffer
+          const streamToBuffer = async (stream: any) => {
+            const chunks = [];
+            for await (const chunk of stream) {
+              chunks.push(chunk);
+            }
+            return Buffer.concat(chunks);
+          };
+          return await streamToBuffer(response.Body);
+        }
+      }
+      // Fallback if s3client isn't configured but it's a URL (try to fetch it directly if public)
+      const axios = require('axios');
+      const res = await axios.get(filePathOrUrl, { responseType: 'arraybuffer' });
+      return Buffer.from(res.data);
+    }
+    
+    // Local file path
+    if (fs.existsSync(filePathOrUrl)) {
+      return fs.readFileSync(filePathOrUrl);
+    }
+    throw new Error(`File not found: ${filePathOrUrl}`);
+  }
+
+  /**
+   * Deletes a file from S3 or local storage.
+   */
+  async deleteFile(filePathOrUrl: string): Promise<void> {
+    if (filePathOrUrl.startsWith('http')) {
+      if (this.s3Client) {
+        const urlParts = filePathOrUrl.split('.amazonaws.com/');
+        if (urlParts.length === 2) {
+          const key = urlParts[1];
+          const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
+          const command = new DeleteObjectCommand({
+            Bucket: this.bucketName,
+            Key: key,
+          });
+          try {
+            await this.s3Client.send(command);
+          } catch (err) {
+            console.error(`Failed to delete temporary S3 file: ${key}`, err);
+          }
+        }
+      }
+      return;
+    }
+    
+    // Local file path
+    if (fs.existsSync(filePathOrUrl)) {
+      try {
+        fs.unlinkSync(filePathOrUrl);
+      } catch (err) {
+        console.error(`Failed to delete temporary local file: ${filePathOrUrl}`, err);
+      }
+    }
+  }
 }

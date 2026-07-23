@@ -22,9 +22,9 @@ export class ResumeController {
         throw new BadRequestError('At least one PDF file is required');
       }
 
-      // Map files to extract only the path and necessary data
-      const fileData = files.map(file => ({
-        path: file.path,
+      // Map files to extract only the path/location and necessary data
+      const fileData = files.map((file: any) => ({
+        path: file.location || file.path,
         originalname: file.originalname,
         mimetype: file.mimetype,
       }));

@@ -68,7 +68,7 @@ export class ResumeService {
 
     // 2. Process each file sequentially
     for (const file of files) {
-      if (!fs.existsSync(file.path)) {
+      if (!file.path.startsWith('http') && !fs.existsSync(file.path)) {
         console.warn(`File not found on disk: ${file.path}`);
         processedCount++;
         await connection.set(`progress:${jobId}`, JSON.stringify({ processed: processedCount, total: totalFiles, status: 'processing' }), 'EX', 3600);
@@ -77,7 +77,16 @@ export class ResumeService {
 
       const formData = new FormData();
       formData.append('job_description', jobDescriptionStr);
-      const fileBuffer = fs.readFileSync(file.path);
+      let fileBuffer: Buffer;
+      try {
+        fileBuffer = await this.storageService.downloadFile(file.path);
+      } catch (err) {
+        console.error(`Failed to download file from S3 or disk: ${file.path}`, err);
+        processedCount++;
+        await connection.set(`progress:${jobId}`, JSON.stringify({ processed: processedCount, total: totalFiles, status: 'processing' }), 'EX', 3600);
+        continue;
+      }
+      
       formData.append('files', fileBuffer, {
         filename: file.originalname,
         contentType: file.mimetype || 'application/pdf',

@@ -22,7 +22,7 @@ export const resumeWorker = new Worker(
     console.log(`[ResumeWorker] Processing job ${job.id} with ${files.length} resumes for job ${jobId}`);
     
     try {
-      // Pass the paths to processResumes, it will read from disk
+      // Pass the paths to processResumes, it will read from disk or download from S3
       await resumeService.processResumes(userId, jobId, files);
       
       console.log(`[ResumeWorker] Job ${job.id} completed successfully`);
@@ -30,15 +30,11 @@ export const resumeWorker = new Worker(
       console.error(`[ResumeWorker] Job ${job.id} failed:`, error);
       throw error;
     } finally {
-      // Clean up temporary files from disk
+      // Clean up temporary files from disk or S3
+      const { StorageService } = require('../services/storage.service');
+      const storageService = new StorageService();
       for (const file of files) {
-        if (fs.existsSync(file.path)) {
-          try {
-            fs.unlinkSync(file.path);
-          } catch (err) {
-            console.error(`[ResumeWorker] Failed to delete temp file ${file.path}:`, err);
-          }
-        }
+        await storageService.deleteFile(file.path);
       }
     }
   },

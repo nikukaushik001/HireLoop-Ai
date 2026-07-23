@@ -95,6 +95,9 @@ Formatting Instructions:
                 "raw_text": raw_text,
                 "job_description": job_description if job_description.strip() else "No job description provided."
             })
+            # Add strict 2-second sleep to guarantee we never exceed 30 RPM limit on free tier
+            import time
+            time.sleep(2)
             return result
         except Exception as e:
             error_str = str(e).lower()
