@@ -49,6 +49,14 @@ export const ResumesPage = () => {
   const handleUpload = async () => {
     if (!selectedJob || files.length === 0) return;
 
+    // Pre-validate total file size (limit to 8MB to prevent AWS API Gateway dropping it)
+    const MAX_TOTAL_MB = 8;
+    const totalSizeMB = files.reduce((acc, file) => acc + file.size, 0) / (1024 * 1024);
+    if (totalSizeMB > MAX_TOTAL_MB) {
+      setError(`Your files total ${totalSizeMB.toFixed(1)}MB, which exceeds our ${MAX_TOTAL_MB}MB server limit. Please upload fewer PDFs at a time.`);
+      return;
+    }
+
     setUploading(true);
     setError(null);
     const formData = new FormData();
@@ -79,22 +87,23 @@ export const ResumesPage = () => {
     } catch (err: any) {
       console.error('Upload error:', err?.response?.data ?? err);
       
-      let errorMessage = 'Unknown error';
-      if (err?.response?.status === 413) {
-        errorMessage = 'Files are too large. Please ensure total size is under server limits.';
+      let errorMessage = 'An unexpected error occurred while uploading. Please try again.';
+      
+      if (err?.message === 'Network Error') {
+        errorMessage = 'Connection blocked. This usually happens if your total file size is too large for the server to accept, or your internet dropped. Please try uploading 1 or 2 files at a time.';
+      } else if (err?.response?.status === 413) {
+        errorMessage = 'The files you uploaded are too large. Our server can only process up to 8MB at a time.';
       } else if (err?.response?.data?.error?.message) {
         errorMessage = err.response.data.error.message;
       } else if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (typeof err?.response?.data === 'string') {
-        errorMessage = err.response.data.substring(0, 100).replace(/<[^>]*>?/gm, ''); // Strip HTML if Nginx error
+        errorMessage = err.response.data.substring(0, 150).replace(/<[^>]*>?/gm, ''); // Strip HTML if Nginx error
       } else if (err?.message) {
         errorMessage = err.message;
-      } else if (typeof err === 'string') {
-        errorMessage = err;
       }
       
-      setError(`Upload failed: ${errorMessage}`);
+      setError(errorMessage);
     } finally {
       setUploading(false);
     }
