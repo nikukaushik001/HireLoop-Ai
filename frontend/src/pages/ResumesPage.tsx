@@ -33,7 +33,7 @@ export const ResumesPage = () => {
         } catch (err) {
           console.error('Failed to fetch progress', err);
         }
-      }, 2000);
+      }, 4000);
     }
     return () => {
       if (interval) clearInterval(interval);
