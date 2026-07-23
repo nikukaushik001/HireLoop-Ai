@@ -158,7 +158,7 @@ export const DashboardPage = () => {
   );
 
   const pipelineItems = [
-    { label: 'Resume Parser', sub: 'Gemini AI', color: '#10b981', icon: <FileText size={14} /> },
+    { label: 'Resume Parser', sub: 'Groq AI', color: '#10b981', icon: <FileText size={14} /> },
     { label: 'Vector Embeddings', sub: 'Similarity engine', color: '#10b981', icon: <Sparkles size={14} /> },
     { label: 'Email Notifications', sub: 'SMTP / Nodemailer', color: '#10b981', icon: <Zap size={14} /> },
     { label: 'Candidate Ranking', sub: 'AI scoring', color: '#10b981', icon: <TrendingUp size={14} /> },
@@ -268,7 +268,7 @@ export const DashboardPage = () => {
       <div className="dash-s2 stats-grid">
         <StatCard title="Active Jobs" value={stats.totalJobs} icon={<Briefcase size={21} />} color="#6366f1" sub="Open positions" trend="+2 this week" accentGradient="linear-gradient(90deg, #6366f1, #818cf8)" />
         <StatCard title="Talent Pool" value={stats.totalCandidates} icon={<Users size={21} />} color="#10b981" sub="AI-parsed candidates" trend="Live" accentGradient="linear-gradient(90deg, #10b981, #34d399)" />
-        <StatCard title="Resumes Processed" value={stats.totalResumes} icon={<FileText size={21} />} color="#f59e0b" sub="By Gemini pipeline" accentGradient="linear-gradient(90deg, #f59e0b, #fbbf24)" />
+        <StatCard title="Resumes Processed" value={stats.totalResumes} icon={<FileText size={21} />} color="#f59e0b" sub="By LangGraph pipeline" accentGradient="linear-gradient(90deg, #f59e0b, #fbbf24)" />
         <StatCard title="Upcoming Interviews" value={stats.upcomingInterviews} icon={<Calendar size={21} />} color="#ef4444" sub="Scheduled" accentGradient="linear-gradient(90deg, #ef4444, #f87171)" />
       </div>
 
