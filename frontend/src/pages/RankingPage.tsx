@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
 import { Trophy, Award, Medal, Star, ChevronDown, Briefcase, Brain, TrendingUp, Users, Loader, AlertCircle, CheckCircle, Target } from 'lucide-react';
+import { useSearchParams } from 'react-router';
 
 interface RankedCandidate {
   applicationId: string;
@@ -297,8 +298,9 @@ const CandidateCard: React.FC<{ item: RankedCandidate; isTop3: boolean }> = ({ i
 };
 
 export const RankingPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [jobs, setJobs] = useState<{ id: string; title: string }[]>([]);
-  const [selectedJobId, setSelectedJobId] = useState('');
+  const [selectedJobId, setSelectedJobId] = useState(searchParams.get('jobId') || '');
   const [rankingData, setRankingData] = useState<RankingData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -308,16 +310,21 @@ export const RankingPage: React.FC = () => {
 
   useEffect(() => {
     apiClient.get('/jobs').then(r => setJobs(r.data.data || [])).catch(console.error);
+    const initialJobId = searchParams.get('jobId');
+    if (initialJobId) {
+      handleRank(initialJobId);
+    }
   }, []);
 
-  const handleRank = async () => {
-    if (!selectedJobId) return;
+  const handleRank = async (jobIdToRank?: string) => {
+    const targetJobId = typeof jobIdToRank === 'string' ? jobIdToRank : selectedJobId;
+    if (!targetJobId) return;
     setLoading(true);
     setError('');
     setRankingData(null);
     setEmailSuccess('');
     try {
-      const res = await apiClient.get(`/jobs/${selectedJobId}/rank`);
+      const res = await apiClient.get(`/jobs/${targetJobId}/rank`);
       setRankingData(res.data.data);
     } catch (err: any) {
       setError(err?.response?.data?.error?.message || 'Failed to rank candidates');
@@ -423,7 +430,7 @@ export const RankingPage: React.FC = () => {
           className="btn btn-primary"
           style={{ padding: '12px 28px', flexShrink: 0, gap: '8px' }}
           disabled={!selectedJobId || loading}
-          onClick={handleRank}
+          onClick={() => handleRank(selectedJobId)}
         >
           {loading ? <><Loader size={16} className="animate-spin" /> Ranking...</> : <><TrendingUp size={16} /> Rank Candidates</>}
         </button>
