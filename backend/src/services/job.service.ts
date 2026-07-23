@@ -20,8 +20,8 @@ export class JobService {
       throw new BadRequestError('Department must only contain alphabetical characters and spaces.');
     }
 
-    if (!data.description || data.description.trim().length < 10) {
-      throw new BadRequestError('Description must be at least 10 characters long.');
+    if (data.description && !alphaRegex.test(data.description.trim())) {
+      throw new BadRequestError('Description must only contain alphabetical characters and spaces.');
     }
 
     const titleToSave = data.title.trim();
@@ -135,8 +135,11 @@ export class JobService {
       }
     }
 
-    if (data.description !== undefined && data.description.trim().length < 10) {
-      throw new BadRequestError('Description must be at least 10 characters long.');
+    if (data.description !== undefined) {
+      const alphaRegex = /^[A-Za-z\s]+$/;
+      if (!alphaRegex.test(data.description.trim())) {
+        throw new BadRequestError('Description must only contain alphabetical characters and spaces.');
+      }
     }
 
     const job = await prisma.job.findUnique({ where: { id } });

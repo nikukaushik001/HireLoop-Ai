@@ -154,13 +154,12 @@ export const JobsPage = () => {
               <label>Description</label>
               <textarea 
                 required 
-                minLength={10}
                 className="input-field" 
                 rows={3} 
                 value={description} 
                 onChange={e => setDescription(e.target.value)} 
               />
-              <small style={{ color: 'var(--text-muted)', fontSize: '12px', marginTop: '4px' }}>Minimum 10 characters required.</small>
+              <small style={{ color: 'var(--text-muted)', fontSize: '12px', marginTop: '4px' }}>Only alphabets and spaces allowed.</small>
             </div>
             <div className="input-group">
               <label>Requirements</label>
@@ -171,10 +170,10 @@ export const JobsPage = () => {
               <button 
                 type="submit" 
                 className="btn btn-primary"
-                disabled={!title.trim() || description.trim().length < 10}
+                disabled={!title.trim() || !description.trim()}
                 style={{ 
-                  opacity: (!title.trim() || description.trim().length < 10) ? 0.5 : 1, 
-                  cursor: (!title.trim() || description.trim().length < 10) ? 'not-allowed' : 'pointer' 
+                  opacity: (!title.trim() || !description.trim()) ? 0.5 : 1, 
+                  cursor: (!title.trim() || !description.trim()) ? 'not-allowed' : 'pointer' 
                 }}
               >
                 {editingJobId ? 'Update Job' : 'Save Job'}
