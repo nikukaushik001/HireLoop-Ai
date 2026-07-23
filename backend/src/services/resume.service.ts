@@ -53,13 +53,23 @@ export class ResumeService {
     // Prepare job description for the AI Agent
     const jobDescriptionStr = `Title: ${job.title}\nDepartment: ${job.department || 'N/A'}\nDescription: ${job.description || ''}\nRequirements: ${job.requirements || ''}`;
 
-    // 2 & 3. Process each file sequentially through the AI service
     const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
-    let aiResult = { results: [] as any[] };
+    const savedCandidates = [];
+    const totalFiles = files.length;
+    let processedCount = 0;
 
+    // Import redis connection inside the function to avoid circular dependency if not at top level
+    const { connection } = require('../queues/connection');
+
+    // Initialize progress tracking
+    await connection.set(`progress:${jobId}`, JSON.stringify({ processed: 0, total: totalFiles, status: 'processing' }), 'EX', 3600);
+
+    // 2. Process each file sequentially
     for (const file of files) {
       if (!fs.existsSync(file.path)) {
         console.warn(`File not found on disk: ${file.path}`);
+        processedCount++;
+        await connection.set(`progress:${jobId}`, JSON.stringify({ processed: processedCount, total: totalFiles, status: 'processing' }), 'EX', 3600);
         continue;
       }
 
@@ -71,143 +81,142 @@ export class ResumeService {
         contentType: file.mimetype || 'application/pdf',
       });
 
+      let result: any = null;
       try {
         const response = await axios.post(`${AI_SERVICE_URL}/api/v1/ai/process-resumes`, formData, {
-          headers: {
-            ...formData.getHeaders()
-          }
+          headers: { ...formData.getHeaders() }
         });
         
-        if (response.data && response.data.results) {
-          aiResult.results.push(...response.data.results);
+        if (response.data && response.data.results && response.data.results.length > 0) {
+          result = response.data.results[0];
+        } else {
+          throw new Error("No results returned from AI");
         }
       } catch (err: any) {
         console.error(`Failed to process resume ${file.originalname}:`, err.message);
         const errorText = err.response?.data ? JSON.stringify(err.response.data) : err.message;
         fs.appendFileSync('ai_error.log', new Date().toISOString() + '\nFile: ' + file.originalname + '\nStatus: ' + (err.response?.status || 500) + '\nBody: ' + errorText + '\n\n');
         
-        // Push a simulated failed result so the rest of the code handles it gracefully
-        aiResult.results.push({
+        result = {
           filename: file.originalname,
           status: 'failed',
           error: 'AI_SERVICE_ERROR: ' + (err.response?.status || 500),
           pipeline_result: { status: 'failed', error: 'API Error' }
-        });
+        };
       }
-    }
 
-    // 4. Save each processed candidate into the database
-    const savedCandidates = [];
-    for (const result of aiResult.results) {
+      // 3. Immediately save candidate into the database
       if (result.status === 'failed' || (result.pipeline_result?.status !== 'completed' && !result.pipeline_result?.parsed_data)) {
         savedCandidates.push({
           filename: result.filename,
           status: 'failed',
           error: result.error || result.pipeline_result?.error || 'Unknown error',
         });
-        continue;
-      }
+      } else {
+        const parsed = result.pipeline_result.parsed_data;
 
-      const parsed = result.pipeline_result.parsed_data;
-
-      // Find the uploaded file to get its buffer for storage upload
-      const uploadedFile = files.find(f => f.originalname === result.filename);
-      let filePath = `uploads/${result.filename}`;
-      if (uploadedFile && fs.existsSync(uploadedFile.path)) {
+        // Find the uploaded file to get its buffer for storage upload
+        let filePath = `uploads/${result.filename}`;
         try {
-          const fileBuffer = fs.readFileSync(uploadedFile.path);
           filePath = await this.storageService.uploadFile(
             fileBuffer,
-            uploadedFile.originalname,
-            uploadedFile.mimetype
+            file.originalname,
+            file.mimetype
           );
         } catch (err) {
           console.error(`Failed to upload ${result.filename} to storage:`, err);
         }
+
+        // Create or update the candidate in the talent pool
+        const candidate = await prisma.candidate.upsert({
+          where: { email_userId: { email: parsed.email, userId: userId } },
+          update: {
+            name: parsed.name,
+            phone: parsed.phone,
+            skills: parsed.skills,
+            experienceYears: parsed.experienceYears,
+            currentCompany: parsed.currentCompany,
+            location: parsed.location,
+            cultureFitSummary: parsed.culture_fit_summary,
+            embedding: result.pipeline_result.embedding,
+          },
+          create: {
+            name: parsed.name,
+            email: parsed.email,
+            userId: userId,
+            phone: parsed.phone,
+            skills: parsed.skills,
+            experienceYears: parsed.experienceYears,
+            currentCompany: parsed.currentCompany,
+            location: parsed.location,
+            cultureFitSummary: parsed.culture_fit_summary,
+            embedding: result.pipeline_result.embedding,
+          },
+        });
+
+        // Get version count
+        const existingResumesCount = await prisma.resume.count({
+          where: { candidateId: candidate.id }
+        });
+        const newVersion = existingResumesCount + 1;
+
+        // Create the resume record
+        const resume = await prisma.resume.create({
+          data: {
+            fileName: result.filename,
+            filePath: filePath,
+            candidateId: candidate.id,
+            rawText: result.pipeline_result.raw_text,
+            parsedData: parsed as any,
+            parseStatus: 'COMPLETED',
+            version: newVersion,
+            embedding: result.pipeline_result.embedding,
+          },
+        });
+
+        // Get the AI score from the evaluation node
+        const aiScore = result.pipeline_result.evaluation?.score || 0;
+        const aiReasoning = result.pipeline_result.evaluation?.reasoning || '';
+
+        // Create a job application linking candidate to job and specific resume version
+        await prisma.application.upsert({
+          where: {
+            candidateId_jobId: { jobId, candidateId: candidate.id },
+          },
+          update: {
+            status: 'NEW',
+            aiScore: aiScore,
+            aiReasoning: aiReasoning,
+            resumeId: resume.id
+          },
+          create: {
+            jobId,
+            candidateId: candidate.id,
+            resumeId: resume.id,
+            aiScore: aiScore,
+            aiReasoning: aiReasoning,
+            status: 'NEW',
+            source: 'AI_RECOMMENDED',
+          },
+        });
+
+        savedCandidates.push({
+          filename: result.filename,
+          status: 'success',
+          candidateId: candidate.id,
+          candidateName: candidate.name,
+        });
       }
 
-      // Create or update the candidate in the talent pool
-      const candidate = await prisma.candidate.upsert({
-        where: { email_userId: { email: parsed.email, userId: userId } },
-        update: {
-          name: parsed.name,
-          phone: parsed.phone,
-          skills: parsed.skills,
-          experienceYears: parsed.experienceYears,
-          currentCompany: parsed.currentCompany,
-          location: parsed.location,
-          cultureFitSummary: parsed.culture_fit_summary,
-          embedding: result.pipeline_result.embedding,
-        },
-        create: {
-          name: parsed.name,
-          email: parsed.email,
-          userId: userId,
-          phone: parsed.phone,
-          skills: parsed.skills,
-          experienceYears: parsed.experienceYears,
-          currentCompany: parsed.currentCompany,
-          location: parsed.location,
-          cultureFitSummary: parsed.culture_fit_summary,
-          embedding: result.pipeline_result.embedding,
-        },
-      });
-
-      // Get version count
-      const existingResumesCount = await prisma.resume.count({
-        where: { candidateId: candidate.id }
-      });
-      const newVersion = existingResumesCount + 1;
-
-      // Create the resume record
-      const resume = await prisma.resume.create({
-        data: {
-          fileName: result.filename,
-          filePath: filePath,
-          candidateId: candidate.id,
-          rawText: result.pipeline_result.raw_text,
-          parsedData: parsed as any,
-          parseStatus: 'COMPLETED',
-          version: newVersion,
-          embedding: result.pipeline_result.embedding,
-        },
-      });
-
-      // Get the AI score from the evaluation node
-      const aiScore = result.pipeline_result.evaluation?.score || 0;
-      const aiReasoning = result.pipeline_result.evaluation?.reasoning || '';
-
-      // Create a job application linking candidate to job and specific resume version
-      await prisma.application.upsert({
-        where: {
-          candidateId_jobId: { jobId, candidateId: candidate.id },
-        },
-        update: {
-          status: 'NEW',
-          aiScore: aiScore,
-          aiReasoning: aiReasoning,
-          resumeId: resume.id
-        },
-        create: {
-          jobId,
-          candidateId: candidate.id,
-          resumeId: resume.id,
-          aiScore: aiScore,
-          aiReasoning: aiReasoning,
-          status: 'NEW',
-          source: 'AI_RECOMMENDED',
-        },
-      });
-
-      savedCandidates.push({
-        filename: result.filename,
-        status: 'success',
-        candidateId: candidate.id,
-        candidateName: candidate.name,
-      });
+      // Update progress in Redis
+      processedCount++;
+      await connection.set(`progress:${jobId}`, JSON.stringify({ processed: processedCount, total: totalFiles, status: 'processing' }), 'EX', 3600);
     }
 
-    // 5. Send recruiter summary email (asynchronously)
+    // Set final progress status
+    await connection.set(`progress:${jobId}`, JSON.stringify({ processed: totalFiles, total: totalFiles, status: 'completed' }), 'EX', 3600);
+
+    // 4. Send recruiter summary email (asynchronously)
     const successList = savedCandidates
       .filter(c => c.status === 'success')
       .map(c => `${c.candidateName} (${c.filename})`);

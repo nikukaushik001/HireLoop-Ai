@@ -8,7 +8,8 @@ export const ResumesPage = () => {
   const [jobs, setJobs] = useState<{ id: string, title: string }[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [uploadResults, setUploadResults] = useState<{ processed: any[], failed: any[], queued?: boolean }>({ processed: [], failed: [] });
+  const [uploadResults, setUploadResults] = useState<{ processed: any[], failed: any[], queued?: boolean, jobId?: string }>({ processed: [], failed: [] });
+  const [progress, setProgress] = useState<{ processed: number, total: number, status: string } | null>(null);
   const [selectedJob, setSelectedJob] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -16,6 +17,28 @@ export const ResumesPage = () => {
   useEffect(() => {
     apiClient.get('/jobs').then(res => setJobs(res.data.data)).catch(console.error);
   }, []);
+
+  useEffect(() => {
+    let interval: any;
+    if (showSuccess && uploadResults.queued && uploadResults.jobId) {
+      interval = setInterval(async () => {
+        try {
+          const res = await apiClient.get(`/resumes/progress/${uploadResults.jobId}`);
+          if (res.data.data) {
+            setProgress(res.data.data);
+            if (res.data.data.status === 'completed') {
+              clearInterval(interval);
+            }
+          }
+        } catch (err) {
+          console.error('Failed to fetch progress', err);
+        }
+      }, 2000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    }
+  }, [showSuccess, uploadResults.queued, uploadResults.jobId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -43,7 +66,8 @@ export const ResumesPage = () => {
       const successful = processed.filter((p: any) => p.status === 'success');
       const failed = processed.filter((p: any) => p.status === 'failed');
       
-      setUploadResults({ processed: successful, failed, queued: payload.queued });
+      setUploadResults({ processed: successful, failed, queued: payload.queued, jobId: payload.jobId });
+      setProgress({ processed: 0, total: files.length, status: 'processing' });
       setShowSuccess(true);
       setFiles([]);
     } catch (err: any) {
@@ -92,7 +116,31 @@ export const ResumesPage = () => {
               <p style={{ color: 'var(--text-secondary)', fontSize: '16px', marginBottom: '24px', animation: 'slideUpFade 0.5s ease-out 0.3s both' }}>
                 Your resumes have been successfully added to the background queue. You will receive an email containing a summary of the results once processing is complete.
               </p>
-              <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', animation: 'slideUpFade 0.5s ease-out 0.4s both' }}>
+              {progress && (
+                <div style={{ marginBottom: '24px', animation: 'slideUpFade 0.5s ease-out 0.4s both' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '14px', color: 'var(--text-secondary)' }}>
+                    <span>Processing Resumes</span>
+                    <span style={{ fontWeight: 'bold', color: 'var(--accent-primary)' }}>{progress.processed} / {progress.total}</span>
+                  </div>
+                  <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{ 
+                      height: '100%', 
+                      background: 'linear-gradient(90deg, #3b82f6, #60a5fa)', 
+                      width: `${progress.total > 0 ? (progress.processed / progress.total) * 100 : 0}%`,
+                      transition: 'width 0.5s ease'
+                    }} />
+                  </div>
+                  {progress.status === 'completed' && (
+                    <div style={{ marginTop: '12px', color: 'var(--accent-emerald)', fontSize: '14px', fontWeight: 'bold' }}>
+                      All resumes processed! You can view them in Candidates.
+                    </div>
+                  )}
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', animation: 'slideUpFade 0.5s ease-out 0.5s both' }}>
+                <button className="btn" onClick={() => { setShowSuccess(false); setProgress(null); }} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}>
+                  Upload More
+                </button>
                 <button className="btn btn-primary" onClick={() => navigate('/candidates')} style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', border: 'none', boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)' }}>
                   Go to Candidates
                 </button>

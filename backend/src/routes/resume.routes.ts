@@ -40,4 +40,7 @@ router.use(requireAuth);
 // Upload resumes for a specific job (up to 500 resumes at once)
 router.post('/upload', upload.array('files', 500), resumeController.uploadResumes);
 
+// Get progress of a running job queue
+router.get('/progress/:jobId', resumeController.getProgress);
+
 export const resumeRoutes = router;

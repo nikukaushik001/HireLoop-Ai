@@ -38,10 +38,27 @@ export class ResumeController {
 
       sendSuccess(res, {
         message: 'Resumes added to queue for processing. You will receive an email once complete.',
-        data: { queued: true, count: fileData.length }
+        data: { queued: true, count: fileData.length, jobId }
       }, 200);
     } catch (error: any) {
       require('fs').appendFileSync('resume_error.log', new Date().toISOString() + '\\n' + (error.stack || error.message || String(error)) + '\\n\\n');
+      next(error);
+    }
+  }
+
+  async getProgress(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { jobId } = req.params;
+      const { connection } = require('../queues/connection');
+      const progressData = await connection.get(`progress:${jobId}`);
+      
+      if (!progressData) {
+        return sendSuccess(res, { processed: 0, total: 0, status: 'unknown' }, 200);
+      }
+      
+      const progress = JSON.parse(progressData);
+      sendSuccess(res, progress, 200);
+    } catch (error) {
       next(error);
     }
   }
