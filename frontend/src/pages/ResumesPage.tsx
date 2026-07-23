@@ -8,7 +8,7 @@ export const ResumesPage = () => {
   const [jobs, setJobs] = useState<{ id: string, title: string }[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [uploadResults, setUploadResults] = useState<{ processed: any[], failed: any[] }>({ processed: [], failed: [] });
+  const [uploadResults, setUploadResults] = useState<{ processed: any[], failed: any[], queued?: boolean }>({ processed: [], failed: [] });
   const [selectedJob, setSelectedJob] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -43,7 +43,7 @@ export const ResumesPage = () => {
       const successful = processed.filter((p: any) => p.status === 'success');
       const failed = processed.filter((p: any) => p.status === 'failed');
       
-      setUploadResults({ processed: successful, failed });
+      setUploadResults({ processed: successful, failed, queued: payload.queued });
       setShowSuccess(true);
       setFiles([]);
     } catch (err: any) {
@@ -55,6 +55,54 @@ export const ResumesPage = () => {
   };
 
   if (showSuccess) {
+    if (uploadResults.queued) {
+      return (
+        <div className="animate-fade-in" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
+          <style>{`
+            @keyframes scaleInGlowBlue {
+              0% { transform: scale(0.8); opacity: 0; box-shadow: 0 0 0 rgba(59, 130, 246, 0); }
+              50% { transform: scale(1.1); box-shadow: 0 0 40px rgba(59, 130, 246, 0.4); }
+              100% { transform: scale(1); opacity: 1; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+            }
+            @keyframes slideUpFade {
+              from { transform: translateY(20px); opacity: 0; }
+              to { transform: translateY(0); opacity: 1; }
+            }
+          `}</style>
+          <div className="glass-card" style={{ textAlign: 'center', padding: '64px', maxWidth: '600px', width: '100%', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{ 
+                width: '80px', height: '80px', 
+                background: 'rgba(59, 130, 246, 0.1)', 
+                borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 24px auto', 
+                border: '2px solid var(--accent-primary)',
+                animation: 'scaleInGlowBlue 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards'
+              }}>
+                <CheckCircle size={40} color="var(--accent-primary)" />
+              </div>
+              <h2 style={{ 
+                fontSize: '32px', marginBottom: '16px', fontWeight: 'bold',
+                background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)', 
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                animation: 'slideUpFade 0.5s ease-out 0.2s both'
+              }}>
+                Resumes Queued!
+              </h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '16px', marginBottom: '24px', animation: 'slideUpFade 0.5s ease-out 0.3s both' }}>
+                Your resumes have been successfully added to the background queue. You will receive an email containing a summary of the results once processing is complete.
+              </p>
+              <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', animation: 'slideUpFade 0.5s ease-out 0.4s both' }}>
+                <button className="btn btn-primary" onClick={() => navigate('/candidates')} style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', border: 'none', boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)' }}>
+                  Go to Candidates
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
     const successCount = uploadResults.processed.length;
     const failedCount = uploadResults.failed.length;
     

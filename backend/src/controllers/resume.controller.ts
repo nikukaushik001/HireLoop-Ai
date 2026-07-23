@@ -3,7 +3,7 @@ import { ResumeService } from '../services/resume.service';
 import { sendSuccess } from '../utils/api-response';
 import { AppError, BadRequestError } from '../utils/api-error';
 
-// import { resumeQueue } from '../queues/resume.queue'; // BullMQ disabled temporarily
+import { resumeQueue } from '../queues/resume.queue';
 
 const resumeService = new ResumeService();
 
@@ -29,12 +29,16 @@ export class ResumeController {
         mimetype: file.mimetype,
       }));
 
-      // Process synchronously so the frontend waits for it to complete
-      const result = await resumeService.processResumes(userId, jobId, fileData);
+      // ADD TO QUEUE
+      await resumeQueue.add('parse-resume', {
+        userId,
+        jobId,
+        files: fileData
+      });
 
       sendSuccess(res, {
-        message: 'Resumes processed successfully!',
-        data: result
+        message: 'Resumes added to queue for processing. You will receive an email once complete.',
+        data: { queued: true, count: fileData.length }
       }, 200);
     } catch (error: any) {
       require('fs').appendFileSync('resume_error.log', new Date().toISOString() + '\\n' + (error.stack || error.message || String(error)) + '\\n\\n');

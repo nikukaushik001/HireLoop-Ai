@@ -20,8 +20,6 @@ async def process_resumes(
     runs them through the LangGraph AI pipeline concurrently with a semaphore throttle (max 3),
     and returns the structured candidate data, evaluation, and embeddings.
     """
-    semaphore = asyncio.Semaphore(3)  # Max 3 concurrent LLM pipeline runs
-
     async def process_file(file: UploadFile) -> dict:
         if not file.filename.lower().endswith('.pdf'):
             return {
@@ -30,23 +28,22 @@ async def process_resumes(
                 "error": "Only PDF files are supported."
             }
             
-        async with semaphore:
-            try:
-                pdf_bytes = await file.read()
-                # Run the synchronous LangGraph pipeline in a threadpool to avoid blocking event loop
-                pipeline_result = await asyncio.to_thread(
-                    process_resume_pipeline, pdf_bytes, job_description
-                )
-                return {
-                    "filename": file.filename,
-                    "pipeline_result": pipeline_result
-                }
-            except Exception as e:
-                return {
-                    "filename": file.filename,
-                    "status": "failed",
-                    "error": str(e)
-                }
+        try:
+            pdf_bytes = await file.read()
+            # Run the synchronous LangGraph pipeline in a threadpool to avoid blocking event loop
+            pipeline_result = await asyncio.to_thread(
+                process_resume_pipeline, pdf_bytes, job_description
+            )
+            return {
+                "filename": file.filename,
+                "pipeline_result": pipeline_result
+            }
+        except Exception as e:
+            return {
+                "filename": file.filename,
+                "status": "failed",
+                "error": str(e)
+            }
 
     tasks = [process_file(file) for file in files]
     results = await asyncio.gather(*tasks)

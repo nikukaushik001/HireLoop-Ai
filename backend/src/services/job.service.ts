@@ -11,6 +11,15 @@ export interface CreateJobDTO {
 
 export class JobService {
   async createJob(userId: string, data: CreateJobDTO) {
+    // Validate that title and department contain only alphabetical characters and spaces
+    const alphaRegex = /^[A-Za-z\s]+$/;
+    if (!alphaRegex.test(data.title.trim())) {
+      throw new BadRequestError('Job title must only contain alphabetical characters and spaces.');
+    }
+    if (data.department && !alphaRegex.test(data.department.trim())) {
+      throw new BadRequestError('Department must only contain alphabetical characters and spaces.');
+    }
+
     // Prevent duplicate job titles for the same recruiter
     const existingJob = await prisma.job.findFirst({
       where: {
