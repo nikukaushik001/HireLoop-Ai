@@ -53,36 +53,47 @@ export class ResumeService {
     // Prepare job description for the AI Agent
     const jobDescriptionStr = `Title: ${job.title}\nDepartment: ${job.department || 'N/A'}\nDescription: ${job.description || ''}\nRequirements: ${job.requirements || ''}`;
 
-    // 2. Build multipart form data to send to FastAPI
-    const formData = new FormData();
-    formData.append('job_description', jobDescriptionStr);
+    // 2 & 3. Process each file sequentially through the AI service
+    const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
+    let aiResult = { results: [] as any[] };
+
     for (const file of files) {
       if (!fs.existsSync(file.path)) {
         console.warn(`File not found on disk: ${file.path}`);
         continue;
       }
+
+      const formData = new FormData();
+      formData.append('job_description', jobDescriptionStr);
       const fileBuffer = fs.readFileSync(file.path);
       formData.append('files', fileBuffer, {
         filename: file.originalname,
         contentType: file.mimetype || 'application/pdf',
       });
-    }
 
-    // 3. Call FastAPI AI service
-    const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
-    
-    let aiResult;
-    try {
-      const response = await axios.post(`${AI_SERVICE_URL}/api/v1/ai/process-resumes`, formData, {
-        headers: {
-          ...formData.getHeaders()
+      try {
+        const response = await axios.post(`${AI_SERVICE_URL}/api/v1/ai/process-resumes`, formData, {
+          headers: {
+            ...formData.getHeaders()
+          }
+        });
+        
+        if (response.data && response.data.results) {
+          aiResult.results.push(...response.data.results);
         }
-      });
-      aiResult = response.data;
-    } catch (err: any) {
-      const errorText = err.response?.data ? JSON.stringify(err.response.data) : err.message;
-      fs.appendFileSync('ai_error.log', new Date().toISOString() + '\nStatus: ' + (err.response?.status || 500) + '\nBody: ' + errorText + '\n\n');
-      throw new AppError('Failed to process resumes through AI pipeline', 502, 'AI_SERVICE_ERROR');
+      } catch (err: any) {
+        console.error(`Failed to process resume ${file.originalname}:`, err.message);
+        const errorText = err.response?.data ? JSON.stringify(err.response.data) : err.message;
+        fs.appendFileSync('ai_error.log', new Date().toISOString() + '\nFile: ' + file.originalname + '\nStatus: ' + (err.response?.status || 500) + '\nBody: ' + errorText + '\n\n');
+        
+        // Push a simulated failed result so the rest of the code handles it gracefully
+        aiResult.results.push({
+          filename: file.originalname,
+          status: 'failed',
+          error: 'AI_SERVICE_ERROR: ' + (err.response?.status || 500),
+          pipeline_result: { status: 'failed', error: 'API Error' }
+        });
+      }
     }
 
     // 4. Save each processed candidate into the database
