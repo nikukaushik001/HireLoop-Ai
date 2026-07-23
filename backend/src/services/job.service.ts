@@ -20,10 +20,19 @@ export class JobService {
       throw new BadRequestError('Department must only contain alphabetical characters and spaces.');
     }
 
-    // Prevent duplicate job titles for the same recruiter
+    if (!data.description || data.description.trim().length < 10) {
+      throw new BadRequestError('Description must be at least 10 characters long.');
+    }
+
+    const titleToSave = data.title.trim();
+
+    // Prevent duplicate job titles for the same recruiter (case-insensitive)
     const existingJob = await prisma.job.findFirst({
       where: {
-        title: data.title,
+        title: {
+          equals: titleToSave,
+          mode: 'insensitive'
+        },
         createdBy: userId,
         status: 'OPEN'
       }
@@ -53,10 +62,10 @@ export class JobService {
 
     return await prisma.job.create({
       data: {
-        title: data.title,
-        description: data.description,
+        title: titleToSave,
+        description: data.description.trim(),
         requirements: data.requirements,
-        department: data.department,
+        department: data.department ? data.department.trim() : undefined,
         createdBy: userId,
         embedding: embedding,
       },
@@ -124,6 +133,10 @@ export class JobService {
       if (!alphaRegex.test(data.department.trim())) {
         throw new BadRequestError('Department must only contain alphabetical characters and spaces.');
       }
+    }
+
+    if (data.description !== undefined && data.description.trim().length < 10) {
+      throw new BadRequestError('Description must be at least 10 characters long.');
     }
 
     const job = await prisma.job.findUnique({ where: { id } });
