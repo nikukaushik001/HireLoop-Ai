@@ -30,6 +30,7 @@ export const JobDetailPage = () => {
   const [job, setJob] = useState<JobDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [ranking, setRanking] = useState(false);
+  const [hybridRanks, setHybridRanks] = useState<any[] | null>(null);
 
   const fetchJob = async () => {
     try {
@@ -49,8 +50,9 @@ export const JobDetailPage = () => {
   const handleRankCandidates = async () => {
     setRanking(true);
     try {
-      await apiClient.get(`/jobs/${id}/rank`);
-      await fetchJob(); // Re-fetch to get new scores
+      const res = await apiClient.get(`/jobs/${id}/rank`);
+      setHybridRanks(res.data.data.rankedCandidates);
+      await fetchJob(); // Re-fetch to get new scores or status updates
     } catch (err) {
       console.error(err);
     } finally {
@@ -70,8 +72,20 @@ export const JobDetailPage = () => {
   if (loading) return <div className="animate-fade-in text-gradient" style={{ fontSize: '20px' }}>Loading Job Details...</div>;
   if (!job) return <div>Job not found</div>;
 
-  // Sort applications by AI score descending
-  const sortedApps = [...job.applications].sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0));
+  // Determine displayed applications based on hybrid ranking or default AI score
+  let sortedApps = [...job.applications].sort((a, b) => (b.aiScore || 0) - (a.aiScore || 0));
+  
+  if (hybridRanks) {
+    sortedApps = hybridRanks.map(rankItem => {
+      const originalApp = job.applications.find(app => app.id === rankItem.applicationId);
+      if (!originalApp) return null;
+      return {
+        ...originalApp,
+        aiScore: rankItem.finalScore, // Overwrite displayed score with hybrid finalScore
+        aiReasoning: rankItem.aiReasoning || originalApp.aiReasoning
+      };
+    }).filter(Boolean) as Application[];
+  }
 
   return (
     <div className="animate-fade-in">
