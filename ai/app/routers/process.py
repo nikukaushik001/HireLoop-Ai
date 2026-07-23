@@ -17,8 +17,9 @@ async def process_resumes(
 ):
     """
     Receives one or more PDF files and an optional job description, 
-    runs them through the LangGraph AI pipeline concurrently with a semaphore throttle (max 3),
+    runs them through the LangGraph AI pipeline,
     and returns the structured candidate data, evaluation, and embeddings.
+    Note: Concurrency is managed by the Node.js BullMQ backend (1 at a time).
     """
     async def process_file(file: UploadFile) -> dict:
         if not file.filename.lower().endswith('.pdf'):
