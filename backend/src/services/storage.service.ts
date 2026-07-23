@@ -71,7 +71,7 @@ export class StorageService {
         // Extract key from URL
         const urlParts = filePathOrUrl.split('.amazonaws.com/');
         if (urlParts.length === 2) {
-          const key = urlParts[1];
+          const key = decodeURIComponent(urlParts[1]);
           const { GetObjectCommand } = require('@aws-sdk/client-s3');
           const command = new GetObjectCommand({
             Bucket: this.bucketName,
@@ -110,7 +110,7 @@ export class StorageService {
       if (this.s3Client) {
         const urlParts = filePathOrUrl.split('.amazonaws.com/');
         if (urlParts.length === 2) {
-          const key = urlParts[1];
+          const key = decodeURIComponent(urlParts[1]);
           const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
           const command = new DeleteObjectCommand({
             Bucket: this.bucketName,

@@ -18,7 +18,7 @@ def extract_text_node(state: ResumeState):
     try:
         text = extract_text_from_pdf(state["pdf_bytes"])
         if not text:
-            return {"status": "failed", "error": "No text could be extracted from PDF."}
+            return {"status": "failed", "error": "No text could be extracted from PDF. Ensure it is a standard text-based PDF, not a scanned image."}
         return {"raw_text": text, "status": "text_extracted"}
     except Exception as e:
         return {"status": "failed", "error": str(e)}
