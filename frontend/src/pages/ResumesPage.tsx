@@ -49,8 +49,8 @@ export const ResumesPage = () => {
   const handleUpload = async () => {
     if (!selectedJob || files.length === 0) return;
 
-    // Pre-validate total file size (limit to 8MB to prevent AWS API Gateway dropping it)
-    const MAX_TOTAL_MB = 8;
+    // Pre-validate total file size (limit to 100MB to match our new Nginx server configuration)
+    const MAX_TOTAL_MB = 100;
     const totalSizeMB = files.reduce((acc, file) => acc + file.size, 0) / (1024 * 1024);
     if (totalSizeMB > MAX_TOTAL_MB) {
       setError(`Your files total ${totalSizeMB.toFixed(1)}MB, which exceeds our ${MAX_TOTAL_MB}MB server limit. Please upload fewer PDFs at a time.`);
@@ -92,7 +92,7 @@ export const ResumesPage = () => {
       if (err?.message === 'Network Error') {
         errorMessage = 'Connection blocked. This usually happens if your total file size is too large for the server to accept, or your internet dropped. Please try uploading 1 or 2 files at a time.';
       } else if (err?.response?.status === 413) {
-        errorMessage = 'The files you uploaded are too large. Our server can only process up to 8MB at a time.';
+        errorMessage = 'The files you uploaded are too large. Our server can only process up to 100MB at a time.';
       } else if (err?.response?.data?.error?.message) {
         errorMessage = err.response.data.error.message;
       } else if (err?.response?.data?.message) {
@@ -403,7 +403,7 @@ export const ResumesPage = () => {
               <UploadCloud size={48} color="var(--accent-primary)" style={{ marginBottom: '16px' }} />
               <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>Drag & drop PDFs here</div>
               <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '8px' }}>or click to browse files</div>
-              <div style={{ fontSize: '11px', color: 'rgba(148,163,184,0.6)', marginTop: '8px', fontWeight: 500 }}>Max 500 files, up to 10MB each</div>
+              <div style={{ fontSize: '12px', color: 'rgba(148,163,184,0.9)', marginTop: '12px', fontWeight: 500 }}>Max 500 files (up to 100MB total)</div>
             </div>
 
             {files.length > 0 && (
