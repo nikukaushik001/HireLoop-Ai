@@ -9,6 +9,8 @@ interface AIProcessedCandidate {
   pipeline_result: {
     raw_text: string;
     parsed_data: {
+      is_valid_resume?: boolean;
+      reasoning?: string;
       name: string;
       email: string;
       phone: string;
@@ -111,6 +113,12 @@ export class ResumeService {
           filename: result.filename,
           status: 'failed',
           error: result.error || result.pipeline_result?.error || 'Unknown error',
+        });
+      } else if (result.pipeline_result.parsed_data && result.pipeline_result.parsed_data.is_valid_resume === false) {
+        savedCandidates.push({
+          filename: result.filename,
+          status: 'failed',
+          error: result.pipeline_result.parsed_data.reasoning || 'Document is not recognized as a valid resume',
         });
       } else {
         const parsed = result.pipeline_result.parsed_data;
