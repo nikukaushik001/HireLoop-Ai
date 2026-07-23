@@ -32,6 +32,10 @@ export const CandidatesPage = () => {
       }
     };
     fetchCandidates();
+
+    // Auto-refresh candidates every 3 seconds
+    const interval = setInterval(fetchCandidates, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   const filtered = candidates.filter(c => 
