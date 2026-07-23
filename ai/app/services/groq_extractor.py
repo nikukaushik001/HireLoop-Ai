@@ -9,18 +9,17 @@ from typing import List, Optional
 class CandidateData(BaseModel):
     is_valid_resume: bool = Field(
         description="""
-        Determine if the uploaded document is an actual Candidate Resume/CV.
+        Determine if the uploaded document is a GENUINE and COMPLETE Candidate Resume/CV.
         
-        CRITICAL RULES:
-        1. A valid resume is a personal career history document created by an individual applying for a job, typically containing contact info, chronological employment history, and education details.
+        CRITICAL RULES (YOU MUST RETURN FALSE IF ANY OF THESE ARE TRUE):
+        1. RETURN FALSE if the document is a college receipt, payment receipt, invoice, bill, or fee structure.
+        2. RETURN FALSE if the document is an admit card, hall ticket, ID card, or exam scheduling pass.
+        3. RETURN FALSE if the document is a "fake", "dummy", or "example" resume containing placeholder text (e.g., Lorem Ipsum, John Doe generic templates) without real, substantial career history.
+        4. RETURN FALSE if the document DOES NOT have clear, identifiable resume sections (e.g., Education, Skills, Work Experience, or Projects).
+        5. RETURN FALSE if the document is an exam prep sheet, syllabus, course guide, or study material.
         
-        2. RETURN FALSE IF:
-           - The document is a travel ticket (train, flight, bus), booking confirmation, receipt, invoice, or utility bill.
-           - The document is a list of interview questions, exam prep sheet, syllabus, assignment, or course tutorial, even if it lists a creator's name and experience at the top.
-           - The document is a general book chapter, research paper, documentation guide, or corporate report.
-           - The document is missing a chronological work history or personal profile.
-        
-        Return True ONLY if the document is a genuine resume/CV. If it is any other type of document, return False.
+        A REAL resume MUST contain a candidate's actual name, a list of actual hard/soft skills, and either real work experience OR real academic projects.
+        Return True ONLY if you are 100% confident it is a genuine, real-world resume or CV. When in doubt, RETURN FALSE.
         """
     )
     name: str = Field(description="The full name of the candidate")
@@ -60,10 +59,12 @@ You are an expert HR Recruiter and Applicant Tracking System (ATS) document clas
 Your task is to analyze the Candidate Resume Text and extract structured details only if the document is a genuine resume.
 
 STEP 1: Classify the Document
-Analyze the entire document. Determine its primary purpose and layout:
-- If the document contains lists of study questions, exam mock papers, train/flight ticket booking layouts, general articles, or homework tasks, classify it as a non-resume (is_valid_resume = false).
-- A teacher's study guide that says "Prepared by: Prof. John Doe, 10 years experience" is a study guide, not a resume. Classify it as is_valid_resume = false.
-- A resume must look like a personal application: it has contact info, past employers with dates, and a personal list of skills.
+Analyze the entire document. You are a strict gatekeeper. Determine its primary purpose:
+- If the document is a college receipt, admit card, hall ticket, payment invoice, ID card, or ticket, you MUST classify it as a non-resume (is_valid_resume = false).
+- If the document is a dummy template, fake example resume, or contains placeholder text like 'Lorem Ipsum', you MUST classify it as a non-resume (is_valid_resume = false).
+- If it is a study guide, syllabus, or list of questions, you MUST classify it as a non-resume (is_valid_resume = false).
+- A valid resume MUST have real contact info, and clear, identifiable sections for Skills, Education, and either Work Experience or Projects. If it is just a plain paragraph of text with no resume structure, set is_valid_resume = false.
+- If you are not 100% sure it is a real, completed candidate resume, set is_valid_resume = false.
 
 STEP 2: Parse Candidates
 If and only if `is_valid_resume` is True, extract the candidate details.
@@ -95,9 +96,9 @@ Formatting Instructions:
                 "raw_text": raw_text,
                 "job_description": job_description if job_description.strip() else "No job description provided."
             })
-            # Add strict 2-second sleep to guarantee we never exceed 30 RPM limit on free tier
+            # Add a 1-second sleep to prevent hitting Groq's 30 RPM free tier limit
             import time
-            time.sleep(2)
+            time.sleep(1)
             return result
         except Exception as e:
             error_str = str(e).lower()
