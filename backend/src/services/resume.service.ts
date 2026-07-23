@@ -70,6 +70,11 @@ export class ResumeService {
     for (const file of files) {
       if (!file.path.startsWith('http') && !fs.existsSync(file.path)) {
         console.warn(`File not found on disk: ${file.path}`);
+        savedCandidates.push({
+          filename: file.originalname,
+          status: 'failed',
+          error: 'File not found',
+        });
         processedCount++;
         await connection.set(`progress:${jobId}`, JSON.stringify({ processed: processedCount, total: totalFiles, status: 'processing' }), 'EX', 3600);
         continue;
@@ -82,6 +87,11 @@ export class ResumeService {
         fileBuffer = await this.storageService.downloadFile(file.path);
       } catch (err) {
         console.error(`Failed to download file from S3 or disk: ${file.path}`, err);
+        savedCandidates.push({
+          filename: file.originalname,
+          status: 'failed',
+          error: 'Failed to download file from storage',
+        });
         processedCount++;
         await connection.set(`progress:${jobId}`, JSON.stringify({ processed: processedCount, total: totalFiles, status: 'processing' }), 'EX', 3600);
         continue;
