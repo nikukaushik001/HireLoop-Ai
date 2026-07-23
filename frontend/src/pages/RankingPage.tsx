@@ -304,7 +304,7 @@ export const RankingPage: React.FC = () => {
   const [rankingData, setRankingData] = useState<RankingData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showTop10Only, setShowTop10Only] = useState(false);
+  const [showTopOnly, setShowTopOnly] = useState(false);
   const [emailSending, setEmailSending] = useState(false);
   const [emailSuccess, setEmailSuccess] = useState('');
 
@@ -338,9 +338,10 @@ export const RankingPage: React.FC = () => {
     setEmailSending(true);
     setEmailSuccess('');
     try {
-      // Shortlist candidates in top 10
-      const top10Candidates = rankingData.rankedCandidates.slice(0, 10);
-      const candidateIds = top10Candidates.map(c => c.candidate.id);
+      // Shortlist dynamically based on 20% rule (minimum 1)
+      const shortlistCount = Math.max(1, Math.ceil(rankingData.rankedCandidates.length * 0.2));
+      const topCandidates = rankingData.rankedCandidates.slice(0, shortlistCount);
+      const candidateIds = topCandidates.map(c => c.candidate.id);
 
       if (candidateIds.length === 0) {
         setError('No candidates available to notify.');
@@ -368,8 +369,10 @@ export const RankingPage: React.FC = () => {
     ? Math.round(rankingData.rankedCandidates.reduce((s, c) => s + c.finalScore, 0) / rankingData.rankedCandidates.length)
     : 0;
 
+  const shortlistCount = rankingData ? Math.max(1, Math.ceil(rankingData.rankedCandidates.length * 0.2)) : 0;
+
   const displayedCandidates = rankingData?.rankedCandidates
-    ? (showTop10Only ? rankingData.rankedCandidates.slice(0, 10) : rankingData.rankedCandidates)
+    ? (showTopOnly ? rankingData.rankedCandidates.slice(0, shortlistCount) : rankingData.rankedCandidates)
     : [];
 
   return (
@@ -475,15 +478,15 @@ export const RankingPage: React.FC = () => {
           {rankingData.rankedCandidates.length > 0 && (
             <div className="glass-card action-toolbar-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '16px 24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                {rankingData.rankedCandidates.length > 10 && (
+                {rankingData.rankedCandidates.length > shortlistCount && (
                   <>
                     <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Filters:</span>
                     <button
-                      className={`btn ${showTop10Only ? 'btn-primary' : 'btn-secondary'}`}
+                      className={`btn ${showTopOnly ? 'btn-primary' : 'btn-secondary'}`}
                       style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '8px', width: 'auto' }}
-                      onClick={() => setShowTop10Only(!showTop10Only)}
+                      onClick={() => setShowTopOnly(!showTopOnly)}
                     >
-                      {showTop10Only ? 'Show All Candidates' : 'Show Top 10 Only'}
+                      {showTopOnly ? 'Show All Candidates' : `Show Top ${shortlistCount} Only`}
                     </button>
                   </>
                 )}
@@ -508,7 +511,7 @@ export const RankingPage: React.FC = () => {
                   disabled={emailSending}
                   onClick={handleSendShortlistEmails}
                 >
-                  {emailSending ? <><Loader size={14} className="animate-spin" /> Notifying...</> : <><CheckCircle size={14} /> Send Shortlist Mail to {rankingData.rankedCandidates.length > 10 ? 'Top 10' : (rankingData.rankedCandidates.length === 1 ? 'Candidate' : `Top ${rankingData.rankedCandidates.length}`)}</>}
+                  {emailSending ? <><Loader size={14} className="animate-spin" /> Notifying...</> : <><CheckCircle size={14} /> Send Shortlist Mail to {shortlistCount === 1 ? 'Top Candidate' : `Top ${shortlistCount}`}</>}
                 </button>
               </div>
             </div>
