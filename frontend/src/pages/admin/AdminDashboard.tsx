@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ShieldAlert, Users, Database, FileText, Briefcase, Activity, AlertCircle, Server, Cpu, AlertTriangle, Terminal, Clock, CheckCircle, LogOut } from 'lucide-react';
+import { ShieldAlert, Users, Database, FileText, Briefcase, Activity, AlertCircle, Server, Cpu, AlertTriangle, Terminal, Clock, CheckCircle, LogOut, RefreshCw, Trash2, Layers } from 'lucide-react';
 import { apiClient } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
+
+interface QueueHealth {
+  waiting: number;
+  active: number;
+  completed: number;
+  failed: number;
+  delayed: number;
+}
 
 interface SystemStats {
   totalUsers: number;
@@ -25,18 +33,21 @@ export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<SystemStats | null>(null);
   const [users, setUsers] = useState<UserData[]>([]);
+  const [queueHealth, setQueueHealth] = useState<QueueHealth | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
-        const [statsRes, usersRes] = await Promise.all([
+        const [statsRes, usersRes, queueRes] = await Promise.all([
           apiClient.get('/admin/stats'),
-          apiClient.get('/admin/users')
+          apiClient.get('/admin/users'),
+          apiClient.get('/admin/queue/health')
         ]);
         setStats(statsRes.data.data);
         setUsers(usersRes.data.data);
+        setQueueHealth(queueRes.data.data);
       } catch (err: any) {
         setError(err?.response?.data?.error?.message || 'Failed to fetch admin data');
       } finally {
@@ -44,6 +55,14 @@ export const AdminDashboard: React.FC = () => {
       }
     };
     fetchAdminData();
+    // Poll queue health every 5 seconds
+    const interval = setInterval(async () => {
+      try {
+        const queueRes = await apiClient.get('/admin/queue/health');
+        setQueueHealth(queueRes.data.data);
+      } catch (e) {}
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {
@@ -93,6 +112,27 @@ export const AdminDashboard: React.FC = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleRetryJobs = async () => {
+    if (!window.confirm('Retry all failed resume parsing jobs?')) return;
+    try {
+      await apiClient.post('/admin/queue/retry');
+      alert('Retry triggered successfully');
+      // Polling will update UI
+    } catch (err) {
+      alert('Failed to retry jobs');
+    }
+  };
+
+  const handleCleanQueue = async () => {
+    if (!window.confirm('Clean out old completed and failed jobs?')) return;
+    try {
+      await apiClient.post('/admin/queue/clean');
+      alert('Queue cleaned successfully');
+    } catch (err) {
+      alert('Failed to clean queue');
+    }
   };
 
   return (
@@ -263,6 +303,49 @@ export const AdminDashboard: React.FC = () => {
       {/* NEW MILESTONE 5 SECTION: System Analytics & Telemetry */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '48px' }}>
         
+        {/* BullMQ Queue Health */}
+        <div className="glass-card" style={{ padding: '24px', borderRadius: '20px', background: 'rgba(15,23,42,0.4)', display: 'flex', flexDirection: 'column' }}>
+          <h3 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#e2e8f0' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}><Layers size={18} color="#f43f5e" /> Background Queue (BullMQ)</span>
+          </h3>
+          
+          {queueHealth ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
+                  <div style={{ fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Active</div>
+                  <div style={{ fontSize: '24px', fontWeight: 800, color: '#3b82f6' }}>{queueHealth.active}</div>
+                </div>
+                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
+                  <div style={{ fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Waiting</div>
+                  <div style={{ fontSize: '24px', fontWeight: 800, color: '#fbbf24' }}>{queueHealth.waiting}</div>
+                </div>
+                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
+                  <div style={{ fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Completed</div>
+                  <div style={{ fontSize: '24px', fontWeight: 800, color: '#34d399' }}>{queueHealth.completed}</div>
+                </div>
+                <div style={{ background: 'rgba(239,68,68,0.05)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(239,68,68,0.2)', textAlign: 'center' }}>
+                  <div style={{ fontSize: '12px', color: '#f87171', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Failed</div>
+                  <div style={{ fontSize: '24px', fontWeight: 800, color: '#ef4444' }}>{queueHealth.failed}</div>
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '12px', marginTop: 'auto' }}>
+                <button onClick={handleRetryJobs} disabled={queueHealth.failed === 0} style={{ flex: 1, padding: '10px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', cursor: queueHealth.failed === 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', opacity: queueHealth.failed === 0 ? 0.5 : 1 }}>
+                  <RefreshCw size={14} /> Retry Failed
+                </button>
+                <button onClick={handleCleanQueue} style={{ flex: 1, padding: '10px', fontSize: '13px', fontWeight: 600, borderRadius: '10px', background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <Trash2 size={14} /> Clean Queue
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, color: '#64748b', fontSize: '13px' }}>
+              Loading queue metrics...
+            </div>
+          )}
+        </div>
+
         {/* Latency & Performance Panel */}
         <div className="glass-card" style={{ padding: '24px', borderRadius: '20px', background: 'rgba(15,23,42,0.4)', display: 'flex', flexDirection: 'column' }}>
           <h3 style={{ margin: '0 0 20px 0', fontSize: '16px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '10px', color: '#e2e8f0' }}>
