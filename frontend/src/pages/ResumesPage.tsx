@@ -9,7 +9,7 @@ export const ResumesPage = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadResults, setUploadResults] = useState<{ processed: any[], failed: any[], queued?: boolean, jobId?: string }>({ processed: [], failed: [] });
-  const [progress, setProgress] = useState<{ processed: number, total: number, status: string } | null>(null);
+  const [progress, setProgress] = useState<{ processed: number, total: number, status: string, failedCount?: number, successCount?: number, failedFiles?: any[] } | null>(null);
   const [selectedJob, setSelectedJob] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -48,7 +48,7 @@ export const ResumesPage = () => {
 
   const handleUpload = async () => {
     if (!selectedJob || files.length === 0) return;
-    
+
     setUploading(true);
     setError(null);
     const formData = new FormData();
@@ -59,21 +59,21 @@ export const ResumesPage = () => {
       const res = await apiClient.post('/resumes/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      
+
       // Axios payload -> sendSuccess 'data' wrapper -> Controller 'data' wrapper -> result
       const payload = res.data?.data?.data || res.data?.data || {};
       const processed = payload.processed || [];
       const successful = processed.filter((p: any) => p.status === 'success');
       const failed = processed.filter((p: any) => p.status === 'failed');
-      
+
       setUploadResults({ processed: successful, failed, queued: payload.queued, jobId: payload.jobId });
       setProgress({ processed: 0, total: files.length, status: 'processing' });
-      
+
       if (payload.queued && payload.jobId) {
         localStorage.setItem('activeJobId', payload.jobId);
         window.dispatchEvent(new Event('jobIdUpdated'));
       }
-      
+
       setShowSuccess(true);
       setFiles([]);
     } catch (err: any) {
@@ -101,19 +101,19 @@ export const ResumesPage = () => {
           `}</style>
           <div className="glass-card" style={{ textAlign: 'center', padding: '64px', maxWidth: '600px', width: '100%', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <div style={{ 
-                width: '80px', height: '80px', 
-                background: 'rgba(59, 130, 246, 0.1)', 
+              <div style={{
+                width: '80px', height: '80px',
+                background: 'rgba(59, 130, 246, 0.1)',
                 borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                margin: '0 auto 24px auto', 
+                margin: '0 auto 24px auto',
                 border: '2px solid var(--accent-primary)',
                 animation: 'scaleInGlowBlue 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards'
               }}>
                 <CheckCircle size={40} color="var(--accent-primary)" />
               </div>
-              <h2 style={{ 
+              <h2 style={{
                 fontSize: '32px', marginBottom: '16px', fontWeight: 'bold',
-                background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)', 
+                background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
                 WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                 animation: 'slideUpFade 0.5s ease-out 0.2s both'
               }}>
@@ -129,16 +129,16 @@ export const ResumesPage = () => {
                     <span style={{ fontWeight: 'bold', color: 'var(--accent-primary)' }}>{progress.processed} / {progress.total}</span>
                   </div>
                   <div style={{ width: '100%', height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
-                    <div style={{ 
-                      height: '100%', 
-                      background: 'linear-gradient(90deg, #3b82f6, #60a5fa)', 
+                    <div style={{
+                      height: '100%',
+                      background: 'linear-gradient(90deg, #3b82f6, #60a5fa)',
                       width: `${progress.total > 0 ? (progress.processed / progress.total) * 100 : 0}%`,
                       transition: 'width 0.5s ease'
                     }} />
                   </div>
                   {progress.status === 'completed' && (
                     <div style={{ marginTop: '12px', fontSize: '14px', fontWeight: 'bold' }}>
-                      {progress.failedCount > 0 ? (
+                      {(progress.failedCount ?? 0) > 0 ? (
                         <>
                           <div style={{ color: 'var(--accent-rose)', marginBottom: '8px' }}>
                             Processing complete. {progress.failedCount} file{progress.failedCount !== 1 ? 's' : ''} failed validation or processing.
@@ -175,10 +175,10 @@ export const ResumesPage = () => {
         </div>
       );
     }
-    
+
     const successCount = uploadResults.processed.length;
     const failedCount = uploadResults.failed.length;
-    
+
     return (
       <div className="animate-fade-in" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
         <style>{`
@@ -194,33 +194,33 @@ export const ResumesPage = () => {
         `}</style>
         <div className="glass-card" style={{ textAlign: 'center', padding: '64px', maxWidth: '600px', width: '100%', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ 
-              width: '80px', height: '80px', 
-              background: successCount > 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
+            <div style={{
+              width: '80px', height: '80px',
+              background: successCount > 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
               borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 24px auto', 
+              margin: '0 auto 24px auto',
               border: `2px solid ${successCount > 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)'}`,
               animation: 'scaleInGlow 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards'
             }}>
               {successCount > 0 ? <CheckCircle size={40} color="var(--accent-emerald)" /> : <AlertCircle size={40} color="var(--accent-rose)" />}
             </div>
-            
-            <h2 style={{ 
+
+            <h2 style={{
               fontSize: '32px', marginBottom: '16px', fontWeight: 'bold',
-              background: successCount > 0 ? 'linear-gradient(135deg, #34d399 0%, #059669 100%)' : 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)', 
+              background: successCount > 0 ? 'linear-gradient(135deg, #34d399 0%, #059669 100%)' : 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
               animation: 'slideUpFade 0.5s ease-out 0.2s both'
             }}>
               {successCount > 0 ? 'Processing Complete!' : 'All Uploads Failed'}
             </h2>
-            
+
             <p style={{ color: 'var(--text-secondary)', fontSize: '16px', marginBottom: '24px', animation: 'slideUpFade 0.5s ease-out 0.3s both' }}>
               {successCount} resume{successCount !== 1 ? 's' : ''} successfully parsed and added to talent pool.
             </p>
 
             {failedCount > 0 && (
-              <div style={{ 
-                background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', 
+              <div style={{
+                background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)',
                 borderRadius: '12px', padding: '16px', marginBottom: '32px', textAlign: 'left',
                 animation: 'slideUpFade 0.5s ease-out 0.4s both'
               }}>
@@ -242,7 +242,7 @@ export const ResumesPage = () => {
                 </div>
               </div>
             )}
-            
+
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', animation: 'slideUpFade 0.5s ease-out 0.5s both' }}>
               <button className="btn" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }} onClick={() => setShowSuccess(false)}>
                 Upload More
@@ -259,7 +259,7 @@ export const ResumesPage = () => {
 
   if (error) {
     const isInvalidDoc = error.includes("valid resume") || error.includes("valid resume or CV");
-    
+
     return (
       <div className="animate-fade-in" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
         <style>{`
@@ -273,51 +273,51 @@ export const ResumesPage = () => {
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
           }
         `}</style>
-        <div className="glass-card" style={{ 
-          textAlign: 'center', padding: '56px', maxWidth: '540px', position: 'relative', 
+        <div className="glass-card" style={{
+          textAlign: 'center', padding: '56px', maxWidth: '540px', position: 'relative',
           overflow: 'hidden', border: '1px solid rgba(239, 68, 68, 0.3)',
           background: 'linear-gradient(135deg, rgba(15,23,42,0.8), rgba(239,68,68,0.05))'
         }}>
           <div style={{
             position: 'absolute', top: '-100px', left: '50%', transform: 'translateX(-50%)',
-            width: '200px', height: '200px', background: 'var(--accent-rose)', 
+            width: '200px', height: '200px', background: 'var(--accent-rose)',
             filter: 'blur(100px)', opacity: 0.15, zIndex: 0
           }}></div>
-          
+
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ 
-              width: '80px', height: '80px', background: 'rgba(239, 68, 68, 0.1)', 
+            <div style={{
+              width: '80px', height: '80px', background: 'rgba(239, 68, 68, 0.1)',
               borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto 24px auto', border: '2px solid var(--accent-rose)',
               animation: 'pulseRed 2s infinite'
             }}>
               <AlertCircle size={40} color="var(--accent-rose)" />
             </div>
-            
-            <h2 style={{ 
+
+            <h2 style={{
               fontSize: '28px', marginBottom: '16px', fontWeight: 'bold',
-              background: 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)', 
+              background: 'linear-gradient(135deg, #f87171 0%, #ef4444 100%)',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
               animation: 'slideUpFade 0.5s ease-out 0.1s both'
             }}>
               {isInvalidDoc ? 'Invalid Document Detected' : 'Upload Failed'}
             </h2>
-            
-            <div style={{ 
+
+            <div style={{
               background: 'rgba(0,0,0,0.3)', padding: '20px', borderRadius: '12px',
               border: '1px solid rgba(255,255,255,0.05)', marginBottom: '32px',
               animation: 'slideUpFade 0.5s ease-out 0.2s both', textAlign: 'left'
             }}>
               <p style={{ color: '#f1f5f9', fontSize: '15px', margin: '0 0 12px 0', lineHeight: '1.6' }}>
-                {isInvalidDoc 
-                  ? "The AI Analysis Engine rejected this file because it does not appear to be a valid resume or CV." 
+                {isInvalidDoc
+                  ? "The AI Analysis Engine rejected this file because it does not appear to be a valid resume or CV."
                   : "We encountered an error while processing your files."}
               </p>
               <div style={{ color: 'var(--accent-rose)', fontSize: '13px', fontFamily: 'monospace', padding: '12px', background: 'rgba(239,68,68,0.1)', borderRadius: '8px' }}>
                 Error Code: {error}
               </div>
             </div>
-            
+
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', animation: 'slideUpFade 0.5s ease-out 0.3s both' }}>
               <button className="btn" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))', border: '1px solid rgba(255,255,255,0.1)' }} onClick={() => setError(null)}>
                 Try Again with a valid PDF
@@ -337,7 +337,7 @@ export const ResumesPage = () => {
         <div style={{ width: '100%', maxWidth: '600px' }}>
           <div className="glass-card">
             <h3 style={{ marginBottom: '24px' }}>Upload Resumes (PDF)</h3>
-            
+
             <div className="input-group">
               <label>Select Target Job</label>
               <select className="input-field" value={selectedJob} onChange={e => setSelectedJob(e.target.value)}>
@@ -348,7 +348,7 @@ export const ResumesPage = () => {
               </select>
             </div>
 
-            <div 
+            <div
               style={{
                 border: '2px dashed var(--glass-border)',
                 borderRadius: '12px',
@@ -360,9 +360,9 @@ export const ResumesPage = () => {
                 position: 'relative'
               }}
             >
-              <input 
-                type="file" 
-                multiple 
+              <input
+                type="file"
+                multiple
                 accept=".pdf,application/pdf"
                 onChange={handleFileChange}
                 style={{
@@ -391,7 +391,7 @@ export const ResumesPage = () => {
                         <FileText size={14} color="var(--accent-emerald)" />
                         {file.name}
                       </div>
-                      <button 
+                      <button
                         onClick={() => setFiles(files.filter(f => f.name !== file.name))}
                         style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }}
                         title="Remove file"
@@ -404,8 +404,8 @@ export const ResumesPage = () => {
               </div>
             )}
 
-            <button 
-              className="btn btn-primary" 
+            <button
+              className="btn btn-primary"
               style={{ width: '100%' }}
               disabled={!selectedJob || files.length === 0 || uploading}
               onClick={handleUpload}
