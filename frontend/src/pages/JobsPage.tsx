@@ -159,7 +159,6 @@ export const JobsPage = () => {
                 value={description} 
                 onChange={e => setDescription(e.target.value)} 
               />
-              <small style={{ color: 'var(--text-muted)', fontSize: '12px', marginTop: '4px' }}>Only alphabets and spaces allowed.</small>
             </div>
             <div className="input-group">
               <label>Requirements</label>
