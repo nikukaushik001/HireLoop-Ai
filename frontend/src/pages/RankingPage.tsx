@@ -475,14 +475,18 @@ export const RankingPage: React.FC = () => {
           {rankingData.rankedCandidates.length > 0 && (
             <div className="glass-card action-toolbar-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '16px 24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Filters:</span>
-                <button
-                  className={`btn ${showTop10Only ? 'btn-primary' : 'btn-secondary'}`}
-                  style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '8px', width: 'auto' }}
-                  onClick={() => setShowTop10Only(!showTop10Only)}
-                >
-                  {showTop10Only ? 'Show All Candidates' : 'Show Top 10 Only'}
-                </button>
+                {rankingData.rankedCandidates.length > 10 && (
+                  <>
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)' }}>Filters:</span>
+                    <button
+                      className={`btn ${showTop10Only ? 'btn-primary' : 'btn-secondary'}`}
+                      style={{ padding: '6px 14px', fontSize: '12px', borderRadius: '8px', width: 'auto' }}
+                      onClick={() => setShowTop10Only(!showTop10Only)}
+                    >
+                      {showTop10Only ? 'Show All Candidates' : 'Show Top 10 Only'}
+                    </button>
+                  </>
+                )}
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -504,7 +508,7 @@ export const RankingPage: React.FC = () => {
                   disabled={emailSending}
                   onClick={handleSendShortlistEmails}
                 >
-                  {emailSending ? <><Loader size={14} className="animate-spin" /> Notifying...</> : <><CheckCircle size={14} /> Send Shortlist Mail to Top 10</>}
+                  {emailSending ? <><Loader size={14} className="animate-spin" /> Notifying...</> : <><CheckCircle size={14} /> Send Shortlist Mail to {rankingData.rankedCandidates.length > 10 ? 'Top 10' : (rankingData.rankedCandidates.length === 1 ? 'Candidate' : `Top ${rankingData.rankedCandidates.length}`)}</>}
                 </button>
               </div>
             </div>
