@@ -113,6 +113,19 @@ export class JobService {
   }
 
   async updateJob(id: string, data: Partial<CreateJobDTO>) {
+    if (data.title) {
+      const alphaRegex = /^[A-Za-z\s]+$/;
+      if (!alphaRegex.test(data.title.trim())) {
+        throw new BadRequestError('Job title must only contain alphabetical characters and spaces.');
+      }
+    }
+    if (data.department) {
+      const alphaRegex = /^[A-Za-z\s]+$/;
+      if (!alphaRegex.test(data.department.trim())) {
+        throw new BadRequestError('Department must only contain alphabetical characters and spaces.');
+      }
+    }
+
     const job = await prisma.job.findUnique({ where: { id } });
     if (!job) {
       throw new NotFoundError('Job');

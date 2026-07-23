@@ -128,11 +128,24 @@ export const JobsPage = () => {
             <div style={{ display: 'flex', gap: '16px' }}>
               <div className="input-group" style={{ flex: 1 }}>
                 <label>Job Title</label>
-                <input required className="input-field" value={title} onChange={e => setTitle(e.target.value)} />
+                <input 
+                  required 
+                  pattern="^[A-Za-z\s]+$" 
+                  title="Only alphabetical characters and spaces allowed"
+                  className="input-field" 
+                  value={title} 
+                  onChange={e => setTitle(e.target.value)} 
+                />
               </div>
               <div className="input-group" style={{ flex: 1 }}>
                 <label>Department</label>
-                <input className="input-field" value={department} onChange={e => setDepartment(e.target.value)} />
+                <input 
+                  pattern="^[A-Za-z\s]*$"
+                  title="Only alphabetical characters and spaces allowed"
+                  className="input-field" 
+                  value={department} 
+                  onChange={e => setDepartment(e.target.value)} 
+                />
               </div>
             </div>
             <div className="input-group">
@@ -145,7 +158,17 @@ export const JobsPage = () => {
             </div>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
               <button type="button" className="btn btn-secondary" onClick={resetForm}>Cancel</button>
-              <button type="submit" className="btn btn-primary">{editingJobId ? 'Update Job' : 'Save Job'}</button>
+              <button 
+                type="submit" 
+                className="btn btn-primary"
+                disabled={!title.trim() || !description.trim()}
+                style={{ 
+                  opacity: (!title.trim() || !description.trim()) ? 0.5 : 1, 
+                  cursor: (!title.trim() || !description.trim()) ? 'not-allowed' : 'pointer' 
+                }}
+              >
+                {editingJobId ? 'Update Job' : 'Save Job'}
+              </button>
             </div>
           </form>
         </div>
