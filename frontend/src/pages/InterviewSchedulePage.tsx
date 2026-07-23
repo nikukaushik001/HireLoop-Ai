@@ -16,11 +16,13 @@ export const InterviewSchedulePage = () => {
   const [meetingLink, setMeetingLink] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!jobId || !appId) return;
+    if (!jobId || !appId || isSubmitting) return;
     setError(null);
+    setIsSubmitting(true);
 
     try {
       const scheduledAt = new Date(`${date}T${time}`).toISOString();
@@ -34,6 +36,8 @@ export const InterviewSchedulePage = () => {
     } catch (err: any) {
       console.error(err);
       setError(err?.response?.data?.error?.message || 'Failed to schedule interview');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -114,8 +118,10 @@ export const InterviewSchedulePage = () => {
           </div>
 
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '24px' }}>
-            <button type="button" className="btn btn-secondary" onClick={() => navigate(-1)}>Cancel</button>
-            <button type="submit" className="btn btn-primary">Schedule & Notify Candidate</button>
+            <button type="button" className="btn btn-secondary" onClick={() => navigate(-1)} disabled={isSubmitting}>Cancel</button>
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? 'Scheduling...' : 'Schedule & Notify Candidate'}
+            </button>
           </div>
         </form>
       </div>
