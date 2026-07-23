@@ -27,8 +27,8 @@ app.use(helmet());
 const allowedOrigins = env.CORS_ORIGIN.split(',').map((o: string) => o.trim());
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow if no origin (e.g. curl), or if it's in the allowed list, or if it's a vercel domain or localhost
-    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('vercel.app') || origin.startsWith('http://localhost')) {
+    // Allow if no origin (e.g. curl), or if it's in the allowed list, or if it's a vercel domain or localhost or custom domain
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('vercel.app') || origin.startsWith('http://localhost') || origin.endsWith('hireloopai.me')) {
       callback(null, true);
     } else {
       console.error(`CORS Blocked: Origin '${origin}' is not allowed.`);
