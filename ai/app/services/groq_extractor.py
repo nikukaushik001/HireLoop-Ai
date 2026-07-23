@@ -18,6 +18,8 @@ class CandidateData(BaseModel):
         4. RETURN FALSE if the document DOES NOT have clear, identifiable resume sections (e.g., Education, Skills, Work Experience, or Projects).
         5. RETURN FALSE if the document is an exam prep sheet, syllabus, course guide, or study material.
         
+        FRESHER RULE: Freshers or recent graduates may not have work experience. A resume with Education, Skills, and Projects (but no work experience) is 100% VALID. Do NOT reject it.
+        
         A REAL resume MUST contain a candidate's actual name, a list of actual hard/soft skills, and either real work experience OR real academic projects.
         Return True ONLY if you are 100% confident it is a genuine, real-world resume or CV. When in doubt, RETURN FALSE.
         """
@@ -64,6 +66,7 @@ Analyze the entire document. You are a strict gatekeeper. Determine its primary 
 - If the document is a dummy template, fake example resume, or contains placeholder text like 'Lorem Ipsum', you MUST classify it as a non-resume (is_valid_resume = false).
 - If it is a study guide, syllabus, or list of questions, you MUST classify it as a non-resume (is_valid_resume = false).
 - A valid resume MUST have real contact info, and clear, identifiable sections for Skills, Education, and either Work Experience or Projects. If it is just a plain paragraph of text with no resume structure, set is_valid_resume = false.
+- FRESHER EXCEPTION: A fresher/student resume without work experience is 100% VALID as long as it has Education, Skills, and Academic Projects.
 - If you are not 100% sure it is a real, completed candidate resume, set is_valid_resume = false.
 
 STEP 2: Parse Candidates
